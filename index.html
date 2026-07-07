@@ -464,6 +464,17 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .answer-box[contenteditable]{cursor:text;}
 .q-tf{display:flex;gap:18px;margin:8px 0 0 36px;font-size:calc(13px * var(--qscale,1));}
 .q-blank{margin:8px 0 0 36px;border-bottom:1px dotted #888;min-height:24px;}
+/* ڕیزبەندی — numbered sequence: each number followed by a dotted line to write on */
+.ridbendi-list{display:flex;gap:16px 22px;margin:10px 0 0 36px;font-size:calc(13.5px * var(--qscale,1));}
+.ridbendi-list.ridbendi-col{flex-direction:column;}
+.ridbendi-list.ridbendi-row{flex-direction:row;flex-wrap:wrap;}
+.ridbendi-item{display:flex;align-items:center;gap:8px;}
+.ridbendi-list.ridbendi-row .ridbendi-item{min-width:120px;}
+.ridbendi-num{
+  flex:none;width:24px;height:24px;border-radius:50%;background:var(--subject-color,var(--navy));
+  color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;
+}
+.ridbendi-dots{flex:1;min-width:60px;border-bottom:1px dotted #888;min-height:22px;cursor:text;}
 .q-essay-lines{margin:10px 0 0 36px;}
 .q-essay-lines div{border-bottom:1px dotted #b8b2a0;height:24px;}
 .q-table{margin:10px 0 0 36px;border-collapse:collapse;width:calc(100% - 36px);font-size:calc(13px * var(--qscale,1));}
@@ -528,6 +539,48 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .shape-inner{width:100%;height:100%;}
 
 .divider-line{border:none;border-top:2px dashed var(--line);margin:18px 0;}
+
+/* ---- inserted-image style variants: circle / simple square / frame ---- */
+.img-style-circle img{border-radius:50% !important;object-fit:cover;}
+.img-style-square img{border-radius:0 !important;object-fit:cover;border:none !important;box-shadow:none !important;}
+.frame-wrap{width:100%;height:100%;display:flex;flex-direction:column;padding:8px;border:2px solid var(--frame-border,#c8c2ac);
+  background:var(--frame-bg,#ffffff);border-radius:6px;box-sizing:border-box;}
+.frame-wrap img{width:100%;flex:1 1 auto;min-height:0;object-fit:cover;border:none !important;box-shadow:none !important;}
+.frame-wrap .frame-caption{margin-top:6px;font-size:12px;text-align:center;color:var(--frame-text,#1b1f2a);outline:none;cursor:text;flex:none;}
+.frame-controls{position:absolute;top:-12px;inset-inline-end:16px;display:none;gap:3px;z-index:7;}
+.draggable-item:hover .frame-controls{display:flex;}
+.frame-controls input[type=color]{width:17px;height:17px;padding:0;border:1px solid #fff;border-radius:4px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+.exporting .frame-controls{display:none !important;}
+
+/* ---- Google-search button on each question ---- */
+.q-google-btn{
+  position:absolute;bottom:-11px;inset-inline-end:-11px;width:22px;height:22px;border-radius:50%;
+  background:var(--teal);color:#fff;border:2px solid #fff;font-size:11px;cursor:pointer;
+  display:none;align-items:center;justify-content:center;z-index:8;box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.block-removable:hover .q-google-btn{display:flex;}
+.exporting .q-google-btn{display:none !important;}
+
+/* ---- cross-page drag-to-reorder placeholder ---- */
+.block-drop-placeholder{height:40px;border:2px dashed var(--gold);border-radius:8px;margin:8px 0;background:rgba(182,134,44,.08);}
+
+/* ---- bullet lists: number / symbol / image markers, add as many as needed ---- */
+.bullet-list{margin:6px 0;}
+.bullet-item{display:flex;align-items:flex-start;gap:8px;margin:6px 0;}
+.bullet-marker{flex:none;display:flex;align-items:center;justify-content:center;min-width:22px;height:22px;font-weight:800;}
+.bullet-num{background:var(--subject-color,var(--navy));color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;}
+.bullet-symbol{font-size:16px;color:var(--subject-color,var(--navy));cursor:text;outline:none;}
+.bullet-img-marker img{width:22px;height:22px;object-fit:cover;border-radius:4px;cursor:pointer;}
+.bullet-img-pick{width:22px;height:22px;border:1.5px dashed #999;border-radius:4px;background:transparent;color:#9aa0b4;cursor:pointer;font-size:12px;}
+.bullet-text{flex:1;outline:none;cursor:text;line-height:1.7;}
+.bullet-add,.bullet-del{
+  flex:none;width:20px;height:20px;border-radius:50%;border:none;cursor:pointer;font-size:11px;
+  display:none;align-items:center;justify-content:center;color:#fff;
+}
+.bullet-add{background:var(--ok);}
+.bullet-del{background:var(--danger);}
+.bullet-item:hover .bullet-add,.bullet-item:hover .bullet-del{display:flex;}
+.exporting .bullet-add,.exporting .bullet-del,.exporting .bullet-img-pick{display:none !important;}
 
 .eq-inline{display:inline-block;margin:0 3px;}
 
@@ -779,6 +832,17 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
         <button class="tb-btn" data-add="divider"><span class="ic">⋯</span><span data-i18n="addDivider">دابڕێژەر</span></button>
         <button class="tb-btn" id="addImageBtn"><span class="ic">🖼</span><span data-i18n="addImage">زیادکردنی وێنە</span></button>
       </div>
+      <span class="tb-label" data-i18n="imgShapeLbl">شێوازی وێنە</span>
+      <select class="tb-select" id="imageShapeMode">
+        <option value="plain" data-i18n="imgShapePlain">ئاسایی (بێ شێواز)</option>
+        <option value="circle" data-i18n="imgShapeCircle">بازنەیی (Circle)</option>
+        <option value="square" data-i18n="imgShapeSquare">چوارگۆشەی سادە (Square)</option>
+        <option value="frame" data-i18n="imgShapeFrame">چوارچێوە/خشتە (Frame)</option>
+      </select>
+      <div class="tb-row" id="frameColorRow" style="display:none;">
+        <input type="color" class="tb-color" id="frameBgColor" value="#ffffff" title="ڕەنگی باکگراوندی چوارچێوە">
+        <input type="color" class="tb-color" id="frameTextColor" value="#1b1f2a" title="ڕەنگی نووسینی چوارچێوە">
+      </div>
       <div class="tb-row">
         <button class="tb-btn" data-add="cutsection"><span class="ic">✂</span><span data-i18n="addCutSection">کەرتی نهێنی (بڕین)</span></button>
         <button class="tb-btn" id="addFreeLogoBtn"><span class="ic">⊙</span><span data-i18n="addFreeLogo">زیادکردنی لۆگۆ</span></button>
@@ -787,8 +851,22 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
         <button class="tb-btn" data-add="math"><span class="ic">∑</span><span data-i18n="addMath">پرسیاری بیرکاری</span></button>
         <button class="tb-btn" data-add="free"><span class="ic">🖊</span><span data-i18n="addFree">کەرتی ئازاد</span></button>
       </div>
+      <div class="tb-row">
+        <button class="tb-btn" data-add="bulletlist"><span class="ic">•</span><span data-i18n="addBulletList">زیادکردنی خاڵبەندی</span></button>
+        <button class="tb-btn" id="renumberBtn" title="گەڕاندنەوەی هەموو ژمارەکان بۆ ڕیزبەندی خۆکار" data-i18n-title="renumberTitle"><span class="ic">#</span><span data-i18n="renumberBtn">ژمارەکردنەوەی خۆکاری</span></button>
+      </div>
+      <div class="tb-row">
+        <button class="tb-btn" data-add="ridbendi"><span class="ic">1.2.3</span><span data-i18n="addRidbendi">زیادکردنی ڕیزبەندی</span></button>
+      </div>
+      <span class="tb-label" data-i18n="bulletStyleLbl">شێوازی خاڵبەندی</span>
+      <select class="tb-select" id="bulletStyleMode">
+        <option value="number" data-i18n="bulletStyleNumber">بەژمارە</option>
+        <option value="symbol" data-i18n="bulletStyleSymbol">بەهێما</option>
+        <option value="image" data-i18n="bulletStyleImage">بەوێنە</option>
+      </select>
       <input type="file" id="imageInput" accept="image/*" multiple style="display:none">
       <input type="file" id="freeLogoInput" accept="image/*" style="display:none">
+      <input type="file" id="bulletImgInput" accept="image/*" style="display:none">
     </div>
 
     <div class="tb-section">
@@ -966,7 +1044,13 @@ ku:{
  allQSizeLbl:"گەورەیی دەقی هەموو پرسیارەکان (بەیەک کلیک)", qSizeS:"بچووک", qSizeM:"ناوەند", qSizeL:"گەورە", qSizeXl:"زۆر گەورە",
  addMath:"پرسیاری بیرکاری", addFree:"کەرتی ئازاد", writeMathQuestion:"پرسیارە بیرکارییەکە لێرە بنووسە...",
  textAlign:"ئاراستەی نووسین", bgSizeLbl:"شێوازی قیاسی وێنە", bgCover:"پڕکردنەوە (Cover)", bgContain:"بینینی تەواو (Contain)", bgStretch:"ڕاکێشان (Stretch)", bgScaleLbl:"گەورەکردن/بچووککردنەوە",
- aboutTitle:"دەربارەی ئەپڵیکەیشن", aboutText:"ئەم ئەپڵیکەیشنە لەلایەن Bako Xafur دروستکراوە، دەرچووی بەشی زانستی کۆمپیوتەر و گەشەپێدەری بواری موبایل ئەپڵیکەیشن و وێب پڕۆگرامینگ شارەزای پڕۆگرامینگ.", aboutClose:"باشە"
+ aboutTitle:"دەربارەی ئەپڵیکەیشن", aboutText:"ئەم ئەپڵیکەیشنە لەلایەن Bako Xafur دروستکراوە، دەرچووی بەشی زانستی کۆمپیوتەر و گەشەپێدەری بواری موبایل ئەپڵیکەیشن و وێب پڕۆگرامینگ شارەزای پڕۆگرامینگ.", aboutClose:"باشە",
+ imgShapeLbl:"شێوازی وێنە", imgShapePlain:"ئاسایی (بێ شێواز)", imgShapeCircle:"بازنەیی (Circle)", imgShapeSquare:"چوارگۆشەی سادە (Square)", imgShapeFrame:"چوارچێوە/خشتە (Frame)",
+ frameBgColorLbl:"ڕەنگی باکگراوندی چوارچێوە", frameTextColorLbl:"ڕەنگی نووسینی چوارچێوە", frameCaption:"وەسفی وێنە...",
+ addBulletList:"زیادکردنی خاڵبەندی", bulletStyleLbl:"شێوازی خاڵبەندی", bulletStyleNumber:"بەژمارە", bulletStyleSymbol:"بەهێما", bulletStyleImage:"بەوێنە",
+ bulletPlaceholder:"خاڵێکی نوێ بنووسە...", addBulletItemTitle:"زیادکردنی خاڵی نوێ", delBulletItemTitle:"سڕینەوەی ئەم خاڵە", pickBulletImgTitle:"هەڵبژاردنی وێنەی خاڵبەند",
+ googleSearchTitle:"گەڕان بەم پرسیارە لە گووگڵ", renumberBtn:"ژمارەکردنەوەی خۆکاری پرسیارەکان", renumberTitle:"گەڕاندنەوەی هەموو ژمارەکان بۆ ڕیزبەندی خۆکار",
+ addRidbendi:"زیادکردنی ڕیزبەندی", ridbendiCountPrompt:"چەند ژمارە دەتەوێت؟", ridbendiLayoutPrompt:"ئایا بە ستوونی (یەک لەژێر یەکەوە) ڕیز بکرێت؟\nباشە (OK) = ستوونی\nپاشگەزبوونەوە (Cancel) = ئاسۆیی (پاڵ بەپاڵ)"
 },
 ar:{
  title:"منشئ الامتحانات", subtitle:"أنشئ ورقة امتحان احترافية وحمّلها بصيغة PDF",
@@ -997,6 +1081,12 @@ ar:{
  examTitle:"امتحان نهاية الفصل", q:"س", optA:"الخيار الأول", optB:"الخيار الثاني", optC:"الخيار الثالث", optD:"الخيار الرابع",
  trueLbl:"صح", falseLbl:"خطأ", writeQuestion:"اكتب نص السؤال هنا...", sectionLbl:"عنوان القسم", score:"الدرجة",
  colOne:"العمود الأول...", colTwo:"العمود الثاني...",
+ imgShapeLbl:"نمط الصورة", imgShapePlain:"عادي (بدون نمط)", imgShapeCircle:"دائري (Circle)", imgShapeSquare:"مربع بسيط (Square)", imgShapeFrame:"إطار/جدول (Frame)",
+ frameBgColorLbl:"لون خلفية الإطار", frameTextColorLbl:"لون نص الإطار", frameCaption:"وصف الصورة...",
+ addBulletList:"إضافة قائمة نقطية", bulletStyleLbl:"نمط النقاط", bulletStyleNumber:"بالأرقام", bulletStyleSymbol:"برمز", bulletStyleImage:"بصورة",
+ bulletPlaceholder:"اكتب نقطة جديدة...", addBulletItemTitle:"إضافة نقطة جديدة", delBulletItemTitle:"حذف هذه النقطة", pickBulletImgTitle:"اختر صورة رمز النقطة",
+ googleSearchTitle:"ابحث عن هذا السؤال في غوغل", renumberBtn:"إعادة ترقيم الأسئلة تلقائياً", renumberTitle:"إعادة كل الأرقام إلى الترتيب التلقائي",
+ addRidbendi:"إضافة ترقيم متسلسل", ridbendiCountPrompt:"كم رقماً تريد؟", ridbendiLayoutPrompt:"هل تريد ترتيبها عمودياً (فوق بعضها)؟\nموافق (OK) = عمودي\nإلغاء (Cancel) = أفقي (جنباً إلى جنب)",
  removeBlock:"حذف هذا الجزء", headerDeleteTitle:"حذف الترويسة", headerRestoreTitle:"استعادة الترويسة", termLbl:"الفصل الأول",
  tableRowsPrompt:"كم عدد الصفوف؟", tableColsPrompt:"كم عدد الأعمدة؟",
  mcqColsLbl:"عدد الخيارات في كل صف", addFraction:"قسم كسر", addExponent:"رقم أُس",
@@ -1036,6 +1126,12 @@ en:{
  examTitle:"End of term exam", q:"Q", optA:"Option A", optB:"Option B", optC:"Option C", optD:"Option D",
  trueLbl:"True", falseLbl:"False", writeQuestion:"Write the question text here...", sectionLbl:"Section title", score:"Score",
  colOne:"Column one...", colTwo:"Column two...",
+ imgShapeLbl:"Image style", imgShapePlain:"Plain (no style)", imgShapeCircle:"Circle", imgShapeSquare:"Simple square", imgShapeFrame:"Frame",
+ frameBgColorLbl:"Frame background color", frameTextColorLbl:"Frame text color", frameCaption:"Image caption...",
+ addBulletList:"Add bullet list", bulletStyleLbl:"Bullet style", bulletStyleNumber:"Number", bulletStyleSymbol:"Symbol", bulletStyleImage:"Image",
+ bulletPlaceholder:"Write a new bullet point...", addBulletItemTitle:"Add another bullet", delBulletItemTitle:"Delete this bullet", pickBulletImgTitle:"Choose bullet icon image",
+ googleSearchTitle:"Search this question on Google", renumberBtn:"Auto-renumber questions", renumberTitle:"Reset all question numbers to automatic order",
+ addRidbendi:"Add numbered sequence", ridbendiCountPrompt:"How many numbers do you want?", ridbendiLayoutPrompt:"Arrange them in a column (stacked)?\nOK = Column\nCancel = Row (side by side)",
  removeBlock:"Remove this block", headerDeleteTitle:"Delete header", headerRestoreTitle:"Restore header", termLbl:"First Term",
  tableRowsPrompt:"How many rows?", tableColsPrompt:"How many columns?",
  mcqColsLbl:"Choices per row", addFraction:"Fraction block", addExponent:"Exponent number",
@@ -1637,9 +1733,10 @@ function addBlock(type){
     const cols = document.getElementById('mcqColumns').value || 4;
     html = `<div class="q-block" style="--subject-color:${subjectColorVar()}">
       <div class="q-head">
-        <div class="q-number">${qCounter}</div>
+        <div class="q-number" contenteditable="true">${qCounter}</div>
         <div class="q-text" contenteditable="true">${d.writeQuestion}</div>
         <div class="q-score" contenteditable="true">${lastScoreValue} ${d.score}</div>
+        <button type="button" class="q-google-btn ui-only" title="گەڕان بەم پرسیارە لە گووگڵ">🔍</button>
       </div>
       <div class="q-options" style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:10px 20px;">
         <div class="opt"><span class="opt-letter" contenteditable="false">Ⓐ</span><span class="opt-text" contenteditable="true">${d.optA}</span></div>
@@ -1659,9 +1756,10 @@ function addBlock(type){
     qCounter++;
     html = `<div class="q-block" style="--subject-color:${subjectColorVar()}">
       <div class="q-head">
-        <div class="q-number">${qCounter}</div>
+        <div class="q-number" contenteditable="true">${qCounter}</div>
         <div class="q-text" contenteditable="true">${d.writeQuestion}</div>
         <div class="q-score" contenteditable="true">${lastScoreValue} ${d.score}</div>
+        <button type="button" class="q-google-btn ui-only" title="گەڕان بەم پرسیارە لە گووگڵ">🔍</button>
       </div>
       <div class="q-tf" contenteditable="true">
         <span>( &nbsp; ) ${d.trueLbl}</span><span>( &nbsp; ) ${d.falseLbl}</span>
@@ -1671,9 +1769,10 @@ function addBlock(type){
     qCounter++;
     html = `<div class="q-block" style="--subject-color:${subjectColorVar()}">
       <div class="q-head">
-        <div class="q-number">${qCounter}</div>
+        <div class="q-number" contenteditable="true">${qCounter}</div>
         <div class="q-text" contenteditable="true">${d.writeQuestion}</div>
         <div class="q-score" contenteditable="true">${lastScoreValue} ${d.score}</div>
+        <button type="button" class="q-google-btn ui-only" title="گەڕان بەم پرسیارە لە گووگڵ">🔍</button>
       </div>
       <div class="q-blank" contenteditable="true">&nbsp;</div>
     </div>`;
@@ -1681,9 +1780,10 @@ function addBlock(type){
     qCounter++;
     html = `<div class="q-block" style="--subject-color:${subjectColorVar()}">
       <div class="q-head">
-        <div class="q-number">${qCounter}</div>
+        <div class="q-number" contenteditable="true">${qCounter}</div>
         <div class="q-text" contenteditable="true">${d.writeQuestion}</div>
         <div class="q-score" contenteditable="true">${lastScoreValue} ${d.score}</div>
+        <button type="button" class="q-google-btn ui-only" title="گەڕان بەم پرسیارە لە گووگڵ">🔍</button>
       </div>
       <div class="q-essay-lines"><div></div><div></div><div></div></div>
     </div>`;
@@ -1691,9 +1791,10 @@ function addBlock(type){
     qCounter++;
     html = `<div class="q-block" style="--subject-color:${subjectColorVar()}">
       <div class="q-head">
-        <div class="q-number">${qCounter}</div>
+        <div class="q-number" contenteditable="true">${qCounter}</div>
         <div class="q-text" contenteditable="true">${d.writeQuestion}</div>
         <div class="q-score" contenteditable="true">${lastScoreValue} ${d.score}</div>
+        <button type="button" class="q-google-btn ui-only" title="گەڕان بەم پرسیارە لە گووگڵ">🔍</button>
       </div>
       <table class="q-table" contenteditable="true">
         <tr><th>1</th><th>2</th><th>3</th></tr>
@@ -1711,18 +1812,22 @@ function addBlock(type){
     qCounter++;
     html = `<div class="q-block" style="--subject-color:${subjectColorVar()}">
       <div class="q-head">
-        <div class="q-number">${qCounter}</div>
+        <div class="q-number" contenteditable="true">${qCounter}</div>
         <div class="q-text" contenteditable="true">${d.writeMathQuestion}</div>
         <div class="q-score" contenteditable="true">${lastScoreValue} ${d.score}</div>
+        <button type="button" class="q-google-btn ui-only" title="گەڕان بەم پرسیارە لە گووگڵ">🔍</button>
       </div>
       <div class="q-math-area" contenteditable="true">&nbsp;</div>
     </div>`;
   } else if(type==='free'){
     html = `<div class="free-section" contenteditable="true">&nbsp;</div>`;
+  } else if(type==='bulletlist'){
+    html = `<div class="bullet-list"></div>`;
   }
   const tmp = document.createElement('div');
   tmp.innerHTML = html;
   const node = tmp.firstElementChild;
+  if(type==='bulletlist'){ initBulletList(node); }
   const holder = document.createElement('div');
   holder.className = 'block-removable';
   holder.appendChild(node);
@@ -1762,50 +1867,77 @@ function addBlock(type){
 }
 
 /* ============================================================
-   FREE DRAG FOR CONTENT BLOCKS
-   Pick up any question/section/box by its ⠿ handle and move it
-   anywhere you like on the page — the same free-positioning behaviour
-   as the header's ✛ handle. The block keeps its place in the document
-   order (so numbering and auto-pagination stay correct); only its
-   visual position shifts. Double-click the handle to reset it back.
+   DRAG TO REORDER CONTENT BLOCKS — WITHIN A PAGE OR BETWEEN PAGES
+   Pick up any question/section/box by its ⠿ handle and drop it at a new
+   spot — including on a completely different page. A dashed placeholder
+   shows exactly where it will land; releasing the pointer actually moves
+   the block in the document (so it's a real swap/reorder, not just a
+   visual shift), and question numbering + pagination update automatically.
 ============================================================ */
 function initBlockDrag(holder, handle){
-  let dragging=false, sx=0, sy=0, ox=0, oy=0;
-  function getOffset(){
-    const m = (holder.style.transform||'').match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/);
-    return m ? {x:parseFloat(m[1]), y:parseFloat(m[2])} : {x:0,y:0};
+  let dragging = false;
+  let placeholder = null;
+
+  function allCanvases(){ return [...document.querySelectorAll('#pagesContainer .page-body')]; }
+
+  function findDropSpot(x, y){
+    const canvases = allCanvases();
+    let bestCanvas = null, bestDist = Infinity;
+    canvases.forEach(c=>{
+      const r = c.getBoundingClientRect();
+      const withinX = x >= r.left - 60 && x <= r.right + 60;
+      const dist = withinX ? Math.max(0, Math.max(r.top - y, y - r.bottom)) : Math.abs((r.top+r.bottom)/2 - y) + 100000;
+      if(dist < bestDist){ bestDist = dist; bestCanvas = c; }
+    });
+    if(!bestCanvas) return null;
+    const siblings = [...bestCanvas.children].filter(el=> el !== holder && el !== placeholder && el.classList.contains('block-removable'));
+    let before = null;
+    for(const sib of siblings){
+      const r = sib.getBoundingClientRect();
+      if(y < r.top + r.height/2){ before = sib; break; }
+    }
+    return { canvas: bestCanvas, before };
   }
+
   handle.addEventListener('pointerdown', e=>{
     e.preventDefault(); e.stopPropagation();
     dragging = true;
-    sx = e.clientX; sy = e.clientY;
-    const off = getOffset();
-    ox = off.x; oy = off.y;
     holder.classList.add('dragging');
-    holder.style.position = 'relative';
-    holder.style.zIndex = 6;
+    placeholder = document.createElement('div');
+    placeholder.className = 'block-drop-placeholder';
     handle.setPointerCapture(e.pointerId);
   });
+
   handle.addEventListener('pointermove', e=>{
     if(!dragging) return;
-    const dx = e.clientX - sx, dy = e.clientY - sy;
-    holder.style.transform = `translate(${ox+dx}px, ${oy+dy}px)`;
+    const spot = findDropSpot(e.clientX, e.clientY);
+    if(spot){
+      if(spot.before) spot.canvas.insertBefore(placeholder, spot.before);
+      else spot.canvas.appendChild(placeholder);
+    }
   });
-  handle.addEventListener('pointerup', ()=>{
+
+  function endDrag(){
+    if(!dragging) return;
     dragging = false;
     holder.classList.remove('dragging');
-  });
-  handle.addEventListener('pointercancel', ()=>{
-    dragging = false;
-    holder.classList.remove('dragging');
-  });
-  handle.addEventListener('dblclick', ()=>{
-    holder.style.transform = '';
-  });
+    if(placeholder && placeholder.parentNode){
+      placeholder.parentNode.insertBefore(holder, placeholder);
+    }
+    if(placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+    placeholder = null;
+    renumberQuestions();
+    refreshScore();
+    schedulePaginate(0);
+  }
+  handle.addEventListener('pointerup', endDrag);
+  handle.addEventListener('pointercancel', endDrag);
 }
 document.querySelectorAll('[data-add]').forEach(btn=>{
   if(btn.dataset.add === 'table'){
     btn.addEventListener('click', dropTable);
+  } else if(btn.dataset.add === 'ridbendi'){
+    btn.addEventListener('click', dropRidbendi);
   } else {
     btn.addEventListener('click', ()=> addBlock(btn.dataset.add));
   }
@@ -1823,7 +1955,11 @@ function refreshScore(){
   document.getElementById('scorePill').textContent = I18N[currentLang].totalScore + ': ' + total;
 }
 /* keep question numbers continuous (1,2,3...) across every question type and every page,
-   no matter the order they were added in or whether some were deleted */
+   no matter the order they were added in or whether some were deleted.
+   If the user has manually typed their own number into a question (e.g. after
+   swapping question 3 with question 1), that question keeps its manual number
+   and is skipped by the auto-counter — use the "ژمارەکردنەوەی خۆکاری" button
+   to clear all manual numbers and go back to fully automatic numbering. */
 function renumberQuestions(){
   let n = 0;
   document.querySelectorAll('#pagesContainer .block-removable').forEach(holder=>{
@@ -1834,7 +1970,9 @@ function renumberQuestions(){
     const qNumEl = holder.querySelector('.q-number');
     if(qNumEl){
       n++;
-      qNumEl.textContent = n;
+      if(qNumEl.dataset.manual !== '1'){
+        qNumEl.textContent = n;
+      }
     }
   });
 }
@@ -1844,7 +1982,28 @@ document.getElementById('pagesContainer').addEventListener('input', e=>{
     const n = parseFloat(e.target.textContent);
     if(!isNaN(n)) lastScoreValue = n;
   }
+  if(e.target.classList && e.target.classList.contains('q-number')){
+    e.target.dataset.manual = '1';
+  }
   schedulePaginate();
+});
+const renumberBtnEl = document.getElementById('renumberBtn');
+if(renumberBtnEl){
+  renumberBtnEl.addEventListener('click', ()=>{
+    document.querySelectorAll('#pagesContainer .q-number').forEach(el=> delete el.dataset.manual);
+    renumberQuestions();
+  });
+}
+
+/* "Search Google" button on every question: opens a Google search for that
+   question's text in a new tab, so the person can look anything up directly. */
+document.getElementById('pagesContainer').addEventListener('click', e=>{
+  const gbtn = e.target.closest('.q-google-btn');
+  if(!gbtn) return;
+  const qBlock = gbtn.closest('.q-block');
+  const qTextEl = qBlock ? qBlock.querySelector('.q-text') : null;
+  const query = qTextEl ? qTextEl.textContent.trim() : '';
+  if(query) window.open('https://www.google.com/search?q='+encodeURIComponent(query), '_blank', 'noopener');
 });
 
 /* ============================================================
@@ -2214,8 +2373,162 @@ function dropTable(){
 }
 
 /* ============================================================
+   ڕیزبەندی — NUMBERED SEQUENCE (custom count, column or row layout)
+   Asks how many numbers are needed and whether to lay them out in a
+   column (stacked) or a row (side by side); each number gets its own
+   dotted line to write on, e.g. ١ .... ٢ .... ٣ .... etc.
+============================================================ */
+const EASTERN_DIGITS = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+function toEasternDigits(n){
+  return String(n).split('').map(ch=> /[0-9]/.test(ch) ? EASTERN_DIGITS[+ch] : ch).join('');
+}
+function dropRidbendi(){
+  const canvas = lastPageCanvas();
+  if(!canvas) return;
+  const d = I18N[currentLang];
+  qCounter++;
+
+  let count = parseInt(prompt(d.ridbendiCountPrompt, '5'), 10);
+  if(!count || count < 1) count = 5;
+  count = Math.min(count, 40);
+
+  const isColumn = confirm(d.ridbendiLayoutPrompt);
+  const layoutClass = isColumn ? 'ridbendi-col' : 'ridbendi-row';
+
+  let itemsHtml = '';
+  for(let i=1;i<=count;i++){
+    itemsHtml += `<div class="ridbendi-item"><span class="ridbendi-num">${toEasternDigits(i)}</span><span class="ridbendi-dots" contenteditable="true">&nbsp;</span></div>`;
+  }
+
+  const html = `<div class="q-block" style="--subject-color:${subjectColorVar()}">
+    <div class="q-head">
+      <div class="q-number" contenteditable="true">${qCounter}</div>
+      <div class="q-text" contenteditable="true">${d.writeQuestion}</div>
+      <div class="q-score" contenteditable="true">${lastScoreValue} ${d.score}</div>
+      <button type="button" class="q-google-btn ui-only" title="گەڕان بەم پرسیارە لە گووگڵ">🔍</button>
+    </div>
+    <div class="ridbendi-list ${layoutClass}">${itemsHtml}</div>
+  </div>`;
+
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  const node = tmp.firstElementChild;
+  const holder = document.createElement('div');
+  holder.className = 'block-removable';
+  holder.appendChild(node);
+  const delBtn = document.createElement('button');
+  delBtn.className = 'block-del-btn ui-only';
+  delBtn.type = 'button';
+  delBtn.innerHTML = '✕';
+  delBtn.title = d.removeBlock;
+  delBtn.addEventListener('click', ()=>{ holder.remove(); refreshScore(); renumberQuestions(); });
+  holder.appendChild(delBtn);
+
+  const dragHandle = document.createElement('button');
+  dragHandle.className = 'block-drag-handle ui-only';
+  dragHandle.type = 'button';
+  dragHandle.innerHTML = '⠿';
+  dragHandle.title = 'ڕایکێشە بۆ گواستنەوە';
+  holder.appendChild(dragHandle);
+  initBlockDrag(holder, dragHandle);
+
+  const colorPicker = document.createElement('input');
+  colorPicker.type = 'color';
+  colorPicker.className = 'q-color-picker ui-only';
+  colorPicker.title = 'ڕەنگی تایبەت بەم پرسیارە';
+  colorPicker.value = subjectColorVar();
+  colorPicker.addEventListener('input', e=> node.style.setProperty('--subject-color', e.target.value));
+  colorPicker.addEventListener('pointerdown', e=> e.stopPropagation());
+  holder.appendChild(colorPicker);
+
+  canvas.appendChild(holder);
+  refreshScore();
+  renumberQuestions();
+  repaginate();
+}
+
+/* ============================================================
+   BULLET LISTS — add as many bullet points as you like, each one
+   styled by number, by symbol (e.g. a checkmark you can replace with
+   any character), or by a custom uploaded image. Every bullet has its
+   own "+" to add another bullet right after it, and "✕" to remove it.
+============================================================ */
+function createBulletItem(style){
+  const d = I18N[currentLang];
+  const row = document.createElement('div');
+  row.className = 'bullet-item';
+  row.dataset.style = style;
+  let markerHtml;
+  if(style === 'number'){
+    markerHtml = `<span class="bullet-marker bullet-num">1</span>`;
+  } else if(style === 'image'){
+    markerHtml = `<span class="bullet-marker bullet-img-marker"><button type="button" class="bullet-img-pick" title="${d.pickBulletImgTitle}">🖼</button></span>`;
+  } else {
+    markerHtml = `<span class="bullet-marker bullet-symbol" contenteditable="true">✓</span>`;
+  }
+  row.innerHTML = `${markerHtml}<span class="bullet-text" contenteditable="true">${d.bulletPlaceholder}</span>
+    <button type="button" class="bullet-add ui-only" title="${d.addBulletItemTitle}">+</button>
+    <button type="button" class="bullet-del ui-only" title="${d.delBulletItemTitle}">✕</button>`;
+  return row;
+}
+function initBulletList(listNode){
+  const style = (document.getElementById('bulletStyleMode')||{}).value || 'number';
+  listNode.appendChild(createBulletItem(style));
+  renumberBulletMarkers(listNode);
+}
+function renumberBulletMarkers(listNode){
+  let n = 0;
+  listNode.querySelectorAll(':scope > .bullet-item > .bullet-num').forEach(el=>{
+    n++; el.textContent = n;
+  });
+}
+document.getElementById('pagesContainer').addEventListener('click', e=>{
+  const addBtn = e.target.closest('.bullet-add');
+  if(addBtn){
+    const row = addBtn.closest('.bullet-item');
+    const list = row.closest('.bullet-list');
+    const newRow = createBulletItem(row.dataset.style);
+    row.after(newRow);
+    renumberBulletMarkers(list);
+    schedulePaginate();
+    return;
+  }
+  const delBtn = e.target.closest('.bullet-del');
+  if(delBtn){
+    const row = delBtn.closest('.bullet-item');
+    const list = row.closest('.bullet-list');
+    if(list.querySelectorAll('.bullet-item').length > 1){
+      row.remove();
+      renumberBulletMarkers(list);
+      schedulePaginate();
+    }
+    return;
+  }
+  const pickBtn = e.target.closest('.bullet-img-pick');
+  if(pickBtn){
+    const marker = pickBtn.closest('.bullet-img-marker');
+    const inp = document.getElementById('bulletImgInput');
+    inp.onchange = ev=>{
+      const file = ev.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev2=>{ marker.innerHTML = `<img src="${ev2.target.result}" alt="">`; };
+      reader.readAsDataURL(file);
+      inp.value = '';
+    };
+    inp.click();
+    return;
+  }
+});
+
+/* ============================================================
    IMAGES (draggable + resizable)
 ============================================================ */
+const imageShapeModeSel = document.getElementById('imageShapeMode');
+const frameColorRowEl = document.getElementById('frameColorRow');
+imageShapeModeSel.addEventListener('change', ()=>{
+  frameColorRowEl.style.display = imageShapeModeSel.value === 'frame' ? 'flex' : 'none';
+});
 document.getElementById('addImageBtn').addEventListener('click', ()=> document.getElementById('imageInput').click());
 document.getElementById('imageInput').addEventListener('change', e=>{
   [...e.target.files].forEach(file=>{
@@ -2228,16 +2541,55 @@ document.getElementById('imageInput').addEventListener('change', e=>{
 function dropImage(src){
   const canvas = lastPageCanvas();
   if(!canvas) return;
+  const shape = (document.getElementById('imageShapeMode')||{}).value || 'plain';
   const item = document.createElement('div');
   item.className='draggable-item';
   item.style.left='30px';
   item.style.top='30px';
-  item.style.width='160px';
-  item.style.height='auto';
-  item.innerHTML = `<button class="del-x">✕</button><img src="${src}" style="width:100%;height:100%;border:2px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.25);"><div class="resize-handle"></div>`;
+
+  if(shape === 'circle'){
+    item.classList.add('img-style-circle');
+    item.style.width='150px';
+    item.style.height='150px';
+    item.innerHTML = `<button class="del-x">✕</button><img src="${src}" style="width:100%;height:100%;border:2px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.25);"><div class="resize-handle"></div>`;
+  } else if(shape === 'square'){
+    item.classList.add('img-style-square');
+    item.style.width='150px';
+    item.style.height='150px';
+    item.innerHTML = `<button class="del-x">✕</button><img src="${src}" style="width:100%;height:100%;"><div class="resize-handle"></div>`;
+  } else if(shape === 'frame'){
+    const bg = document.getElementById('frameBgColor').value;
+    const tc = document.getElementById('frameTextColor').value;
+    item.style.width='190px';
+    item.style.height='210px';
+    item.style.setProperty('--frame-bg', bg);
+    item.style.setProperty('--frame-text', tc);
+    const d = I18N[currentLang];
+    item.innerHTML = `<button class="del-x">✕</button>
+      <div class="frame-controls">
+        <input type="color" class="frame-fill" value="${bg}" title="${d.frameBgColorLbl}">
+        <input type="color" class="frame-text-color" value="${tc}" title="${d.frameTextColorLbl}">
+      </div>
+      <div class="frame-wrap">
+        <img src="${src}">
+        <div class="frame-caption" contenteditable="true">${d.frameCaption}</div>
+      </div>
+      <div class="resize-handle"></div>`;
+  } else {
+    item.style.width='160px';
+    item.style.height='auto';
+    item.innerHTML = `<button class="del-x">✕</button><img src="${src}" style="width:100%;height:100%;border:2px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.25);"><div class="resize-handle"></div>`;
+  }
+
   canvas.style.position='relative';
   canvas.appendChild(item);
   makeDraggable(item);
+
+  if(shape === 'frame'){
+    item.querySelector('.frame-fill').addEventListener('input', e=> item.style.setProperty('--frame-bg', e.target.value));
+    item.querySelector('.frame-text-color').addEventListener('input', e=> item.style.setProperty('--frame-text', e.target.value));
+    item.querySelectorAll('.frame-controls input').forEach(inp=> inp.addEventListener('pointerdown', ev=> ev.stopPropagation()));
+  }
 }
 
 /* ============================================================
