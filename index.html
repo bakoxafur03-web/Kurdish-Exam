@@ -262,6 +262,8 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 
 /* generic delete button for any content block added to the page */
 .block-removable{position:relative;}
+.block-removable.free-positioned{z-index:5;}
+.block-removable.free-positioned:hover{outline:1.5px dashed var(--gold-deep);outline-offset:3px;}
 .block-del-btn{
   position:absolute;top:-11px;inset-inline-start:-11px;width:22px;height:22px;border-radius:50%;
   background:var(--danger);color:#fff;border:2px solid #fff;font-size:11px;cursor:pointer;
@@ -1451,6 +1453,7 @@ function addPage(){
     wrap.remove();
     refreshScore();
     renumberQuestions();
+    repaginate();
   });
   applyBorderStyleToPage(wrap.querySelector('.page'));
   makeHeaderDraggable(wrap.querySelector('.exam-header'));
@@ -1481,6 +1484,28 @@ function repaginate(){
   while(i < pages.length){
     const canvas = pages[i].querySelector('.page-body');
     if(!canvas){ i++; continue; }
+
+    /* 1) PULL BACK: if this page has spare room and a later page has content,
+       pull that content back so pages fill up before leaving empty space.
+       This prevents a big gap at the bottom of a page while later pages
+       still hold blocks that would actually fit here. */
+    let pullGuard = 0;
+    while(i < pages.length - 1 && pullGuard < 200){
+      const nextCanvas = pages[i+1].querySelector('.page-body');
+      if(!nextCanvas) break;
+      const nextFlowChildren = [...nextCanvas.children].filter(el=> getComputedStyle(el).position !== 'absolute');
+      if(nextFlowChildren.length === 0) break;
+      const candidate = nextFlowChildren[0];
+      canvas.appendChild(candidate);
+      pullGuard++;
+      if(canvas.scrollHeight - canvas.clientHeight > 2){
+        /* didn't fit after all — put it back where it came from and stop pulling */
+        nextCanvas.insertBefore(candidate, nextCanvas.firstChild);
+        break;
+      }
+    }
+
+    /* 2) PUSH OVERFLOW: whatever still doesn't fit moves forward as before */
     let guard = 0;
     while(canvas.scrollHeight - canvas.clientHeight > 2 && guard < 60){
       guard++;
@@ -1498,8 +1523,30 @@ function repaginate(){
     }
     i++;
   }
+
+  /* 3) CLEAN UP: after pulling content back, trailing pages may now be
+     completely empty (no flow blocks and no freely-positioned items) —
+     remove them automatically, but always keep at least one page. */
+  removeEmptyTrailingPages();
+
   renumberQuestions();
   refreshScore();
+}
+
+function removeEmptyTrailingPages(){
+  const wraps = [...document.querySelectorAll('#pagesContainer > div')];
+  for(let k = wraps.length - 1; k > 0; k--){
+    const page = wraps[k].querySelector('.page');
+    const canvas = wraps[k].querySelector('.page-body');
+    if(!page || !canvas) continue;
+    const hasFlowContent = [...canvas.children].some(el=> getComputedStyle(el).position !== 'absolute');
+    const hasFreeContent = [...canvas.children].some(el=> getComputedStyle(el).position === 'absolute');
+    if(!hasFlowContent && !hasFreeContent){
+      wraps[k].remove();
+    } else {
+      break; /* stop at the first non-empty page scanning from the end */
+    }
+  }
 }
 let repaginateTimer = null;
 function schedulePaginate(delay){
@@ -1836,7 +1883,7 @@ function addBlock(type){
   delBtn.type = 'button';
   delBtn.innerHTML = '✕';
   delBtn.title = d.removeBlock;
-  delBtn.addEventListener('click', ()=>{ holder.remove(); refreshScore(); renumberQuestions(); });
+  delBtn.addEventListener('click', ()=>{ holder.remove(); refreshScore(); renumberQuestions(); repaginate(); });
   holder.appendChild(delBtn);
 
   /* drag handle: lets the user pick up any question/section/box and move it to a new place */
@@ -1867,65 +1914,74 @@ function addBlock(type){
 }
 
 /* ============================================================
-   DRAG TO REORDER CONTENT BLOCKS — WITHIN A PAGE OR BETWEEN PAGES
-   Pick up any question/section/box by its ⠿ handle and drop it at a new
-   spot — including on a completely different page. A dashed placeholder
-   shows exactly where it will land; releasing the pointer actually moves
-   the block in the document (so it's a real swap/reorder, not just a
-   visual shift), and question numbering + pagination update automatically.
+   DRAG ANY BLOCK ANYWHERE ON THE PAGE (free positioning)
+   Pick up any question/section/box by its ⠿ handle and drop it exactly
+   where you like — anywhere on its page, or on a completely different
+   page. While dragging, the block follows the pointer directly (like an
+   inserted image). On drop it becomes a freely-positioned block anchored
+   at that exact spot, so it no longer takes part in the automatic
+   top-to-bottom flow/pagination (same as images, shapes, tables, logos).
 ============================================================ */
 function initBlockDrag(holder, handle){
   let dragging = false;
-  let placeholder = null;
+  let grabX = 0, grabY = 0; /* pointer offset inside the block, so it doesn't jump under the cursor */
 
   function allCanvases(){ return [...document.querySelectorAll('#pagesContainer .page-body')]; }
 
-  function findDropSpot(x, y){
+  function canvasAt(x, y){
     const canvases = allCanvases();
-    let bestCanvas = null, bestDist = Infinity;
+    const inside = canvases.find(c=>{
+      const r = c.getBoundingClientRect();
+      return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+    });
+    if(inside) return inside;
+    /* pointer strayed slightly off every page (e.g. into the gap between pages) —
+       fall back to whichever page is vertically closest */
+    let best = null, bestDist = Infinity;
     canvases.forEach(c=>{
       const r = c.getBoundingClientRect();
-      const withinX = x >= r.left - 60 && x <= r.right + 60;
-      const dist = withinX ? Math.max(0, Math.max(r.top - y, y - r.bottom)) : Math.abs((r.top+r.bottom)/2 - y) + 100000;
-      if(dist < bestDist){ bestDist = dist; bestCanvas = c; }
+      const dist = Math.abs((r.top + r.bottom) / 2 - y);
+      if(dist < bestDist){ bestDist = dist; best = c; }
     });
-    if(!bestCanvas) return null;
-    const siblings = [...bestCanvas.children].filter(el=> el !== holder && el !== placeholder && el.classList.contains('block-removable'));
-    let before = null;
-    for(const sib of siblings){
-      const r = sib.getBoundingClientRect();
-      if(y < r.top + r.height/2){ before = sib; break; }
-    }
-    return { canvas: bestCanvas, before };
+    return best;
   }
 
   handle.addEventListener('pointerdown', e=>{
     e.preventDefault(); e.stopPropagation();
     dragging = true;
     holder.classList.add('dragging');
-    placeholder = document.createElement('div');
-    placeholder.className = 'block-drop-placeholder';
+    const rect = holder.getBoundingClientRect();
+    grabX = e.clientX - rect.left;
+    grabY = e.clientY - rect.top;
+    /* lift the block out of the page flow and let it follow the pointer,
+       keeping its current on-screen size so nothing reflows mid-drag */
+    holder.style.width = rect.width + 'px';
+    holder.style.position = 'fixed';
+    holder.style.left = rect.left + 'px';
+    holder.style.top = rect.top + 'px';
+    holder.style.zIndex = 999;
     handle.setPointerCapture(e.pointerId);
   });
 
   handle.addEventListener('pointermove', e=>{
     if(!dragging) return;
-    const spot = findDropSpot(e.clientX, e.clientY);
-    if(spot){
-      if(spot.before) spot.canvas.insertBefore(placeholder, spot.before);
-      else spot.canvas.appendChild(placeholder);
-    }
+    holder.style.left = (e.clientX - grabX) + 'px';
+    holder.style.top = (e.clientY - grabY) + 'px';
   });
 
-  function endDrag(){
+  function endDrag(e){
     if(!dragging) return;
     dragging = false;
     holder.classList.remove('dragging');
-    if(placeholder && placeholder.parentNode){
-      placeholder.parentNode.insertBefore(holder, placeholder);
-    }
-    if(placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
-    placeholder = null;
+    const target = canvasAt(e.clientX, e.clientY) || lastPageCanvas();
+    const holderRect = holder.getBoundingClientRect();
+    const canvasRect = target.getBoundingClientRect();
+    target.appendChild(holder);
+    holder.classList.add('free-positioned');
+    holder.style.position = 'absolute';
+    holder.style.left = Math.max(0, holderRect.left - canvasRect.left) + 'px';
+    holder.style.top = Math.max(0, holderRect.top - canvasRect.top) + 'px';
+    holder.style.zIndex = '';
     renumberQuestions();
     refreshScore();
     schedulePaginate(0);
@@ -2421,7 +2477,7 @@ function dropRidbendi(){
   delBtn.type = 'button';
   delBtn.innerHTML = '✕';
   delBtn.title = d.removeBlock;
-  delBtn.addEventListener('click', ()=>{ holder.remove(); refreshScore(); renumberQuestions(); });
+  delBtn.addEventListener('click', ()=>{ holder.remove(); refreshScore(); renumberQuestions(); repaginate(); });
   holder.appendChild(delBtn);
 
   const dragHandle = document.createElement('button');
