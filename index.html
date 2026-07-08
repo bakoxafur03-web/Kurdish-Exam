@@ -201,7 +201,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .symbol-grid button:hover{background:var(--gold);color:#241a05;}
 
 .shape-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
-.shape-grid button{background:#1c1f2b;border:1px solid #3a3f52;border-radius:8px;padding:8px 4px;cursor:pointer;}
+.shape-grid button{background:var(--paper);border:1px solid #3a3f52;border-radius:8px;padding:8px 4px;cursor:pointer;}
 .shape-grid svg{width:22px;height:22px;}
 
 .main-area{flex:1;padding:30px;display:flex;flex-direction:column;align-items:center;gap:30px;overflow-y:auto;height:calc(100vh - 70px);}
@@ -333,6 +333,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 }
 
 /* E — official table style: bordered grid cells, like a printed exam form */
+.exam-header[data-tpl="blank"]{display:none;padding:0;margin:0;border:none;min-height:0;}
 .exam-header[data-tpl="e"]{padding:0;}
 .exam-header[data-tpl="e"] .hd-table-grid{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--navy);}
 .exam-header[data-tpl="e"] .hd-cell{border:1px solid var(--navy);padding:9px 12px;font-size:12px;line-height:1.9;font-family:'Noto Naskh Arabic',serif;}
@@ -539,6 +540,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .draggable-item:hover .rotate-handle{display:flex;}
 .exporting .rotate-handle{display:none !important;}
 .shape-inner{width:100%;height:100%;}
+.shape-inner svg{width:100%;height:100%;display:block;}
 
 .divider-line{border:none;border-top:2px dashed var(--line);margin:18px 0;}
 
@@ -757,6 +759,12 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
       <div class="tpl-name"><span data-i18n="tplI">شریتی لاتەنیشت (ڕەنگاوڕەنگ)</span><span class="tag">A4</span></div>
       <button class="pick-btn" data-i18n="choose">هەڵبژاردن</button>
     </div>
+
+    <div class="tpl-card" data-tpl="blank">
+      <div class="tpl-preview"></div>
+      <div class="tpl-name"><span data-i18n="tplBlank">بەتاڵ (لاپەڕەی سپی)</span><span class="tag">A4</span></div>
+      <button class="pick-btn" data-i18n="choose">هەڵبژاردن</button>
+    </div>
   </div>
 </section>
 
@@ -898,6 +906,27 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
       <span class="tb-label" data-i18n="equation">دانانی یەکسانی (LaTeX)</span>
       <div class="tb-row"><input class="tb-input" id="eqInput" placeholder="مونال: \frac{a}{b}+\sqrt{x}"></div>
       <div class="tb-row"><button class="tb-btn" id="insertEqBtn" style="background:var(--math);"><span class="ic">∑</span><span data-i18n="insertEq">دانانی یەکسانی</span></button></div>
+
+      <span class="tb-label" data-i18n="mathGeoHeading">هێڵکاری بۆ وانەی بیرکاری (کلیک بکە بۆ زیادکردن، پاشان ڕایکێشە بۆ ناو پرسیارەکە)</span>
+      <div class="tb-row">
+        <select class="tb-select" id="mathGeoLabelMode">
+          <option value="none" data-i18n="mathGeoLabelNone">بێ ناونیشان</option>
+          <option value="unit" data-i18n="mathGeoLabelUnit">هەڵبژاردنی یەکە (سم/م/پلە)</option>
+          <option value="custom" data-i18n="mathGeoLabelCustom">نووسینی تایبەت</option>
+        </select>
+      </div>
+      <div class="tb-row" id="mathGeoUnitRow">
+        <select class="tb-select" id="mathGeoUnitSelect">
+          <option value="سم">سم (cm)</option>
+          <option value="م">م (m)</option>
+          <option value="مم">مم (mm)</option>
+          <option value="°">پلە (°)</option>
+        </select>
+      </div>
+      <div class="tb-row" id="mathGeoCustomRow" style="display:none;">
+        <input class="tb-input" id="mathGeoCustomInput" data-i18n-placeholder="mathGeoCustomPlaceholder" placeholder="بۆ نموونە: 5 سم">
+      </div>
+      <div class="shape-grid" id="mathGeoGrid"></div>
     </div>
 
     <div class="tb-section">
@@ -1013,7 +1042,7 @@ ku:{
  title:"دروستکەری ئەسیلەی تاقیکردنەوە", subtitle:"پەڕگەی تاقیکردنەوەی پیشەیی دروست بکە و وەک PDF دایبەزێنە",
  pickTplTitle:"شێوازی تابلێتەکە هەڵبژێرە", pickTplDesc:"یەکێک لەم شێوازانە هەڵبژێرە، پاشان دەستبکە بە دروستکردنی تاقیکردنەوەکەت",
  tplA:"کلاسیکی فەرمی (نیشانە لەناوەند)", tplB:"ڕەنگاوڕەنگ (بۆردەری شین)", tplC:"مۆدێرن (گرادینت)", tplD:"تاریک (ستایلی نایاب)", tplE:"خشتەیی فەرمی (وەک فۆڕمی ڕەسمی)",
- tplF:"سادە (هێڵی باریک)", tplG:"بەلگەنامەیی (گۆشە چوارگۆشە)", tplH:"شریتی سەرەوە (بانەر)", tplI:"شریتی لاتەنیشت (ڕەنگاوڕەنگ)", tplJ:"خشتەیی وردەکاری (سێ ستوون)",
+ tplF:"سادە (هێڵی باریک)", tplG:"بەلگەنامەیی (گۆشە چوارگۆشە)", tplH:"شریتی سەرەوە (بانەر)", tplI:"شریتی لاتەنیشت (ڕەنگاوڕەنگ)", tplJ:"خشتەیی وردەکاری (سێ ستوون)", tplBlank:"بەتاڵ (لاپەڕەی سپی)",
  choose:"هەڵبژاردن", tbBack:"گەڕانەوە", changeTpl:"گۆڕینی شێواز", tbSubject:"بابەت", subjectColor:"ڕەنگی تایبەت بەبابەتەکە",
  tbAddContent:"زیادکردنی ناوەڕۆک", addSection:"سەردێڕی بەش", addMcq:"پرسیاری هەڵبژاردن", addTf:"ڕاست/هەڵە", addBlank:"پڕکردنەوە",
  addEssay:"وەڵامی نووسراو", addTable:"خشتە", addDivider:"دابڕێژەر", addImage:"زیادکردنی وێنە",
@@ -1021,6 +1050,9 @@ ku:{
  tbWordart:"WordArt", wordartText:"دەقی WordArt", wordartStyle:"شێواز", insertWordart:"دانانی WordArt",
  waGradient:"ڕەنگاوڕەنگ (گرادینت)", waOutline:"دەرهێڵ (Outline)", waShadow:"سێبەری 3D", waNeon:"نیۆن", waStamp:"مۆر (Stamp)",
  tbMath:"ئامرازی بیرکاری", symbols:"هێماکان (کلیک بکە بۆ زیادکردن)", equation:"دانانی یەکسانی (LaTeX)", insertEq:"دانانی یەکسانی",
+ mathGeoHeading:"هێڵکاری بۆ وانەی بیرکاری (کلیک بکە بۆ زیادکردن، پاشان ڕایکێشە بۆ ناو پرسیارەکە)",
+ mathGeoLabelNone:"بێ ناونیشان", mathGeoLabelUnit:"هەڵبژاردنی یەکە (سم/م/پلە)", mathGeoLabelCustom:"نووسینی تایبەت",
+ mathGeoCustomPlaceholder:"بۆ نموونە: 5 سم",
  tbShapes:"شێوەکان (Shapes)", tbFormat:"فۆرماتی دەق", tbPageStyle:"ستایلی پەڕە", borderStyle:"شێوازی بۆردەر",
  tbLogo:"لۆگۆی قوتابخانە", logoUpload:"وێنەی لۆگۆ هەڵبژێرە",
  tbHeader:"سەرنووس", headerBg:"وێنەی پاشبنەمای سەرنووس", headerBgFade:"ڕووناکی پاشبنەما",
@@ -1058,7 +1090,7 @@ ar:{
  title:"منشئ الامتحانات", subtitle:"أنشئ ورقة امتحان احترافية وحمّلها بصيغة PDF",
  pickTplTitle:"اختر شكل الترويسة", pickTplDesc:"اختر أحد الأنماط أدناه، ثم ابدأ ببناء امتحانك",
  tplA:"كلاسيكي رسمي (شعار في الوسط)", tplB:"ملوّن (إطار أزرق)", tplC:"عصري (تدرّج لوني)", tplD:"داكن (نمط مميز)", tplE:"جدولي رسمي (كنموذج رسمي)",
- tplF:"بسيط (خط رفيع)", tplG:"وثائقي (زوايا مربعة)", tplH:"شريط علوي (بانر)", tplI:"شريط جانبي (ملوّن)", tplJ:"جدولي تفصيلي (ثلاثة أعمدة)",
+ tplF:"بسيط (خط رفيع)", tplG:"وثائقي (زوايا مربعة)", tplH:"شريط علوي (بانر)", tplI:"شريط جانبي (ملوّن)", tplJ:"جدولي تفصيلي (ثلاثة أعمدة)", tplBlank:"فارغ (صفحة بيضاء)",
  choose:"اختيار", tbBack:"رجوع", changeTpl:"تغيير النمط", tbSubject:"المادة", subjectColor:"لون خاص بالمادة",
  tbAddContent:"إضافة محتوى", addSection:"عنوان قسم", addMcq:"سؤال اختياري", addTf:"صح/خطأ", addBlank:"ملء الفراغ",
  addEssay:"إجابة مقالية", addTable:"جدول", addDivider:"فاصل", addImage:"إضافة صورة",
@@ -1066,6 +1098,9 @@ ar:{
  tbWordart:"WordArt", wordartText:"نص WordArt", wordartStyle:"النمط", insertWordart:"إدراج WordArt",
  waGradient:"متدرّج الألوان", waOutline:"محدد الحواف", waShadow:"ظل ثلاثي الأبعاد", waNeon:"نيون", waStamp:"ختم",
  tbMath:"أدوات الرياضيات", symbols:"رموز (اضغط للإضافة)", equation:"إدراج معادلة (LaTeX)", insertEq:"إدراج المعادلة",
+ mathGeoHeading:"رسومات هندسية لدرس الرياضيات (اضغط للإضافة، ثم اسحبها إلى داخل السؤال)",
+ mathGeoLabelNone:"بدون تسمية", mathGeoLabelUnit:"اختيار الوحدة (سم/م/درجة)", mathGeoLabelCustom:"كتابة نص خاص",
+ mathGeoCustomPlaceholder:"مثال: 5 سم",
  tbShapes:"أشكال", tbFormat:"تنسيق النص", tbPageStyle:"تنسيق الصفحة", borderStyle:"نمط الإطار",
  tbLogo:"شعار المدرسة", logoUpload:"اختر صورة الشعار",
  tbHeader:"الترويسة", headerBg:"صورة خلفية الترويسة", headerBgFade:"شفافية الخلفية",
@@ -1103,7 +1138,7 @@ en:{
  title:"Exam Builder", subtitle:"Build a professional exam paper and export it as PDF",
  pickTplTitle:"Choose your header style", pickTplDesc:"Pick one of the templates below, then start building your exam",
  tplA:"Classic formal (centered logo)", tplB:"Colorful (blue frame)", tplC:"Modern (gradient)", tplD:"Dark (signature style)", tplE:"Official table style (form-like)",
- tplF:"Minimal (thin line)", tplG:"Document (square corners)", tplH:"Top banner (ribbon)", tplI:"Side stripe (colorful)", tplJ:"Detailed table (3 columns)",
+ tplF:"Minimal (thin line)", tplG:"Document (square corners)", tplH:"Top banner (ribbon)", tplI:"Side stripe (colorful)", tplJ:"Detailed table (3 columns)", tplBlank:"Blank (white page)",
  choose:"Choose", tbBack:"Back", changeTpl:"Change template", tbSubject:"Subject", subjectColor:"Subject accent color",
  tbAddContent:"Add content", addSection:"Section title", addMcq:"Multiple choice", addTf:"True / False", addBlank:"Fill in the blank",
  addEssay:"Written answer", addTable:"Table", addDivider:"Divider", addImage:"Add image",
@@ -1111,6 +1146,9 @@ en:{
  tbWordart:"WordArt", wordartText:"WordArt text", wordartStyle:"Style", insertWordart:"Insert WordArt",
  waGradient:"Gradient", waOutline:"Outline", waShadow:"3D shadow", waNeon:"Neon", waStamp:"Stamp",
  tbMath:"Math tools", symbols:"Symbols (click to insert)", equation:"Insert equation (LaTeX)", insertEq:"Insert equation",
+ mathGeoHeading:"Geometry drawings for the math lesson (click to add, then drag it into the question)",
+ mathGeoLabelNone:"No label", mathGeoLabelUnit:"Choose a unit (cm/m/°)", mathGeoLabelCustom:"Custom text",
+ mathGeoCustomPlaceholder:"e.g. 5 cm",
  tbShapes:"Shapes", tbFormat:"Text format", tbPageStyle:"Page style", borderStyle:"Border style",
  tbLogo:"School logo", logoUpload:"Choose logo image",
  tbHeader:"Header", headerBg:"Header background image", headerBgFade:"Background fade",
@@ -1280,6 +1318,9 @@ document.getElementById('aboutOverlay').addEventListener('click', e=>{
 let pageCount = 0;
 function makeHeaderHTML(tpl){
   const d = I18N[currentLang];
+  if(tpl==='blank'){
+    return `<div class="exam-header" data-tpl="blank"></div>`;
+  }
   if(tpl==='a'){
     return `<div class="exam-header" data-tpl="a">
       <div class="hd-title-top" contenteditable="true">${d.examTitle}</div>
@@ -2366,6 +2407,125 @@ function dropShape(svg){
   item.querySelector('.shape-fill').addEventListener('input', e=> applyShapeColor(item, e.target.value, null));
   item.querySelector('.shape-stroke').addEventListener('input', e=> applyShapeColor(item, null, e.target.value));
   item.querySelectorAll('.shape-controls input').forEach(inp=> inp.addEventListener('pointerdown', e=> e.stopPropagation()));
+}
+
+/* ============================================================
+   MATH GEOMETRY DRAWINGS (هێڵکاری بۆ وانەی بیرکاری)
+   A ready-made library of the shapes/diagrams commonly needed in a math
+   lesson (triangles, quadrilaterals, circles, angles, lines, coordinate
+   plane, 3D solids, charts...). Clicking one drops it on the page using
+   the exact same draggable/colorable/resizable/rotatable behaviour as
+   the general Shapes panel above (dropShape), so the user can then grab
+   its ⠿-less drag area and move it into place next to any question —
+   or use the block drag handle on a question to pull the question up to
+   the drawing. An optional editable label (unit, degree, or custom text)
+   can be attached under each drawing as it is created.
+============================================================ */
+const MATH_SHAPES = {
+  triangleRight: `<svg viewBox="0 0 60 60" fill="none" stroke="#8a3a2e" stroke-width="2"><path d="M6 54h48L6 6z"/><path d="M6 46h8v8H6z"/></svg>`,
+  triangleIsosceles: `<svg viewBox="0 0 60 60" fill="none" stroke="#8a3a2e" stroke-width="2"><path d="M30 6L6 54h48z"/></svg>`,
+  triangleEquilateral: `<svg viewBox="0 0 60 60" fill="none" stroke="#8a3a2e" stroke-width="2"><path d="M30 6L6 54h48z"/><path d="M18 30h24M24 42h12" stroke-width="1"/></svg>`,
+  triangleScalene: `<svg viewBox="0 0 60 60" fill="none" stroke="#8a3a2e" stroke-width="2"><path d="M8 50L26 8l26 44z"/></svg>`,
+  square: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f4a8a" stroke-width="2"><rect x="8" y="8" width="44" height="44"/></svg>`,
+  rectangle: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f4a8a" stroke-width="2"><rect x="4" y="16" width="52" height="28"/></svg>`,
+  parallelogram: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f4a8a" stroke-width="2"><path d="M14 12h38l-6 36H8z"/></svg>`,
+  rhombus: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f4a8a" stroke-width="2"><path d="M30 4L54 30 30 56 6 30z"/></svg>`,
+  trapezoid: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f4a8a" stroke-width="2"><path d="M14 12h32l10 36H4z"/></svg>`,
+  pentagon: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="2"><path d="M30 5L55 24l-9.5 30h-31L5 24z"/></svg>`,
+  hexagon: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="2"><path d="M17 6h26l14 24-14 24H17L3 30z"/></svg>`,
+  circleRadius: `<svg viewBox="0 0 60 60" fill="none" stroke="#7a5a1f" stroke-width="2"><circle cx="30" cy="30" r="24"/><path d="M30 30h24"/><circle cx="30" cy="30" r="1.6" fill="#7a5a1f" stroke="none"/></svg>`,
+  circleDiameter: `<svg viewBox="0 0 60 60" fill="none" stroke="#7a5a1f" stroke-width="2"><circle cx="30" cy="30" r="24"/><path d="M6 30h48"/><circle cx="30" cy="30" r="1.6" fill="#7a5a1f" stroke="none"/></svg>`,
+  semicircle: `<svg viewBox="0 0 60 60" fill="none" stroke="#7a5a1f" stroke-width="2"><path d="M6 34a24 24 0 0 1 48 0z"/><path d="M6 34h48"/></svg>`,
+  angleAcute: `<svg viewBox="0 0 60 60" fill="none" stroke="#a6395a" stroke-width="2"><path d="M8 52h44M8 52L44 14"/><path d="M20 52a12 12 0 0 1 6.2-9.6" stroke-width="1.4"/></svg>`,
+  angleRight: `<svg viewBox="0 0 60 60" fill="none" stroke="#a6395a" stroke-width="2"><path d="M8 52h44M8 52V10"/><path d="M8 42h10v10H8z" stroke-width="1.4"/></svg>`,
+  angleObtuse: `<svg viewBox="0 0 60 60" fill="none" stroke="#a6395a" stroke-width="2"><path d="M8 52h44M8 52L48 18"/><path d="M22 52a18 18 0 0 1 12.5-15.8" stroke-width="1.4"/></svg>`,
+  parallelLines: `<svg viewBox="0 0 60 60" fill="none" stroke="#16365e" stroke-width="2"><path d="M6 14h48M6 34h48M22 4l-8 60M40 4l-8 60"/></svg>`,
+  perpendicularLines: `<svg viewBox="0 0 60 60" fill="none" stroke="#16365e" stroke-width="2"><path d="M8 30h44M30 8v44"/><path d="M28 30h6v6h-6z" stroke-width="1.2"/></svg>`,
+  numberLine: `<svg viewBox="0 0 60 20" fill="none" stroke="#16365e" stroke-width="1.6"><path d="M2 10h56"/><path d="M2 10l6-3M2 10l6 3"/><path d="M54 10l-6-3M54 10l-6 3"/><path d="M10 6v8M20 6v8M30 6v8M40 6v8M50 6v8"/></svg>`,
+  coordinatePlane: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.4"><path d="M6 6v52M6 58l52-52M6 6h52" stroke="none"/><path d="M4 54h52M30 4v52" stroke-width="1.8"/><path d="M4 44h52M4 34h52M4 24h52M4 14h52M14 4v52M24 4v52M44 4v52M54 4v52" stroke-width="0.5" opacity=".5"/><path d="M30 54l4-4M30 54l-4-4M54 30l-4-4M54 30l-4 4" stroke-width="1.8"/></svg>`,
+  cube: `<svg viewBox="0 0 24 24" fill="none" stroke="#3a3f7a" stroke-width="1.6"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v10l8 4 8-4V7M12 11v10"/></svg>`,
+  cuboid: `<svg viewBox="0 0 60 60" fill="none" stroke="#3a3f7a" stroke-width="2"><path d="M6 20l14-8h28l-14 8z"/><path d="M6 20v26l14 8V28z"/><path d="M20 28l28 0v26l-28 0z"/><path d="M48 20v26"/></svg>`,
+  cylinder: `<svg viewBox="0 0 60 60" fill="none" stroke="#3a3f7a" stroke-width="2"><ellipse cx="30" cy="12" rx="20" ry="7"/><path d="M10 12v32M50 12v32"/><path d="M10 44a20 7 0 0 0 40 0" /></svg>`,
+  cone: `<svg viewBox="0 0 60 60" fill="none" stroke="#3a3f7a" stroke-width="2"><ellipse cx="30" cy="46" rx="20" ry="7"/><path d="M30 6L10 46M30 6l20 40"/></svg>`,
+  sphere: `<svg viewBox="0 0 60 60" fill="none" stroke="#3a3f7a" stroke-width="2"><circle cx="30" cy="30" r="24"/><ellipse cx="30" cy="30" rx="24" ry="8"/></svg>`,
+  pyramid: `<svg viewBox="0 0 60 60" fill="none" stroke="#3a3f7a" stroke-width="2"><path d="M30 6L8 48h44z"/><path d="M30 6L30 48M8 48l22-16 22 16"/></svg>`,
+  pieChart: `<svg viewBox="0 0 60 60" fill="none" stroke="#a6395a" stroke-width="1.6"><circle cx="30" cy="30" r="24" fill="none"/><path d="M30 30V6A24 24 0 0 1 51 42z" fill="#a6395a" opacity=".7" stroke="none"/><path d="M30 30L51 42M30 30V6"/></svg>`,
+  vennDiagram: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f4a8a" stroke-width="2"><circle cx="22" cy="30" r="16" opacity=".85"/><circle cx="38" cy="30" r="16" opacity=".85"/></svg>`,
+  protractor: `<svg viewBox="0 0 60 34" fill="none" stroke="#7a5a1f" stroke-width="1.6"><path d="M4 30a26 26 0 0 1 52 0z"/><path d="M4 30h52"/><path d="M30 30V6M17 30l7-21M43 30l-7-21" stroke-width="1"/></svg>`,
+  lineDiagonal: `<svg viewBox="0 0 60 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round"><path d="M12 12L48 48"/></svg>`,
+  lineArrow: `<svg viewBox="0 0 60 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12L46 46"/><path d="M46 46l-12-2.5M46 46l-2.5-12"/></svg>`,
+  lineElbowA: `<svg viewBox="0 0 60 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8v34h36"/></svg>`,
+  lineElbowB: `<svg viewBox="0 0 60 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M44 8v34H8"/></svg>`,
+  lineElbowC: `<svg viewBox="0 0 60 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 44h34V8"/></svg>`,
+  lineZigzag: `<svg viewBox="0 0 60 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14h30L14 46h30"/></svg>`,
+  lineZigzagLoose: `<svg viewBox="0 0 60 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8l16 12-16 12 16 12-16 12"/></svg>`,
+  braceLeft: `<svg viewBox="0 0 30 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round"><path d="M24 4c-9 0-7 8-7 14s2 10-8 12c10 2 8 6 8 12s-2 14 7 14"/></svg>`,
+  braceRight: `<svg viewBox="0 0 30 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round"><path d="M6 4c9 0 7 8 7 14s-2 10 8 12c-10 2-8 6-8 12s2 14-7 14"/></svg>`,
+  bracketRound: `<svg viewBox="0 0 30 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round"><path d="M22 4c-13 10-13 42 0 52"/></svg>`,
+  lineWave: `<svg viewBox="0 0 60 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round"><path d="M4 34c6-16 12-16 18 0s12 16 18 0 12-16 18 0"/></svg>`,
+  lineCurl: `<svg viewBox="0 0 60 60" preserveAspectRatio="none" fill="none" stroke="#1b1f2a" stroke-width="2" stroke-linecap="round"><path d="M42 10c-16-2-28 8-26 20 1.6 9.6 12 14 19 8 6-5 4-14-4-16-6.4-1.6-11 3.6-9 9.6"/></svg>`
+};
+const mathGeoGrid = document.getElementById('mathGeoGrid');
+if(mathGeoGrid){
+  Object.entries(MATH_SHAPES).forEach(([key,svg])=>{
+    const b = document.createElement('button');
+    b.innerHTML = svg;
+    b.title = key;
+    b.addEventListener('click', ()=> dropMathShape(svg));
+    mathGeoGrid.appendChild(b);
+  });
+}
+const mathGeoLabelModeEl = document.getElementById('mathGeoLabelMode');
+const mathGeoUnitRowEl = document.getElementById('mathGeoUnitRow');
+const mathGeoCustomRowEl = document.getElementById('mathGeoCustomRow');
+if(mathGeoLabelModeEl){
+  mathGeoLabelModeEl.addEventListener('change', ()=>{
+    const mode = mathGeoLabelModeEl.value;
+    mathGeoUnitRowEl.style.display = mode === 'unit' ? '' : 'none';
+    mathGeoCustomRowEl.style.display = mode === 'custom' ? '' : 'none';
+  });
+  mathGeoUnitRowEl.style.display = 'none';
+}
+function dropMathShape(svg){
+  const canvas = lastPageCanvas();
+  if(!canvas) return;
+  const fillDefault = svgFirstColor(svg,'fill');
+  const strokeDefault = svgFirstColor(svg,'stroke');
+  const item = document.createElement('div');
+  item.className='draggable-item';
+  item.style.left='40px';
+  item.style.top='40px';
+  item.style.width='110px';
+  item.style.height='110px';
+  item.innerHTML = `<button class="del-x">✕</button>
+    <div class="shape-controls">
+      <input type="color" class="shape-fill" value="${fillDefault}" title="ڕەنگی پڕکردنەوە">
+      <input type="color" class="shape-stroke" value="${strokeDefault}" title="ڕەنگی بۆردەر">
+    </div>
+    <div class="rotate-handle" title="ڕایکێشە بۆ سووڕاندن">↻</div>
+    <div class="shape-inner">${svg}</div><div class="resize-handle"></div>`;
+  canvas.style.position='relative';
+  canvas.appendChild(item);
+  makeDraggable(item);
+  makeRotatable(item);
+  item.querySelector('.shape-fill').addEventListener('input', e=> applyShapeColor(item, e.target.value, null));
+  item.querySelector('.shape-stroke').addEventListener('input', e=> applyShapeColor(item, null, e.target.value));
+  item.querySelectorAll('.shape-controls input').forEach(inp=> inp.addEventListener('pointerdown', e=> e.stopPropagation()));
+
+  /* attach the optional editable label chosen in the panel (choose a unit, or write custom text) */
+  const mode = mathGeoLabelModeEl ? mathGeoLabelModeEl.value : 'none';
+  if(mode !== 'none'){
+    const labelText = mode === 'unit'
+      ? (document.getElementById('mathGeoUnitSelect').value || '')
+      : (document.getElementById('mathGeoCustomInput').value || '......');
+    const label = document.createElement('div');
+    label.className = 'math-geo-label';
+    label.contentEditable = 'true';
+    label.textContent = labelText;
+    label.style.cssText = 'position:absolute;left:0;top:100%;margin-top:4px;min-width:40px;font-size:13px;color:#e8e6df;background:rgba(0,0,0,.35);border:1px dashed #7a5a1f;border-radius:4px;padding:2px 6px;white-space:nowrap;';
+    label.addEventListener('pointerdown', e=> e.stopPropagation());
+    item.appendChild(label);
+  }
 }
 
 /* free rotation for shapes: drag the ↻ handle around the shape to spin it to any angle */
