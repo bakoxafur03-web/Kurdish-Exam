@@ -216,7 +216,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
    Once content no longer fits, JS (see repaginate()) moves the overflow to a
    new page automatically instead of letting this box grow. */
 .page{
-  width:210mm;height:297mm;background:var(--paper);color:#1b1f2a;
+  width:var(--page-w,210mm);height:var(--page-h,297mm);background:var(--paper);color:#1b1f2a;
   box-shadow:0 25px 60px -20px rgba(0,0,0,.65);position:relative;
   font-family:'Noto Naskh Arabic','Tajawal',serif;
   border:6px double var(--navy);
@@ -508,6 +508,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .sqrt-inline .sqrt-sign{font-size:1.15em;line-height:1;transform:scaleY(1.35) scaleX(.8);transform-origin:bottom;margin-inline-end:1px;}
 .sqrt-inline .sqrt-content{border-top:1.4px solid currentColor;padding:1px 4px 0;min-width:12px;}
 .q-table td,.q-table th{border:1px solid var(--line);padding:6px 8px;}
+.q-table.active-table-target{outline:2px dashed var(--gold);outline-offset:3px;}
 .draggable-item .free-table{margin:0;width:100%;height:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;background:#fff;}
 .draggable-item .free-table td,.draggable-item .free-table th{border:1px solid var(--line);padding:6px 8px;overflow:hidden;}
 
@@ -546,6 +547,28 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .exporting .rotate-handle{display:none !important;}
 .shape-inner{width:100%;height:100%;}
 .shape-inner svg{width:100%;height:100%;display:block;}
+
+/* tap-to-select for touch/mobile: shows the same controls hover normally
+   reveals, so rotating/resizing/coloring works with a finger tap too, not
+   just a mouse hover */
+.draggable-item.dg-active .shape-controls,
+.draggable-item.dg-active .rotate-handle,
+.draggable-item.dg-active .del-x,
+.draggable-item.dg-active .shape-size-inputs{display:flex;}
+.draggable-item.dg-active .resize-handle{display:block;}
+
+/* numeric width/height inputs — precise size control for math-geometry
+   drawings and the simple grid tool, alongside the existing drag-resize handle */
+.shape-size-inputs{position:absolute;top:-12px;inset-inline-end:-12px;display:none;gap:3px;z-index:7;}
+.draggable-item:hover .shape-size-inputs{display:flex;}
+.shape-size-inputs input[type=number]{
+  width:34px;font-size:10px;padding:1px 2px;border:1px solid #fff;border-radius:4px;
+  box-shadow:0 1px 4px rgba(0,0,0,.3);text-align:center;
+}
+
+/* simple customizable grid / graph-paper tool */
+.math-grid-table{width:100%;height:100%;border-collapse:collapse;background:#fff;table-layout:fixed;}
+.math-grid-table td{border:1.4px solid var(--teal);}
 
 /* type text directly inside a shape, the same way Word lets you add a text
    caption on top of an autoshape — empty by default, only a subtle dashed
@@ -988,6 +1011,9 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
         <input class="tb-input" id="mathGeoCustomInput" data-i18n-placeholder="mathGeoCustomPlaceholder" placeholder="بۆ نموونە: 5 سم">
       </div>
       <div class="shape-grid" id="mathGeoGrid"></div>
+
+      <span class="tb-label" data-i18n="mathGridHeading">تۆڕی سادە / کاغەزی گراف (بەدڵی خۆت ژمارەی ستوون و ڕیز و قەبارەکەی دیاری بکە)</span>
+      <div class="tb-row"><button class="tb-btn" data-add="mathgrid"><span class="ic">▦</span><span data-i18n="addMathGrid">زیادکردنی تۆڕی سادە</span></button></div>
     </div>
 
     <div class="tb-section">
@@ -1044,7 +1070,27 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
     </div>
 
     <div class="tb-section">
+      <h3 data-i18n="tbTableColor">ڕەنگی خشتە</h3>
+      <span class="tb-hint" data-i18n="tableColorHint">سەرەتا کلیک لەسەر خشتەکە بکە بۆ دیاریکردنی، پاشان ڕەنگ هەڵبژێرە.</span>
+      <div class="tb-row" style="margin-top:8px;">
+        <input type="color" class="tb-color" id="tableBgColor" value="#ffffff" title="ڕەنگی باکگراوندی خشتە">
+        <input type="color" class="tb-color" id="tableTextColor" value="#1b1f2a" title="ڕەنگی نووسینی خشتە">
+        <input type="color" class="tb-color" id="tableBorderColor" value="#d8d2c2" title="ڕەنگی هێڵی خشتە">
+      </div>
+      <div class="tb-row" style="margin-top:8px;">
+        <button class="tb-btn" id="tableColorResetBtn"><span class="ic">✕</span><span data-i18n="resetTableColors">گەڕاندنەوەی ڕەنگی خشتە</span></button>
+      </div>
+    </div>
+
+    <div class="tb-section">
       <h3 data-i18n="tbPageStyle">ستایلی پەڕە</h3>
+      <span class="tb-label" data-i18n="pageSizeLbl">قەبارەی پەڕە</span>
+      <select class="tb-select" id="pageSizeSelect">
+        <option value="a4" selected data-i18n="sizeA4">A4 (210×297mm)</option>
+        <option value="a3" data-i18n="sizeA3">A3 (297×420mm)</option>
+        <option value="a5" data-i18n="sizeA5">A5 (148×210mm)</option>
+        <option value="letter" data-i18n="sizeLetter">Letter (215.9×279.4mm)</option>
+      </select>
       <span class="tb-label" data-i18n="borderStyle">شێوازی بۆردەر</span>
       <select class="tb-select" id="borderStyle">
         <option value="double" data-i18n="borderDouble">دووانی (پێشنیار)</option>
@@ -1169,7 +1215,11 @@ ku:{
  addBulletList:"زیادکردنی خاڵبەندی", bulletStyleLbl:"شێوازی خاڵبەندی", bulletStyleNumber:"بەژمارە", bulletStyleSymbol:"بەهێما", bulletStyleImage:"بەوێنە",
  bulletPlaceholder:"خاڵێکی نوێ بنووسە...", addBulletItemTitle:"زیادکردنی خاڵی نوێ", delBulletItemTitle:"سڕینەوەی ئەم خاڵە", pickBulletImgTitle:"هەڵبژاردنی وێنەی خاڵبەند",
  googleSearchTitle:"گەڕان بەم پرسیارە لە گووگڵ", renumberBtn:"ژمارەکردنەوەی خۆکاری پرسیارەکان", renumberTitle:"گەڕاندنەوەی هەموو ژمارەکان بۆ ڕیزبەندی خۆکار",
- addRidbendi:"زیادکردنی ڕیزبەندی", ridbendiCountPrompt:"چەند ژمارە دەتەوێت؟", ridbendiLayoutPrompt:"ئایا بە ستوونی (یەک لەژێر یەکەوە) ڕیز بکرێت؟\nباشە (OK) = ستوونی\nپاشگەزبوونەوە (Cancel) = ئاسۆیی (پاڵ بەپاڵ)"
+ addRidbendi:"زیادکردنی ڕیزبەندی", ridbendiCountPrompt:"چەند ژمارە دەتەوێت؟", ridbendiLayoutPrompt:"ئایا بە ستوونی (یەک لەژێر یەکەوە) ڕیز بکرێت؟\nباشە (OK) = ستوونی\nپاشگەزبوونەوە (Cancel) = ئاسۆیی (پاڵ بەپاڵ)",
+ tbTableColor:"ڕەنگی خشتە", tableColorHint:"سەرەتا کلیک لەسەر خشتەکە بکە بۆ دیاریکردنی، پاشان ڕەنگ هەڵبژێرە.", resetTableColors:"گەڕاندنەوەی ڕەنگی خشتە",
+ pageSizeLbl:"قەبارەی پەڕە", sizeA4:"A4 (210×297mm)", sizeA3:"A3 (297×420mm)", sizeA5:"A5 (148×210mm)", sizeLetter:"Letter (215.9×279.4mm)",
+ mathGridHeading:"تۆڕی سادە / کاغەزی گراف (بەدڵی خۆت ژمارەی ستوون و ڕیز و قەبارەکەی دیاری بکە)", addMathGrid:"زیادکردنی تۆڕی سادە",
+ gridRowsPrompt:"چەند ڕیز دەتەوێت بۆ تۆڕەکە؟", gridColsPrompt:"چەند ستوون دەتەوێت بۆ تۆڕەکە؟", shapeWidthTitle:"پان (px)", shapeHeightTitle:"درێژی (px)"
 },
 ar:{
  title:"منشئ الامتحانات", subtitle:"أنشئ ورقة امتحان احترافية وحمّلها بصيغة PDF",
@@ -1217,7 +1267,11 @@ ar:{
  allQSizeLbl:"حجم نص كل الأسئلة (بضغطة واحدة)", qSizeS:"صغير", qSizeM:"متوسط", qSizeL:"كبير", qSizeXl:"كبير جداً",
  addMath:"سؤال رياضي", addFree:"قسم حر", writeMathQuestion:"اكتب السؤال الرياضي هنا...",
  textAlign:"محاذاة النص", bgSizeLbl:"نمط حجم الصورة", bgCover:"تغطية (Cover)", bgContain:"احتواء (Contain)", bgStretch:"تمديد (Stretch)", bgScaleLbl:"تكبير/تصغير الصورة",
- aboutTitle:"حول التطبيق", aboutText:"تم تطوير هذا التطبيق بواسطة Bako Xafur، خريج قسم علوم الحاسوب ومتخصص في البرمجة.", aboutClose:"حسناً"
+ aboutTitle:"حول التطبيق", aboutText:"تم تطوير هذا التطبيق بواسطة Bako Xafur، خريج قسم علوم الحاسوب ومتخصص في البرمجة.", aboutClose:"حسناً",
+ tbTableColor:"ألوان الجدول", tableColorHint:"اضغط أولاً على الجدول لتحديده، ثم اختر اللون.", resetTableColors:"إعادة تعيين ألوان الجدول",
+ pageSizeLbl:"حجم الصفحة", sizeA4:"A4 (210×297mm)", sizeA3:"A3 (297×420mm)", sizeA5:"A5 (148×210mm)", sizeLetter:"Letter (215.9×279.4mm)",
+ mathGridHeading:"شبكة بسيطة / ورق مربعات (حدد بنفسك عدد الأعمدة والصفوف والحجم)", addMathGrid:"إضافة شبكة بسيطة",
+ gridRowsPrompt:"كم عدد صفوف الشبكة؟", gridColsPrompt:"كم عدد أعمدة الشبكة؟", shapeWidthTitle:"العرض (px)", shapeHeightTitle:"الارتفاع (px)"
 },
 en:{
  title:"Exam Builder", subtitle:"Build a professional exam paper and export it as PDF",
@@ -1265,7 +1319,11 @@ en:{
  allQSizeLbl:"Size of all questions' text (one click)", qSizeS:"Small", qSizeM:"Medium", qSizeL:"Large", qSizeXl:"Extra large",
  addMath:"Math question", addFree:"Free section", writeMathQuestion:"Write the math question here...",
  textAlign:"Text align", bgSizeLbl:"Image size mode", bgCover:"Cover", bgContain:"Contain", bgStretch:"Stretch", bgScaleLbl:"Zoom (enlarge/shrink)",
- aboutTitle:"About this app", aboutText:"This application was developed by Bako Xafur, a Computer Science graduate and programming specialist.", aboutClose:"OK"
+ aboutTitle:"About this app", aboutText:"This application was developed by Bako Xafur, a Computer Science graduate and programming specialist.", aboutClose:"OK",
+ tbTableColor:"Table colors", tableColorHint:"Click a table first to select it, then pick a color.", resetTableColors:"Reset table colors",
+ pageSizeLbl:"Page size", sizeA4:"A4 (210×297mm)", sizeA3:"A3 (297×420mm)", sizeA5:"A5 (148×210mm)", sizeLetter:"Letter (215.9×279.4mm)",
+ mathGridHeading:"Simple grid / graph paper (choose your own columns, rows, and size)", addMathGrid:"Add simple grid",
+ gridRowsPrompt:"How many grid rows?", gridColsPrompt:"How many grid columns?", shapeWidthTitle:"Width (px)", shapeHeightTitle:"Height (px)"
 }
 };
 let currentLang='ku';
@@ -1694,6 +1752,31 @@ document.getElementById('borderStyle').addEventListener('change', e=>{
 function applyBorderStyleToPage(p){
   p.dataset.border = document.getElementById('borderStyle').value;
 }
+
+/* ============================================================
+   PAGE SIZE (A3 / A4 / A5 / Letter) — applies to all pages and
+   is used again at PDF-export time so the exported file matches
+   the paper size chosen here.
+============================================================ */
+const PAGE_SIZES = {
+  a4:{ w:210, h:297, jspdf:'a4' },
+  a3:{ w:297, h:420, jspdf:'a3' },
+  a5:{ w:148, h:210, jspdf:'a5' },
+  letter:{ w:215.9, h:279.4, jspdf:'letter' }
+};
+let currentPageSize = 'a4';
+function applyPageSize(sizeKey){
+  const sz = PAGE_SIZES[sizeKey] || PAGE_SIZES.a4;
+  currentPageSize = PAGE_SIZES[sizeKey] ? sizeKey : 'a4';
+  document.documentElement.style.setProperty('--page-w', sz.w+'mm');
+  document.documentElement.style.setProperty('--page-h', sz.h+'mm');
+  schedulePaginate(0);
+}
+const pageSizeSelectEl = document.getElementById('pageSizeSelect');
+if(pageSizeSelectEl){
+  pageSizeSelectEl.addEventListener('change', e=> applyPageSize(e.target.value));
+}
+
 document.getElementById('bgImageInput').addEventListener('change', e=>{
   const file = e.target.files[0];
   if(!file) return;
@@ -2124,6 +2207,8 @@ document.querySelectorAll('[data-add]').forEach(btn=>{
     btn.addEventListener('click', dropTable);
   } else if(btn.dataset.add === 'ridbendi'){
     btn.addEventListener('click', dropRidbendi);
+  } else if(btn.dataset.add === 'mathgrid'){
+    btn.addEventListener('click', dropMathGrid);
   } else {
     btn.addEventListener('click', ()=> addBlock(btn.dataset.add));
   }
@@ -2243,6 +2328,63 @@ document.querySelectorAll('[data-cmd]').forEach(btn=>{
   btn.addEventListener('click', ()=> execFormat(btn.dataset.cmd));
 });
 document.getElementById('textColor').addEventListener('input', e=> execFormat('foreColor', e.target.value));
+
+/* ============================================================
+   TABLE COLORS (background / text / border) — click a table to
+   select it, then use the color pickers in the "ڕەنگی خشتە" panel.
+   If nothing was clicked yet, falls back to the most recently
+   inserted table so the tools still work right away.
+============================================================ */
+let activeTableEl = null;
+function setActiveTable(tbl){
+  if(activeTableEl) activeTableEl.classList.remove('active-table-target');
+  activeTableEl = tbl;
+  if(activeTableEl) activeTableEl.classList.add('active-table-target');
+}
+document.addEventListener('pointerdown', e=>{
+  const tbl = e.target.closest ? e.target.closest('.q-table, .free-table') : null;
+  if(tbl) setActiveTable(tbl);
+});
+function targetTableEl(){
+  if(activeTableEl && document.contains(activeTableEl)) return activeTableEl;
+  const tables = document.querySelectorAll('#pagesContainer .q-table, #pagesContainer .free-table');
+  return tables.length ? tables[tables.length-1] : null;
+}
+function applyTableBg(tbl, color){
+  tbl.style.background = color;
+}
+function applyTableTextColor(tbl, color){
+  tbl.style.color = color;
+}
+function applyTableBorderColor(tbl, color){
+  tbl.querySelectorAll('td, th').forEach(cell=> cell.style.borderColor = color);
+}
+const tableBgColorEl = document.getElementById('tableBgColor');
+const tableTextColorEl = document.getElementById('tableTextColor');
+const tableBorderColorEl = document.getElementById('tableBorderColor');
+const tableColorResetBtnEl = document.getElementById('tableColorResetBtn');
+if(tableBgColorEl) tableBgColorEl.addEventListener('input', e=>{
+  const tbl = targetTableEl();
+  if(tbl) applyTableBg(tbl, e.target.value);
+});
+if(tableTextColorEl) tableTextColorEl.addEventListener('input', e=>{
+  const tbl = targetTableEl();
+  if(tbl) applyTableTextColor(tbl, e.target.value);
+});
+if(tableBorderColorEl) tableBorderColorEl.addEventListener('input', e=>{
+  const tbl = targetTableEl();
+  if(tbl) applyTableBorderColor(tbl, e.target.value);
+});
+if(tableColorResetBtnEl) tableColorResetBtnEl.addEventListener('click', ()=>{
+  const tbl = targetTableEl();
+  if(!tbl) return;
+  tbl.style.background = '';
+  tbl.style.color = '';
+  tbl.querySelectorAll('td, th').forEach(cell=> cell.style.borderColor = '');
+  tableBgColorEl.value = '#ffffff';
+  tableTextColorEl.value = '#1b1f2a';
+  tableBorderColorEl.value = '#d8d2c2';
+});
 document.getElementById('boldAllBtn').addEventListener('mousedown', e=> e.preventDefault());
 document.getElementById('boldAllBtn').addEventListener('click', ()=>{
   restoreSelection();
@@ -2556,6 +2698,19 @@ const MATH_SHAPES = {
   perpendicularLines: `<svg viewBox="0 0 60 60" fill="none" stroke="#16365e" stroke-width="2"><path d="M8 30h44M30 8v44"/><path d="M28 30h6v6h-6z" stroke-width="1.2"/></svg>`,
   numberLine: `<svg viewBox="0 0 60 20" fill="none" stroke="#16365e" stroke-width="1.6"><path d="M2 10h56"/><path d="M2 10l6-3M2 10l6 3"/><path d="M54 10l-6-3M54 10l-6 3"/><path d="M10 6v8M20 6v8M30 6v8M40 6v8M50 6v8"/></svg>`,
   coordinatePlane: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.4"><path d="M6 6v52M6 58l52-52M6 6h52" stroke="none"/><path d="M4 54h52M30 4v52" stroke-width="1.8"/><path d="M4 44h52M4 34h52M4 24h52M4 14h52M14 4v52M24 4v52M44 4v52M54 4v52" stroke-width="0.5" opacity=".5"/><path d="M30 54l4-4M30 54l-4-4M54 30l-4-4M54 30l-4 4" stroke-width="1.8"/></svg>`,
+  coordinatePlaneQuadrants: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.8"><path d="M4 44h52M4 34h52M4 24h52M4 14h52M14 4v52M24 4v52M44 4v52M54 4v52" stroke-width="0.5" opacity=".5"/><path d="M4 30h52M30 4v52"/><path d="M52 30l4-4M52 30l4 4M30 8l-4 4M30 8l4 4"/><text x="42" y="18" font-size="8" stroke="none" fill="#1f6b4d">I</text><text x="12" y="18" font-size="8" stroke="none" fill="#1f6b4d">II</text><text x="12" y="46" font-size="8" stroke="none" fill="#1f6b4d">III</text><text x="42" y="46" font-size="8" stroke="none" fill="#1f6b4d">IV</text></svg>`,
+  coordinatePlanePoint: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.8"><path d="M4 30h52M30 4v52"/><path d="M52 30l4-4M52 30l4 4M30 8l-4 4M30 8l4 4"/><circle cx="42" cy="16" r="2.2" fill="#a6395a" stroke="none"/><path d="M42 16v14M42 30h0" stroke-width="1" stroke-dasharray="2,2"/><path d="M30 16h12" stroke-width="1" stroke-dasharray="2,2"/><text x="44" y="14" font-size="7" stroke="none" fill="#a6395a">A(x,y)</text></svg>`,
+  coordinatePlaneTwoPoints: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.8"><path d="M4 30h52M30 4v52"/><path d="M52 30l4-4M52 30l4 4M30 8l-4 4M30 8l4 4"/><circle cx="20" cy="38" r="2" fill="#a6395a" stroke="none"/><circle cx="46" cy="14" r="2" fill="#a6395a" stroke="none"/><path d="M20 38L46 14" stroke="#a6395a" stroke-width="1.6"/><path d="M20 38h26M46 38v-24" stroke-width="1" stroke-dasharray="2,2"/></svg>`,
+  coordinatePlaneLine: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.8"><path d="M4 30h52M30 4v52"/><path d="M52 30l4-4M52 30l4 4M30 8l-4 4M30 8l4 4"/><path d="M10 50L50 10" stroke="#16365e" stroke-width="1.8"/><text x="44" y="10" font-size="7" stroke="none" fill="#16365e">y=x</text></svg>`,
+  coordinatePlaneParabola: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.8"><path d="M4 30h52M30 4v52"/><path d="M52 30l4-4M52 30l4 4M30 8l-4 4M30 8l4 4"/><path d="M12 46Q30 6 48 46" stroke="#7a5a1f" stroke-width="1.8"/></svg>`,
+  coordinatePlaneCircleEq: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.8"><path d="M4 30h52M30 4v52"/><path d="M52 30l4-4M52 30l4 4M30 8l-4 4M30 8l4 4"/><circle cx="30" cy="30" r="16" stroke="#0d6e6e" stroke-width="1.8"/></svg>`,
+  coordinatePlaneFirstQuad: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.8"><path d="M52 44h8M52 44l-4-4M52 44l-4 4" stroke-width="1.6"/><path d="M8 4v40" stroke-width="1.6"/><path d="M8 44l-4-4M8 44l4-4" stroke-width="1.6"/><path d="M8 44h44"/><path d="M16 4v40M24 4v40M32 4v40M40 4v40M48 4v40M8 36h44M8 28h44M8 20h44M8 12h44" stroke-width="0.5" opacity=".5"/></svg>`,
+  coordinatePlaneVector: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.8"><path d="M4 30h52M30 4v52"/><path d="M52 30l4-4M52 30l4 4M30 8l-4 4M30 8l4 4"/><path d="M30 30L48 12" stroke="#a6395a" stroke-width="2"/><path d="M48 12l-7 1M48 12l-1 7" stroke="#a6395a" stroke-width="2"/></svg>`,
+  coordinatePlaneReflection: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.8"><path d="M4 30h52M30 4v52"/><path d="M52 30l4-4M52 30l4 4M30 8l-4 4M30 8l4 4"/><circle cx="40" cy="16" r="2" fill="#a6395a" stroke="none"/><circle cx="40" cy="44" r="2" fill="#16365e" stroke="none"/><path d="M40 16v28" stroke-width="1" stroke-dasharray="2,2"/></svg>`,
+  coordinatePlaneNoGrid: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="2"><path d="M4 30h52M30 4v52"/><path d="M52 30l4-4M52 30l4 4M30 8l-4 4M30 8l4 4M8 30l4-4M8 30l4 4M30 52l-4-4M30 52l4 4"/></svg>`,
+  coordinatePlaneSlopeTriangle: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1.8"><path d="M4 30h52M30 4v52"/><path d="M52 30l4-4M52 30l4 4M30 8l-4 4M30 8l4 4"/><path d="M16 40L44 16" stroke="#7a5a1f" stroke-width="1.8"/><path d="M16 40h28v-24" stroke="#8a3a2e" stroke-width="1.2" stroke-dasharray="2,2"/></svg>`,
+  polarCoordinate: `<svg viewBox="0 0 60 60" fill="none" stroke="#1f6b4d" stroke-width="1"><circle cx="30" cy="30" r="24"/><circle cx="30" cy="30" r="16"/><circle cx="30" cy="30" r="8"/><path d="M6 30h48M30 6v48M12 12l36 36M12 48l36-36" stroke-width="0.8"/></svg>`,
+  coordinatePlane3D: `<svg viewBox="0 0 60 60" fill="none" stroke="#3a3f7a" stroke-width="1.8"><path d="M30 54V10"/><path d="M6 42h48"/><path d="M18 50L44 22"/><path d="M30 10l-3 5M30 10l3 5"/><path d="M54 42l-6-2M54 42l-4 5"/><path d="M44 22l-2 6M44 22l-6-1"/><text x="31" y="12" font-size="6" stroke="none" fill="#3a3f7a">z</text><text x="48" y="42" font-size="6" stroke="none" fill="#3a3f7a">y</text><text x="40" y="20" font-size="6" stroke="none" fill="#3a3f7a">x</text></svg>`,
   cube: `<svg viewBox="0 0 24 24" fill="none" stroke="#3a3f7a" stroke-width="1.6"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v10l8 4 8-4V7M12 11v10"/></svg>`,
   cuboid: `<svg viewBox="0 0 60 60" fill="none" stroke="#3a3f7a" stroke-width="2"><path d="M6 20l14-8h28l-14 8z"/><path d="M6 20v26l14 8V28z"/><path d="M20 28l28 0v26l-28 0z"/><path d="M48 20v26"/></svg>`,
   cylinder: `<svg viewBox="0 0 60 60" fill="none" stroke="#3a3f7a" stroke-width="2"><ellipse cx="30" cy="12" rx="20" ry="7"/><path d="M10 12v32M50 12v32"/><path d="M10 44a20 7 0 0 0 40 0" /></svg>`,
@@ -2613,7 +2768,11 @@ function dropMathShape(svg){
   item.innerHTML = `<button class="del-x">✕</button>
     <div class="shape-controls">
       <input type="color" class="shape-fill" value="${fillDefault}" title="ڕەنگی پڕکردنەوە">
-      <input type="color" class="shape-stroke" value="${strokeDefault}" title="ڕەنگی بۆردەر">
+      <input type="color" class="shape-stroke" value="${strokeDefault}" title="ڕەنگی بۆردەر / هێڵ">
+    </div>
+    <div class="shape-size-inputs">
+      <input type="number" class="shape-w-input" min="20" max="900" value="110" title="پان (px)">
+      <input type="number" class="shape-h-input" min="20" max="900" value="110" title="درێژی (px)">
     </div>
     <div class="rotate-handle" title="ڕایکێشە بۆ سووڕاندن">↻</div>
     <div class="shape-inner">${svg}</div><div class="resize-handle"></div>`;
@@ -2624,6 +2783,24 @@ function dropMathShape(svg){
   item.querySelector('.shape-fill').addEventListener('input', e=> applyShapeColor(item, e.target.value, null));
   item.querySelector('.shape-stroke').addEventListener('input', e=> applyShapeColor(item, null, e.target.value));
   item.querySelectorAll('.shape-controls input').forEach(inp=> inp.addEventListener('pointerdown', e=> e.stopPropagation()));
+  /* reinforcement: these math-geometry drawings are outline-only (stroke,
+     no fill), so also push the picked color directly via inline style —
+     inline style wins over any attribute/stylesheet and inherits down to
+     every child line/curve that doesn't set its own stroke, guaranteeing
+     the color picker always visibly changes the drawing */
+  item.querySelector('.shape-fill').addEventListener('input', e=>{
+    item.querySelectorAll('svg [fill]').forEach(el=>{ if(el.getAttribute('fill')!=='none') el.style.fill = e.target.value; });
+  });
+  item.querySelector('.shape-stroke').addEventListener('input', e=>{
+    const svgEl = item.querySelector('svg');
+    if(svgEl) svgEl.style.stroke = e.target.value;
+    item.querySelectorAll('svg [stroke]').forEach(el=>{ if(el.getAttribute('stroke')!=='none') el.style.stroke = e.target.value; });
+  });
+  /* numeric width/height — exact size control for the drawing, in addition
+     to the existing drag-resize handle */
+  item.querySelector('.shape-w-input').addEventListener('input', e=>{ if(e.target.value) item.style.width = e.target.value+'px'; });
+  item.querySelector('.shape-h-input').addEventListener('input', e=>{ if(e.target.value) item.style.height = e.target.value+'px'; });
+  item.querySelectorAll('.shape-size-inputs input').forEach(inp=> inp.addEventListener('pointerdown', e=> e.stopPropagation()));
   attachShapeText(item);
 
   /* attach the optional editable label chosen in the panel (choose a unit, or write custom text) */
@@ -2667,6 +2844,52 @@ function makeRotatable(item){
     inner.style.transform = `rotate(${newAngle}deg)`;
   });
   handle.addEventListener('pointerup', ()=> rotating=false);
+}
+
+/* ============================================================
+   SIMPLE GRID / GRAPH PAPER (تۆڕی سادە)
+   A plain customizable grid — the user picks how many columns and rows,
+   then can freely drag-resize it or type exact width/height, same as the
+   math-geometry drawings above. Useful as graph paper for geometry work
+   or any lesson that needs a blank grid to draw or write on.
+============================================================ */
+function dropMathGrid(){
+  const canvas = lastPageCanvas();
+  if(!canvas) return;
+  const d = I18N[currentLang];
+  let rows = parseInt(prompt(d.gridRowsPrompt || d.tableRowsPrompt, '6'), 10);
+  let cols = parseInt(prompt(d.gridColsPrompt || d.tableColsPrompt, '6'), 10);
+  if(!rows || rows<1) rows = 6;
+  if(!cols || cols<1) cols = 6;
+  rows = Math.min(rows, 40);
+  cols = Math.min(cols, 40);
+  let rowsHtml = '';
+  for(let r=0;r<rows;r++){
+    rowsHtml += '<tr>';
+    for(let c=0;c<cols;c++) rowsHtml += '<td>&nbsp;</td>';
+    rowsHtml += '</tr>';
+  }
+  const initW = Math.min(500, Math.max(120, cols*28));
+  const initH = Math.min(500, Math.max(120, rows*28));
+  const item = document.createElement('div');
+  item.className='draggable-item';
+  item.style.left='30px';
+  item.style.top='30px';
+  item.style.width = initW+'px';
+  item.style.height = initH+'px';
+  item.innerHTML = `<button class="del-x">✕</button>
+    <div class="shape-size-inputs">
+      <input type="number" class="shape-w-input" min="40" max="900" value="${initW}" title="${d.shapeWidthTitle||'width'}">
+      <input type="number" class="shape-h-input" min="40" max="900" value="${initH}" title="${d.shapeHeightTitle||'height'}">
+    </div>
+    <table class="math-grid-table">${rowsHtml}</table>
+    <div class="resize-handle"></div>`;
+  canvas.style.position='relative';
+  canvas.appendChild(item);
+  makeDraggable(item);
+  item.querySelector('.shape-w-input').addEventListener('input', e=>{ if(e.target.value) item.style.width = e.target.value+'px'; });
+  item.querySelector('.shape-h-input').addEventListener('input', e=>{ if(e.target.value) item.style.height = e.target.value+'px'; });
+  item.querySelectorAll('.shape-size-inputs input').forEach(inp=> inp.addEventListener('pointerdown', ev=> ev.stopPropagation()));
 }
 
 /* ============================================================
@@ -2953,8 +3176,24 @@ function dropFreeLogo(src){
   makeDraggable(item);
 }
 
+/* tap/click anywhere on a draggable item marks it "active" so its hover-only
+   controls (rotate handle, resize handle, color pickers, size inputs) stay
+   visible without a mouse hovering — needed for touch/mobile use. Tapping
+   outside any item clears the active state. Bound once for the whole page. */
+if(!window.__dgOutsideBound){
+  window.__dgOutsideBound = true;
+  document.addEventListener('pointerdown', e=>{
+    if(!e.target.closest('.draggable-item')){
+      document.querySelectorAll('.draggable-item.dg-active').forEach(el=> el.classList.remove('dg-active'));
+    }
+  });
+}
 function makeDraggable(item){
   item.querySelector('.del-x').addEventListener('click', ()=> item.remove());
+  item.addEventListener('pointerdown', ()=>{
+    document.querySelectorAll('.draggable-item.dg-active').forEach(el=>{ if(el!==item) el.classList.remove('dg-active'); });
+    item.classList.add('dg-active');
+  });
   let dragging=false, sx=0, sy=0, ox=0, oy=0;
   item.addEventListener('pointerdown', e=>{
     if(e.target.classList.contains('resize-handle') || e.target.classList.contains('del-x')) return;
@@ -3016,7 +3255,8 @@ document.getElementById('exportBtn').addEventListener('click', async ()=>{
     const pages = document.querySelectorAll('.page');
     if(!pages.length) throw new Error('No pages to export.');
     const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ unit:'mm', format:'a4', orientation:'portrait' });
+    const exportSize = PAGE_SIZES[currentPageSize] || PAGE_SIZES.a4;
+    const pdf = new jsPDF({ unit:'mm', format:exportSize.jspdf, orientation:'portrait' });
 
     for(let i=0;i<pages.length;i++){
       const page = pages[i];
@@ -3027,7 +3267,7 @@ document.getElementById('exportBtn').addEventListener('click', async ()=>{
         logging:false
       });
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdfW = 210, pdfH = 297;
+      const pdfW = exportSize.w, pdfH = exportSize.h;
       const ratio = Math.min(pdfW/canvas.width, pdfH/canvas.height);
       const w = canvas.width*ratio, h = canvas.height*ratio;
       if(i>0) pdf.addPage();
@@ -3295,13 +3535,15 @@ applyI18n();
       const pages = document.querySelectorAll('.page');
       if(!pages.length) throw new Error('No pages to export.');
       const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ unit:'mm', format:'a4', orientation:'portrait' });
+      const exportSizeKey = (typeof currentPageSize!=='undefined' && PAGE_SIZES[currentPageSize]) ? currentPageSize : 'a4';
+      const exportSize = PAGE_SIZES[exportSizeKey];
+      const pdf = new jsPDF({ unit:'mm', format:exportSize.jspdf, orientation:'portrait' });
 
       for(let i=0;i<pages.length;i++){
         const page = pages[i];
         const canvas = await html2canvas(page, { scale:2.2, useCORS:true, backgroundColor:'#ffffff', logging:false });
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const pdfW = 210, pdfH = 297;
+        const pdfW = exportSize.w, pdfH = exportSize.h;
         const ratio = Math.min(pdfW/canvas.width, pdfH/canvas.height);
         const w = canvas.width*ratio, h = canvas.height*ratio;
         if(i>0) pdf.addPage();
