@@ -502,6 +502,11 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .frac-inline{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 4px;font-size:.92em;line-height:1.25;text-align:center;}
 .frac-inline .frac-top,.frac-inline .frac-bottom{padding:0 4px;min-width:10px;}
 .frac-inline .frac-bar{width:100%;height:1.4px;background:currentColor;margin:1px 0;}
+
+/* inline square root (radical sign + overline) built via the math toolbar */
+.sqrt-inline{display:inline-flex;align-items:flex-end;vertical-align:middle;margin:0 4px;direction:ltr;}
+.sqrt-inline .sqrt-sign{font-size:1.15em;line-height:1;transform:scaleY(1.35) scaleX(.8);transform-origin:bottom;margin-inline-end:1px;}
+.sqrt-inline .sqrt-content{border-top:1.4px solid currentColor;padding:1px 4px 0;min-width:12px;}
 .q-table td,.q-table th{border:1px solid var(--line);padding:6px 8px;}
 .draggable-item .free-table{margin:0;width:100%;height:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;background:#fff;}
 .draggable-item .free-table td,.draggable-item .free-table th{border:1px solid var(--line);padding:6px 8px;overflow:hidden;}
@@ -541,6 +546,17 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .exporting .rotate-handle{display:none !important;}
 .shape-inner{width:100%;height:100%;}
 .shape-inner svg{width:100%;height:100%;display:block;}
+
+/* type text directly inside a shape, the same way Word lets you add a text
+   caption on top of an autoshape — empty by default, only a subtle dashed
+   outline hints it's editable, and that outline never shows up in the export */
+.shape-text-layer{
+  position:absolute;inset:10%;display:flex;align-items:center;justify-content:center;
+  text-align:center;overflow:hidden;cursor:text;outline:none;
+  font-size:12px;line-height:1.2;color:#1b1f2a;word-break:break-word;padding:2px;
+}
+.shape-text-layer:hover,.shape-text-layer:focus{outline:1px dashed rgba(0,0,0,.4);}
+.exporting .shape-text-layer{outline:none !important;}
 
 .divider-line{border:none;border-top:2px dashed var(--line);margin:18px 0;}
 
@@ -629,6 +645,49 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
   .page{width:100%;}
 }
 </style>
+<style id="addon-features-style">
+/* ============================================================
+   ADDON FEATURES (additive only): Answer Key, Shuffle Versions, Undo/Redo
+============================================================ */
+.tb-section .tb-hint{font-size:10.5px;color:#9aa0b4;line-height:1.6;margin-top:6px;display:block;}
+.tb-row.addon-row{gap:8px;}
+.tb-btn.addon-undo, .tb-btn.addon-redo{flex:1;}
+.tb-btn.addon-undo:disabled, .tb-btn.addon-redo:disabled{opacity:.4;cursor:not-allowed;}
+.tb-btn.addon-key-btn{background:var(--rose);}
+.tb-btn.addon-shuffle-btn{background:var(--navy-2);}
+
+/* correct-answer marking — visible while editing in the builder so the
+   teacher can see at a glance what's marked, but stripped out of the
+   normal student PDF export */
+.opt.correct-opt .opt-letter{
+  box-shadow:0 0 0 2px var(--gold) inset;background:rgba(182,134,44,.18);
+  border-radius:50%;
+}
+.q-tf span.tf-correct{
+  box-shadow:0 0 0 2px var(--gold) inset;background:rgba(182,134,44,.18);
+  border-radius:5px;padding:0 4px;
+}
+.opt-letter{cursor:pointer;}
+.q-tf span{cursor:pointer;}
+
+/* hide the correct-answer marking during a NORMAL (student) PDF export */
+.exporting .opt.correct-opt .opt-letter{box-shadow:none;background:none;}
+.exporting .q-tf span.tf-correct{box-shadow:none;background:none;padding:0;}
+
+/* ...but show it clearly (in red) when exporting the ANSWER KEY version */
+.exporting.answerkey-export .opt.correct-opt .opt-letter{
+  box-shadow:0 0 0 2px #c0392b inset;background:rgba(192,57,43,.18);
+  color:#c0392b;font-weight:800;
+}
+.exporting.answerkey-export .q-tf span.tf-correct{
+  box-shadow:0 0 0 2px #c0392b inset;background:rgba(192,57,43,.18);
+  color:#c0392b;font-weight:800;border-radius:5px;padding:0 4px;
+}
+.answerkey-banner{
+  background:#c0392b;color:#fff;font-weight:800;font-size:13px;
+  text-align:center;padding:5px 0;letter-spacing:.5px;
+}
+</style>
 </head>
 <body>
 
@@ -646,6 +705,7 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
       <button data-lang="ar">العربية</button>
       <button data-lang="en">English</button>
     </div>
+    <button class="about-btn-header" id="googleTranslateBtn" title="Google Translate" data-i18n-title="googleTranslateTitle">🌐</button>
     <button class="about-btn-header" id="aboutBtn" title="About">ℹ</button>
   </div>
 </header>
@@ -902,6 +962,7 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
       <div class="tb-row">
         <button class="tb-btn" id="insertFractionBtn"><span class="ic">a/b</span><span data-i18n="addFraction">کەرتی ڕێژە (کەسر)</span></button>
         <button class="tb-btn" id="insertExponentBtn"><span class="ic">xⁿ</span><span data-i18n="addExponent">ژمارەی توانا</span></button>
+        <button class="tb-btn" id="insertSqrtBtn"><span class="ic">√</span><span data-i18n="addSqrt">ڕەگی هێما (√)</span></button>
       </div>
       <span class="tb-label" data-i18n="equation">دانانی یەکسانی (LaTeX)</span>
       <div class="tb-row"><input class="tb-input" id="eqInput" placeholder="مونال: \frac{a}{b}+\sqrt{x}"></div>
@@ -1022,6 +1083,30 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
         ئەم سیستەمە پەڕەکان وەک وێنە دەگرێت بۆ ئەوەی نووسینی کوردی/عەرەبی بە تەواوی ڕێک بێت لە PDF کەدا.
       </p>
     </div>
+    <div class="tb-section" id="addonHistorySection">
+      <h3 id="addonHistoryTitle">گەڕانەوە/دووبارەکردنەوە</h3>
+      <div class="tb-row addon-row">
+        <button class="tb-btn addon-undo" id="addonUndoBtn" type="button" disabled><span class="ic">↶</span><span id="addonUndoLbl">گەڕانەوە</span></button>
+        <button class="tb-btn addon-redo" id="addonRedoBtn" type="button" disabled><span class="ic">↷</span><span id="addonRedoLbl">دووبارەکردنەوە</span></button>
+      </div>
+      <span class="tb-hint" id="addonHistoryHint">Ctrl+Z گەڕانەوە، Ctrl+Y دووبارەکردنەوە</span>
+    </div>
+
+    <div class="tb-section" id="addonAnswerKeySection">
+      <h3 id="addonAnswerKeyTitle">وەڵامی ڕاست (Answer Key)</h3>
+      <span class="tb-hint" id="addonAnswerKeyHint">کلیک لەسەر پیتی هەڵبژاردنێک (Ⓐ...) یان لەسەر ڕاست/هەڵە بکە بۆ دیاریکردنی وەڵامی ڕاست، پاشان دوگمەی خوارەوە بەکاربێنە.</span>
+      <div class="tb-row" style="margin-top:8px;">
+        <button class="tb-btn addon-key-btn" id="addonExportKeyBtn" type="button"><span class="ic">🔑</span><span id="addonExportKeyLbl">دابەزاندنی وەڵامی ڕاست (PDF)</span></button>
+      </div>
+    </div>
+
+    <div class="tb-section" id="addonShuffleSection">
+      <h3 id="addonShuffleTitle">وەشانی جیاواز</h3>
+      <span class="tb-hint" id="addonShuffleHint">ڕیزبەندی پرسیارەکان و هەڵبژاردنەکانیان بەهەڕەمەکی دەگۆڕێت بۆ دروستکردنی وەشانێکی نوێ لە هەمان تاقیکردنەوە (دژی ساختەکاری). دەتوانیت بە Undo بیگەڕێنیتەوە.</span>
+      <div class="tb-row" style="margin-top:8px;">
+        <button class="tb-btn addon-shuffle-btn" id="addonShuffleBtn" type="button"><span class="ic">🔀</span><span id="addonShuffleLbl">دروستکردنی وەشانی تێکەڵ</span></button>
+      </div>
+    </div>
   </aside>
 
   <main class="main-area">
@@ -1072,8 +1157,8 @@ ku:{
  colOne:"ستوونی یەکەم...", colTwo:"ستوونی دووەم...",
  removeBlock:"سڕینەوەی ئەم بەشە", headerDeleteTitle:"سڕینەوەی سەرنووس", headerRestoreTitle:"گەڕاندنەوەی سەرنووس", termLbl:"خولی یەکەم",
  tableRowsPrompt:"چەند ڕیز دەتەوێت؟", tableColsPrompt:"چەند ستوون دەتەوێت؟",
- mcqColsLbl:"ژمارەی هەڵبژاردن لە هەر ڕیزێک", addFraction:"کەرتی ڕێژە (کەسر)", addExponent:"ژمارەی توانا",
- fracTop:"ژمارەی سەرەوە", fracBottom:"ژمارەی خوارەوە", baseNum:"بنچینە", expNum:"توان", mathStructures:"پێکهاتەی بیرکاری (کلیک بکە بۆ زیادکردن لە شوێنی کەرسەر)",
+ mcqColsLbl:"ژمارەی هەڵبژاردن لە هەر ڕیزێک", addFraction:"کەرتی ڕێژە (کەسر)", addExponent:"ژمارەی توانا", addSqrt:"ڕەگی هێما (√)",
+ fracTop:"ژمارەی سەرەوە", fracBottom:"ژمارەی خوارەوە", baseNum:"بنچینە", expNum:"توان", sqrtContent:"ژمارە", mathStructures:"پێکهاتەی بیرکاری (کلیک بکە بۆ زیادکردن لە شوێنی کەرسەر)",
  wholeBlockLbl:"بۆڵدکردنی هەموو دەقی پرسیارەکە بەیەکجار", boldAll:"بۆڵدی هەمووی بکە",
  allQSizeLbl:"گەورەیی دەقی هەموو پرسیارەکان (بەیەک کلیک)", qSizeS:"بچووک", qSizeM:"ناوەند", qSizeL:"گەورە", qSizeXl:"زۆر گەورە",
  addMath:"پرسیاری بیرکاری", addFree:"کەرتی ئازاد", writeMathQuestion:"پرسیارە بیرکارییەکە لێرە بنووسە...",
@@ -1126,8 +1211,8 @@ ar:{
  addRidbendi:"إضافة ترقيم متسلسل", ridbendiCountPrompt:"كم رقماً تريد؟", ridbendiLayoutPrompt:"هل تريد ترتيبها عمودياً (فوق بعضها)؟\nموافق (OK) = عمودي\nإلغاء (Cancel) = أفقي (جنباً إلى جنب)",
  removeBlock:"حذف هذا الجزء", headerDeleteTitle:"حذف الترويسة", headerRestoreTitle:"استعادة الترويسة", termLbl:"الفصل الأول",
  tableRowsPrompt:"كم عدد الصفوف؟", tableColsPrompt:"كم عدد الأعمدة؟",
- mcqColsLbl:"عدد الخيارات في كل صف", addFraction:"قسم كسر", addExponent:"رقم أُس",
- fracTop:"الرقم العلوي", fracBottom:"الرقم السفلي", baseNum:"الأساس", expNum:"الأُس", mathStructures:"تراكيب رياضية (اضغط للإضافة عند المؤشر)",
+ mcqColsLbl:"عدد الخيارات في كل صف", addFraction:"قسم كسر", addExponent:"رقم أُس", addSqrt:"جذر (√)",
+ fracTop:"الرقم العلوي", fracBottom:"الرقم السفلي", baseNum:"الأساس", expNum:"الأُس", sqrtContent:"رقم", mathStructures:"تراكيب رياضية (اضغط للإضافة عند المؤشر)",
  wholeBlockLbl:"تعريض كل نص السؤال دفعة واحدة", boldAll:"تعريض الكل",
  allQSizeLbl:"حجم نص كل الأسئلة (بضغطة واحدة)", qSizeS:"صغير", qSizeM:"متوسط", qSizeL:"كبير", qSizeXl:"كبير جداً",
  addMath:"سؤال رياضي", addFree:"قسم حر", writeMathQuestion:"اكتب السؤال الرياضي هنا...",
@@ -1174,8 +1259,8 @@ en:{
  addRidbendi:"Add numbered sequence", ridbendiCountPrompt:"How many numbers do you want?", ridbendiLayoutPrompt:"Arrange them in a column (stacked)?\nOK = Column\nCancel = Row (side by side)",
  removeBlock:"Remove this block", headerDeleteTitle:"Delete header", headerRestoreTitle:"Restore header", termLbl:"First Term",
  tableRowsPrompt:"How many rows?", tableColsPrompt:"How many columns?",
- mcqColsLbl:"Choices per row", addFraction:"Fraction block", addExponent:"Exponent number",
- fracTop:"Top number", fracBottom:"Bottom number", baseNum:"Base", expNum:"Exponent", mathStructures:"Math structures (click to insert at cursor)",
+ mcqColsLbl:"Choices per row", addFraction:"Fraction block", addExponent:"Exponent number", addSqrt:"Square root (√)",
+ fracTop:"Top number", fracBottom:"Bottom number", baseNum:"Base", expNum:"Exponent", sqrtContent:"number", mathStructures:"Math structures (click to insert at cursor)",
  wholeBlockLbl:"Bold the whole question text at once", boldAll:"Bold all",
  allQSizeLbl:"Size of all questions' text (one click)", qSizeS:"Small", qSizeM:"Medium", qSizeL:"Large", qSizeXl:"Extra large",
  addMath:"Math question", addFree:"Free section", writeMathQuestion:"Write the math question here...",
@@ -1302,6 +1387,10 @@ document.getElementById('btnBackGallery').addEventListener('click', ()=>{
   document.getElementById('galleryScreen').style.display='block';
 });
 
+/* opens Google Translate in a new tab so the user can translate any text they need while editing */
+document.getElementById('googleTranslateBtn').addEventListener('click', ()=>{
+  window.open('https://translate.google.com/', '_blank', 'noopener');
+});
 document.getElementById('aboutBtn').addEventListener('click', ()=>{
   document.getElementById('aboutOverlay').classList.add('active');
 });
@@ -2260,6 +2349,17 @@ document.getElementById('insertExponentBtn').addEventListener('click', ()=>{
   savedRange.insertNode(frag);
   placeCursorAfter(sup);
 });
+document.getElementById('insertSqrtBtn').addEventListener('click', ()=>{
+  restoreSelection();
+  if(!savedRange) return;
+  const d = I18N[currentLang];
+  const wrap = document.createElement('span');
+  wrap.className = 'sqrt-inline';
+  wrap.innerHTML = `<span class="sqrt-sign">√</span><span class="sqrt-content">${d.sqrtContent}</span>`;
+  savedRange.deleteContents();
+  savedRange.insertNode(wrap);
+  placeCursorAfter(wrap);
+});
 document.getElementById('insertEqBtn').addEventListener('click', ()=>{
   const latex = document.getElementById('eqInput').value.trim();
   if(!latex) return;
@@ -2366,6 +2466,18 @@ Object.entries(SHAPES).forEach(([key,svg])=>{
   b.addEventListener('click', ()=> dropShape(svg));
   shapeGrid.appendChild(b);
 });
+/* lets the user type text on top of a shape, exactly like Word's "add text to
+   shape" — the layer starts completely empty (nothing is written for them),
+   a single click focuses it for typing, and it stays out of the way of the
+   normal drag/resize/rotate handles. */
+function attachShapeText(item){
+  const layer = document.createElement('div');
+  layer.className = 'shape-text-layer';
+  layer.contentEditable = 'true';
+  layer.addEventListener('pointerdown', e=> e.stopPropagation());
+  item.appendChild(layer);
+  return layer;
+}
 function svgFirstColor(svg, attr){
   const m = svg.match(new RegExp(attr+'="(#[0-9a-fA-F]{3,6})"'));
   return m ? m[1] : (attr==='fill' ? '#1f6b4d' : '#16365e');
@@ -2407,6 +2519,7 @@ function dropShape(svg){
   item.querySelector('.shape-fill').addEventListener('input', e=> applyShapeColor(item, e.target.value, null));
   item.querySelector('.shape-stroke').addEventListener('input', e=> applyShapeColor(item, null, e.target.value));
   item.querySelectorAll('.shape-controls input').forEach(inp=> inp.addEventListener('pointerdown', e=> e.stopPropagation()));
+  attachShapeText(item);
 }
 
 /* ============================================================
@@ -2511,6 +2624,7 @@ function dropMathShape(svg){
   item.querySelector('.shape-fill').addEventListener('input', e=> applyShapeColor(item, e.target.value, null));
   item.querySelector('.shape-stroke').addEventListener('input', e=> applyShapeColor(item, null, e.target.value));
   item.querySelectorAll('.shape-controls input').forEach(inp=> inp.addEventListener('pointerdown', e=> e.stopPropagation()));
+  attachShapeText(item);
 
   /* attach the optional editable label chosen in the panel (choose a unit, or write custom text) */
   const mode = mathGeoLabelModeEl ? mathGeoLabelModeEl.value : 'none';
@@ -2937,6 +3051,334 @@ document.getElementById('exportBtn').addEventListener('click', async ()=>{
 ============================================================ */
 buildSubjectSelect();
 applyI18n();
+
+/* ============================================================
+   ADDON FEATURES (purely additive — nothing above this point was
+   changed): 1) Undo/Redo  2) Answer Key generator  3) Shuffled
+   exam versions (anti-cheating)
+============================================================ */
+(function(){
+
+  /* ---------- 0) small i18n for the new toolbar labels ---------- */
+  const ADDON_I18N = {
+    ku:{ historyTitle:'گەڕانەوە/دووبارەکردنەوە', undo:'گەڕانەوە', redo:'دووبارەکردنەوە',
+         historyHint:'Ctrl+Z گەڕانەوە، Ctrl+Y دووبارەکردنەوە',
+         keyTitle:'وەڵامی ڕاست (Answer Key)',
+         keyHint:'کلیک لەسەر پیتی هەڵبژاردنێک (Ⓐ...) یان Alt+کلیک لەسەر ڕاست/هەڵە بکە بۆ دیاریکردنی وەڵامی ڕاست، پاشان دوگمەی خوارەوە بەکاربێنە.',
+         keyExport:'دابەزاندنی وەڵامی ڕاست (PDF)',
+         shuffleTitle:'وەشانی جیاواز',
+         shuffleHint:'ڕیزبەندی پرسیارەکان و هەڵبژاردنەکانیان بەهەڕەمەکی دەگۆڕێت بۆ دروستکردنی وەشانێکی نوێ لە هەمان تاقیکردنەوە (دژی ساختەکاری). دەتوانیت بە Undo بیگەڕێنیتەوە.',
+         shuffleBtn:'دروستکردنی وەشانی تێکەڵ',
+         notEnough:'کەمتر لە دوو پرسیار هەیە، ناتوانرێت تێکەڵ بکرێت.',
+         keyErr:'هەڵەیەک ڕوویدا لە دروستکردنی وەڵامی ڕاست. تکایە دڵنیابەرەوە ئینتەرنێتت کارایە.',
+         banner:'ANSWER KEY — Teacher Copy', suffix:'-وەڵامی ڕاست' },
+    ar:{ historyTitle:'تراجع/إعادة', undo:'تراجع', redo:'إعادة',
+         historyHint:'Ctrl+Z للتراجع، Ctrl+Y للإعادة',
+         keyTitle:'مفتاح الإجابات',
+         keyHint:'انقر على حرف الاختيار (Ⓐ...) أو Alt+نقر على صح/خطأ لتحديد الإجابة الصحيحة، ثم استخدم الزر أدناه.',
+         keyExport:'تنزيل مفتاح الإجابات (PDF)',
+         shuffleTitle:'نسخة مختلفة',
+         shuffleHint:'يعيد ترتيب الأسئلة والخيارات عشوائياً لإنشاء نسخة جديدة من نفس الامتحان (لمنع الغش). يمكن التراجع عنه بـ Undo.',
+         shuffleBtn:'إنشاء نسخة مبعثرة',
+         notEnough:'عدد الأسئلة قليل جداً للخلط.',
+         keyErr:'حدث خطأ أثناء إنشاء ملف الإجابات. تأكد من اتصال الإنترنت.',
+         banner:'ANSWER KEY — Teacher Copy', suffix:'-الإجابات' },
+    en:{ historyTitle:'Undo / Redo', undo:'Undo', redo:'Redo',
+         historyHint:'Ctrl+Z to undo, Ctrl+Y to redo',
+         keyTitle:'Answer Key',
+         keyHint:'Click an option letter (Ⓐ...) or Alt+click True/False to mark the correct answer, then use the button below.',
+         keyExport:'Download Answer Key (PDF)',
+         shuffleTitle:'Shuffle Versions',
+         shuffleHint:'Randomly reorders questions and their options to create a different version of the same exam (anti-cheating). Undoable.',
+         shuffleBtn:'Generate shuffled version',
+         notEnough:'Not enough questions to shuffle.',
+         keyErr:'Something went wrong creating the answer key PDF. Check your connection.',
+         banner:'ANSWER KEY — Teacher Copy', suffix:'-answerkey' }
+  };
+  function addonApplyI18n(lang){
+    const d = ADDON_I18N[lang] || ADDON_I18N.ku;
+    document.getElementById('addonHistoryTitle').textContent = d.historyTitle;
+    document.getElementById('addonUndoLbl').textContent = d.undo;
+    document.getElementById('addonRedoLbl').textContent = d.redo;
+    document.getElementById('addonHistoryHint').textContent = d.historyHint;
+    document.getElementById('addonAnswerKeyTitle').textContent = d.keyTitle;
+    document.getElementById('addonAnswerKeyHint').textContent = d.keyHint;
+    document.getElementById('addonExportKeyLbl').textContent = d.keyExport;
+    document.getElementById('addonShuffleTitle').textContent = d.shuffleTitle;
+    document.getElementById('addonShuffleHint').textContent = d.shuffleHint;
+    document.getElementById('addonShuffleLbl').textContent = d.shuffleBtn;
+  }
+  document.querySelectorAll('.lang-switch button[data-lang]').forEach(b=>{
+    b.addEventListener('click', ()=> addonApplyI18n(b.dataset.lang));
+  });
+  addonApplyI18n('ku');
+  function addonLang(){ return (typeof currentLang!=='undefined' && ADDON_I18N[currentLang]) ? currentLang : 'ku'; }
+
+  /* ---------- 1) UNDO / REDO ----------
+     Generic, listener-safe history: we record raw MutationObserver
+     records (grouped into short batches) and reverse/replay them by
+     moving the *actual* DOM nodes back and forth. Because nodes are
+     moved (not cloned), every drag handle / delete button / color
+     picker listener already attached to them keeps working after an
+     undo or redo — nothing needs to be re-wired. */
+  const pagesContainerEl = document.getElementById('pagesContainer');
+  const undoStack = [];
+  const redoStack = [];
+  let addonPendingBatch = [];
+  let addonBatchTimer = null;
+
+  const addonObserverConfig = {
+    childList:true, subtree:true,
+    attributes:true, attributeOldValue:true, attributeFilter:['style','class'],
+    characterData:true, characterDataOldValue:true
+  };
+
+  function addonUpdateButtons(){
+    const u = document.getElementById('addonUndoBtn');
+    const r = document.getElementById('addonRedoBtn');
+    if(u) u.disabled = undoStack.length===0;
+    if(r) r.disabled = redoStack.length===0;
+  }
+
+  function addonFinalizeBatch(){
+    if(addonBatchTimer){ clearTimeout(addonBatchTimer); addonBatchTimer=null; }
+    if(addonPendingBatch.length){
+      undoStack.push({records: addonPendingBatch});
+      if(undoStack.length>60) undoStack.shift();
+      redoStack.length = 0;
+      addonPendingBatch = [];
+      addonUpdateButtons();
+    }
+  }
+
+  const addonObserver = new MutationObserver(muts=>{
+    muts.forEach(m=>{
+      addonPendingBatch.push({
+        type:m.type, target:m.target,
+        addedNodes:Array.from(m.addedNodes), removedNodes:Array.from(m.removedNodes),
+        previousSibling:m.previousSibling, nextSibling:m.nextSibling,
+        attributeName:m.attributeName, oldValue:m.oldValue,
+        newValue: m.type==='attributes' ? m.target.getAttribute(m.attributeName)
+                 : (m.type==='characterData' ? m.target.data : null)
+      });
+    });
+    clearTimeout(addonBatchTimer);
+    addonBatchTimer = setTimeout(addonFinalizeBatch, 700);
+  });
+  if(pagesContainerEl) addonObserver.observe(pagesContainerEl, addonObserverConfig);
+
+  function addonApplyInverse(r){
+    if(r.type==='childList'){
+      r.addedNodes.forEach(n=>{ if(n.parentNode===r.target) r.target.removeChild(n); });
+      const ref = (r.nextSibling && r.nextSibling.parentNode===r.target) ? r.nextSibling : null;
+      r.removedNodes.forEach(n=> r.target.insertBefore(n, ref));
+    } else if(r.type==='attributes'){
+      if(r.oldValue===null) r.target.removeAttribute(r.attributeName);
+      else r.target.setAttribute(r.attributeName, r.oldValue);
+    } else if(r.type==='characterData'){
+      r.target.data = r.oldValue;
+    }
+  }
+  function addonApplyForward(r){
+    if(r.type==='childList'){
+      r.removedNodes.forEach(n=>{ if(n.parentNode===r.target) r.target.removeChild(n); });
+      const ref = (r.nextSibling && r.nextSibling.parentNode===r.target) ? r.nextSibling : null;
+      r.addedNodes.forEach(n=> r.target.insertBefore(n, ref));
+    } else if(r.type==='attributes'){
+      if(r.newValue===null) r.target.removeAttribute(r.attributeName);
+      else r.target.setAttribute(r.attributeName, r.newValue);
+    } else if(r.type==='characterData'){
+      r.target.data = r.newValue;
+    }
+  }
+  function addonSettleAfterHistoryChange(){
+    try{ if(typeof renumberQuestions==='function') renumberQuestions(); }catch(e){}
+    try{ if(typeof refreshScore==='function') refreshScore(); }catch(e){}
+    try{ if(typeof repaginate==='function') repaginate(); }catch(e){}
+  }
+  function addonUndo(){
+    addonFinalizeBatch();
+    if(!undoStack.length) return;
+    const batch = undoStack.pop();
+    addonObserver.disconnect();
+    for(let k=batch.records.length-1;k>=0;k--) addonApplyInverse(batch.records[k]);
+    addonSettleAfterHistoryChange();
+    if(pagesContainerEl) addonObserver.observe(pagesContainerEl, addonObserverConfig);
+    redoStack.push(batch);
+    if(redoStack.length>60) redoStack.shift();
+    addonUpdateButtons();
+  }
+  function addonRedo(){
+    if(!redoStack.length) return;
+    const batch = redoStack.pop();
+    addonObserver.disconnect();
+    batch.records.forEach(r=> addonApplyForward(r));
+    addonSettleAfterHistoryChange();
+    if(pagesContainerEl) addonObserver.observe(pagesContainerEl, addonObserverConfig);
+    undoStack.push(batch);
+    if(undoStack.length>60) undoStack.shift();
+    addonUpdateButtons();
+  }
+  const addonUndoBtn = document.getElementById('addonUndoBtn');
+  const addonRedoBtn = document.getElementById('addonRedoBtn');
+  if(addonUndoBtn) addonUndoBtn.addEventListener('click', addonUndo);
+  if(addonRedoBtn) addonRedoBtn.addEventListener('click', addonRedo);
+  document.addEventListener('keydown', function(e){
+    const tag = (e.target && e.target.tagName) || '';
+    if(tag==='INPUT' || tag==='TEXTAREA' || tag==='SELECT') return;
+    const key = e.key ? e.key.toLowerCase() : '';
+    if((e.ctrlKey||e.metaKey) && key==='z' && !e.shiftKey){ e.preventDefault(); addonUndo(); }
+    else if((e.ctrlKey||e.metaKey) && (key==='y' || (key==='z' && e.shiftKey))){ e.preventDefault(); addonRedo(); }
+  });
+  addonUpdateButtons();
+
+  /* ---------- 2) ANSWER KEY ----------
+     Click an option letter (Ⓐ Ⓑ Ⓒ Ⓓ) to mark it the correct answer
+     for that MCQ; Alt+click True/False to mark the correct side.
+     Marks are visible (gold) only in the builder; a dedicated export
+     renders them in red on a separate teacher-only PDF, and they never
+     appear in the normal student PDF export. */
+  if(pagesContainerEl){
+    pagesContainerEl.addEventListener('click', function(e){
+      const letter = e.target.closest ? e.target.closest('.opt-letter') : null;
+      if(letter){
+        const opt = letter.closest('.opt');
+        const group = letter.closest('.q-options');
+        if(opt && group){
+          const wasCorrect = opt.classList.contains('correct-opt');
+          group.querySelectorAll('.opt').forEach(o=> o.classList.remove('correct-opt'));
+          if(!wasCorrect) opt.classList.add('correct-opt');
+        }
+        e.preventDefault();
+        return;
+      }
+      if(e.altKey){
+        const tfSpan = e.target.closest ? e.target.closest('.q-tf span') : null;
+        if(tfSpan){
+          const group = tfSpan.closest('.q-tf');
+          const wasCorrect = tfSpan.classList.contains('tf-correct');
+          group.querySelectorAll('span').forEach(s=> s.classList.remove('tf-correct'));
+          if(!wasCorrect) tfSpan.classList.add('tf-correct');
+          e.preventDefault();
+        }
+      }
+    });
+  }
+
+  async function addonExportAnswerKey(){
+    const btn = document.getElementById('addonExportKeyBtn');
+    if(!btn) return;
+    const originalLabel = btn.innerHTML;
+    const d = ADDON_I18N[addonLang()];
+
+    btn.innerHTML = '<span class="ic">⏳</span><span>...</span>';
+    btn.disabled = true;
+    document.body.classList.add('exporting','answerkey-export');
+    addonObserver.disconnect();
+
+    const injectedBanners = [];
+    document.querySelectorAll('.page').forEach(page=>{
+      const banner = document.createElement('div');
+      banner.className = 'answerkey-banner';
+      banner.textContent = d.banner;
+      page.insertBefore(banner, page.firstChild);
+      injectedBanners.push(banner);
+    });
+
+    try{
+      if(typeof html2canvas==='undefined' || !window.jspdf){
+        throw new Error('PDF libraries failed to load (html2canvas / jsPDF).');
+      }
+      await new Promise(r=> document.fonts ? document.fonts.ready.then(r) : setTimeout(r,300));
+      await new Promise(r=> setTimeout(r,250));
+
+      const pages = document.querySelectorAll('.page');
+      if(!pages.length) throw new Error('No pages to export.');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit:'mm', format:'a4', orientation:'portrait' });
+
+      for(let i=0;i<pages.length;i++){
+        const page = pages[i];
+        const canvas = await html2canvas(page, { scale:2.2, useCORS:true, backgroundColor:'#ffffff', logging:false });
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const pdfW = 210, pdfH = 297;
+        const ratio = Math.min(pdfW/canvas.width, pdfH/canvas.height);
+        const w = canvas.width*ratio, h = canvas.height*ratio;
+        if(i>0) pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', (pdfW-w)/2, 0, w, Math.min(h,pdfH));
+      }
+
+      const nameInput = document.getElementById('pdfName');
+      const baseName = (nameInput && nameInput.value.trim()) || 'exam';
+      pdf.save(baseName + d.suffix + '.pdf');
+    } catch(err){
+      console.error('Answer key export failed:', err);
+      alert(d.keyErr);
+    } finally {
+      injectedBanners.forEach(b=> b.remove());
+      document.body.classList.remove('exporting','answerkey-export');
+      if(pagesContainerEl) addonObserver.observe(pagesContainerEl, addonObserverConfig);
+      btn.innerHTML = originalLabel;
+      btn.disabled = false;
+    }
+  }
+  const addonExportKeyBtn = document.getElementById('addonExportKeyBtn');
+  if(addonExportKeyBtn) addonExportKeyBtn.addEventListener('click', addonExportAnswerKey);
+
+  /* ---------- 3) SHUFFLED EXAM VERSIONS (anti-cheating) ----------
+     Reorders the actual question blocks (moving the real DOM nodes,
+     so every listener on them keeps working) and, inside each MCQ,
+     shuffles which option-text/"correct" pair sits under which fixed
+     letter (Ⓐ/Ⓑ/Ⓒ/Ⓓ stay in place, their contents swap). The whole
+     operation is a normal set of DOM mutations, so it's captured by
+     the Undo/Redo history above like anything else. */
+  function addonShuffleArray(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      const tmp = arr[i]; arr[i]=arr[j]; arr[j]=tmp;
+    }
+    return arr;
+  }
+  function addonShuffleOptionsInBlock(qBlock){
+    const optsContainer = qBlock.querySelector('.q-options');
+    if(!optsContainer) return;
+    const opts = [...optsContainer.querySelectorAll('.opt')];
+    if(opts.length<2) return;
+    const data = opts.map(o=>{
+      const textEl = o.querySelector('.opt-text');
+      return { html: textEl ? textEl.innerHTML : '', correct: o.classList.contains('correct-opt') };
+    });
+    addonShuffleArray(data);
+    opts.forEach((o,i)=>{
+      const textEl = o.querySelector('.opt-text');
+      if(textEl) textEl.innerHTML = data[i].html;
+      o.classList.toggle('correct-opt', data[i].correct);
+    });
+  }
+  function addonShuffleVersions(){
+    const holders = [...document.querySelectorAll('#pagesContainer .block-removable')]
+      .filter(h=> h.querySelector('.q-block') && !h.classList.contains('free-positioned'));
+    if(holders.length < 2){
+      alert(ADDON_I18N[addonLang()].notEnough);
+      return;
+    }
+    const firstCanvas = document.querySelector('#pagesContainer .page-body');
+    if(!firstCanvas) return;
+    const shuffled = addonShuffleArray([...holders]);
+    shuffled.forEach(h=>{
+      firstCanvas.appendChild(h);
+      const qb = h.querySelector('.q-block');
+      if(qb) addonShuffleOptionsInBlock(qb);
+    });
+    if(typeof renumberQuestions==='function') renumberQuestions();
+    if(typeof refreshScore==='function') refreshScore();
+    if(typeof repaginate==='function') repaginate();
+    else if(typeof schedulePaginate==='function') schedulePaginate(0);
+  }
+  const addonShuffleBtn = document.getElementById('addonShuffleBtn');
+  if(addonShuffleBtn) addonShuffleBtn.addEventListener('click', addonShuffleVersions);
+
+})();
 </script>
 </body>
 </html>
