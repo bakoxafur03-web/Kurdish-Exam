@@ -549,9 +549,10 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .draggable-item .del-x{
   position:absolute;top:-10px;inset-inline-end:-10px;width:20px;height:20px;border-radius:50%;
   background:var(--danger);color:#fff;border:none;font-size:11px;cursor:pointer;display:none;align-items:center;justify-content:center;
+  z-index:9;
 }
 .draggable-item:hover .del-x{display:flex;}
-.resize-handle{position:absolute;bottom:-6px;inset-inline-end:-6px;width:13px;height:13px;background:var(--gold);border-radius:3px;cursor:nwse-resize;display:none;}
+.resize-handle{position:absolute;bottom:-6px;right:-6px;width:13px;height:13px;background:var(--gold);border-radius:3px;cursor:nwse-resize;display:none;}
 .draggable-item:hover .resize-handle{display:block;}
 
 /* free/unlimited resize — like Word/PowerPoint: a handle on every corner and
@@ -562,11 +563,11 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .draggable-item.dg-active .rh-extra{display:block;}
 .rh-n{top:-6px;left:50%;transform:translateX(-50%);cursor:ns-resize;}
 .rh-s{bottom:-6px;left:50%;transform:translateX(-50%);cursor:ns-resize;}
-.rh-e{top:50%;inset-inline-end:-6px;transform:translateY(-50%);cursor:ew-resize;}
-.rh-w{top:50%;inset-inline-start:-6px;transform:translateY(-50%);cursor:ew-resize;}
-.rh-ne{top:-6px;inset-inline-end:-6px;cursor:nesw-resize;}
-.rh-nw{top:-6px;inset-inline-start:-6px;cursor:nwse-resize;}
-.rh-sw{bottom:-6px;inset-inline-start:-6px;cursor:nesw-resize;}
+.rh-e{top:50%;right:-6px;transform:translateY(-50%);cursor:ew-resize;}
+.rh-w{top:50%;left:-6px;transform:translateY(-50%);cursor:ew-resize;}
+.rh-ne{top:-6px;right:-6px;cursor:nesw-resize;}
+.rh-nw{top:-6px;left:-6px;cursor:nwse-resize;}
+.rh-sw{bottom:-6px;left:-6px;cursor:nesw-resize;}
 .exporting .rh-extra{display:none !important;}
 
 /* rotation handle for shapes — drag it around the shape to spin it to any angle */
@@ -742,6 +743,39 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
 .answerkey-banner{
   background:#c0392b;color:#fff;font-weight:800;font-size:13px;
   text-align:center;padding:5px 0;letter-spacing:.5px;
+}
+</style>
+<style id="addon-fixes-2-style">
+/* ============================================================
+   ADDITIVE FIX (additive only): simple grid / graph paper (تۆڕی سادە)
+   couldn't shrink below its own content size. Each empty cell's "&nbsp;"
+   forced a minimum row height, so once you resized the grid smaller than
+   that, the <table> quietly kept rendering at its old (larger) size and
+   overflowed past the resized container instead of actually shrinking.
+   Because the delete (✕) button and the 8 resize handles are positioned
+   relative to the container's real edges — not the overflowing table —
+   they ended up floating in the middle of the visible grid instead of at
+   its corners, and hovering the (visually large but not really there)
+   overflow no longer counted as hovering the item, so the red ✕ button
+   never appeared. Letting cell content collapse to zero and clipping any
+   leftover overflow lets the table truly shrink to the exact size set,
+   which also puts the ✕ button and every resize handle back where they
+   belong. Nothing above is touched — this only adds new rules that layer
+   on top via normal CSS cascade order. */
+.math-grid-table{overflow:hidden;}
+.math-grid-table td{padding:0;line-height:0;font-size:0;}
+
+/* ============================================================
+   ADDITIVE FIX: unlabeled color swatches ("ڕەنگی خشتە" panel and the
+   text/highlight colors above it) only explained themselves via a hover
+   tooltip, so it wasn't clear at a glance which swatch controlled what.
+   The matching JS at the end of the script wraps each of these color
+   inputs with a small caption pulled from its existing title text — this
+   just supplies the caption's look.
+============================================================ */
+.tb-color-labeled{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.tb-color-labeled span.tb-color-caption{
+  font-size:9px;color:#9aa0b4;text-align:center;line-height:1.15;max-width:46px;
 }
 </style>
 </head>
@@ -3751,6 +3785,33 @@ applyI18n();
   }
   const addonShuffleBtn = document.getElementById('addonShuffleBtn');
   if(addonShuffleBtn) addonShuffleBtn.addEventListener('click', addonShuffleVersions);
+
+  /* ============================================================
+     ADDITIVE FIX: give every otherwise-unlabeled color swatch a small
+     visible caption (instead of only a hover tooltip) so it's clear at a
+     glance what each one controls — "ڕەنگی خشتە" (table colors) panel
+     plus the text/highlight colors above it. The caption text is simply
+     the color input's existing title attribute, so it automatically
+     matches whatever that input already says. Purely additive: it only
+     wraps existing inputs in a small flex column, nothing is removed or
+     rewritten.
+  ============================================================ */
+  function addonLabelColorSwatches(){
+    const ids = ['textColor','highlightColor','tableBgColor','tableTextColor','tableBorderColor'];
+    ids.forEach(id=>{
+      const input = document.getElementById(id);
+      if(!input || input.closest('.tb-color-labeled')) return;
+      const wrap = document.createElement('span');
+      wrap.className = 'tb-color-labeled';
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(input);
+      const caption = document.createElement('span');
+      caption.className = 'tb-color-caption';
+      caption.textContent = input.title || '';
+      wrap.appendChild(caption);
+    });
+  }
+  addonLabelColorSwatches();
 
 })();
 </script>
