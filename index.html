@@ -211,6 +211,23 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
   align-self:center;box-shadow:var(--shadow);
 }
 
+/* zoom control — floating, view-only (doesn't affect exported PDF size) */
+.zoom-bar{
+  position:fixed;bottom:18px;inset-inline-end:24px;z-index:40;
+  display:flex;align-items:center;gap:6px;
+  background:var(--panel-2);border:1px solid var(--gold);border-radius:30px;
+  padding:6px 10px;box-shadow:var(--shadow);
+}
+.zoom-bar button{
+  width:26px;height:26px;border-radius:50%;border:none;background:var(--panel-soft);color:#eee;
+  font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;
+}
+.zoom-bar button:hover{background:var(--gold);color:#241a05;}
+.zoom-bar button:disabled{opacity:.4;cursor:default;background:var(--panel-soft);color:#eee;}
+.zoom-bar .zoom-pct{min-width:44px;text-align:center;font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;user-select:none;}
+.exporting .zoom-bar{display:none !important;}
+.exporting #pagesContainer{zoom:1 !important;}
+
 /* PAGE / PAPER
    Fixed height on purpose: a page must never stretch when content is added.
    Once content no longer fits, JS (see repaginate()) moves the overflow to a
@@ -537,6 +554,21 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .resize-handle{position:absolute;bottom:-6px;inset-inline-end:-6px;width:13px;height:13px;background:var(--gold);border-radius:3px;cursor:nwse-resize;display:none;}
 .draggable-item:hover .resize-handle{display:block;}
 
+/* free/unlimited resize — like Word/PowerPoint: a handle on every corner and
+   every edge midpoint, each dragging in its own direction, in addition to
+   the original bottom-right corner handle above */
+.rh-extra{position:absolute;width:12px;height:12px;background:var(--gold);border:1px solid #fff;border-radius:3px;z-index:7;display:none;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+.draggable-item:hover .rh-extra{display:block;}
+.draggable-item.dg-active .rh-extra{display:block;}
+.rh-n{top:-6px;left:50%;transform:translateX(-50%);cursor:ns-resize;}
+.rh-s{bottom:-6px;left:50%;transform:translateX(-50%);cursor:ns-resize;}
+.rh-e{top:50%;inset-inline-end:-6px;transform:translateY(-50%);cursor:ew-resize;}
+.rh-w{top:50%;inset-inline-start:-6px;transform:translateY(-50%);cursor:ew-resize;}
+.rh-ne{top:-6px;inset-inline-end:-6px;cursor:nesw-resize;}
+.rh-nw{top:-6px;inset-inline-start:-6px;cursor:nwse-resize;}
+.rh-sw{bottom:-6px;inset-inline-start:-6px;cursor:nesw-resize;}
+.exporting .rh-extra{display:none !important;}
+
 /* rotation handle for shapes — drag it around the shape to spin it to any angle */
 .rotate-handle{
   position:absolute;top:-26px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;
@@ -556,6 +588,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .draggable-item.dg-active .del-x,
 .draggable-item.dg-active .shape-size-inputs{display:flex;}
 .draggable-item.dg-active .resize-handle{display:block;}
+.draggable-item.dg-active .rh-extra{display:block;}
 
 /* numeric width/height inputs — precise size control for math-geometry
    drawings and the simple grid tool, alongside the existing drag-resize handle */
@@ -652,7 +685,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .subject-math .math-only{display:block;}
 
 /* PRINT/EXPORT MODE */
-.exporting .ui-only, .exporting .del-x, .exporting .resize-handle, .exporting .shape-controls, .exporting .q-block:hover, .exporting [contenteditable]:focus{
+.exporting .ui-only, .exporting .del-x, .exporting .resize-handle, .exporting .rh-extra, .exporting .shape-controls, .exporting .q-block:hover, .exporting [contenteditable]:focus{
   outline:none !important;border-color:transparent !important;
 }
 .exporting .shape-controls{display:none !important;}
@@ -1028,6 +1061,12 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
         <button class="tb-btn" data-cmd="italic"><span class="ic">I</span></button>
         <button class="tb-btn" data-cmd="underline"><span class="ic">U</span></button>
       </div>
+      <div class="tb-row">
+        <button class="tb-btn" data-cmd="strikeThrough" title="هێڵکێشان بەسەردا"><span class="ic" style="text-decoration:line-through">S</span></button>
+        <button class="tb-btn" data-cmd="subscript" title="ژێرنووس">X<sub>2</sub></button>
+        <button class="tb-btn" data-cmd="superscript" title="سەرنووس">X<sup>2</sup></button>
+        <button class="tb-btn" data-cmd="removeFormat" title="سڕینەوەی فۆرمات"><span class="ic">✗A</span></button>
+      </div>
       <span class="tb-label" data-i18n="wholeBlockLbl">بۆڵدکردنی هەموو دەقی پرسیارەکە بەیەکجار</span>
       <div class="tb-row">
         <button class="tb-btn" id="boldAllBtn"><span class="ic">B+</span><span data-i18n="boldAll">بۆڵدی هەمووی بکە</span></button>
@@ -1060,6 +1099,7 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
       </select>
       <div class="tb-row" style="margin-top:8px;">
         <input type="color" class="tb-color" id="textColor" value="#1b1f2a" title="ڕەنگی نووسین">
+        <input type="color" class="tb-color" id="highlightColor" value="#fff59d" title="ڕەنگی نیشانکردنی دەق">
         <select class="tb-select" id="fontSize">
           <option value="2">بچووک</option>
           <option value="3" selected>ناوەند</option>
@@ -1162,6 +1202,11 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
       دەستت بنێ سەر هەر دەقێک بۆ نووسین، وێنە و شێوەکان ڕاکێشە بۆ هەر شوێنێک، ژمارەی نمرەی هەر پرسیارێک دەستکاری بکە — کۆی گشتی خۆکارانە نوێ دەبێتەوە.
     </footer>
   </main>
+  <div class="zoom-bar" id="zoomBar">
+    <button id="zoomOutBtn" type="button" title="بچووککردنەوە">－</button>
+    <span class="zoom-pct" id="zoomPct" title="گەڕانەوە بۆ ١٠٠٪">100%</span>
+    <button id="zoomInBtn" type="button" title="گەورەکردن">＋</button>
+  </div>
 </section>
 
 <script>
@@ -2328,6 +2373,7 @@ document.querySelectorAll('[data-cmd]').forEach(btn=>{
   btn.addEventListener('click', ()=> execFormat(btn.dataset.cmd));
 });
 document.getElementById('textColor').addEventListener('input', e=> execFormat('foreColor', e.target.value));
+document.getElementById('highlightColor').addEventListener('input', e=> execFormat('hiliteColor', e.target.value));
 
 /* ============================================================
    TABLE COLORS (background / text / border) — click a table to
@@ -2628,12 +2674,26 @@ function applyShapeColor(item, fill, stroke){
   const svgEl = item.querySelector('svg');
   if(!svgEl) return;
   if(fill){
-    if(svgEl.getAttribute('fill') && svgEl.getAttribute('fill')!=='none') svgEl.setAttribute('fill', fill);
-    svgEl.querySelectorAll('[fill]').forEach(el=>{ if(el.getAttribute('fill')!=='none') el.setAttribute('fill', fill); });
+    /* setAttribute alone isn't always enough (some shapes only carry color
+       via inherited/none fill), so also set the inline style — style always
+       wins and is guaranteed to repaint. If the shape is a pure outline
+       (root fill="none" and no child carries its own real fill), still
+       force the root fill so the picker always visibly does something,
+       matching how Word fills an outline shape when you pick a fill color. */
+    const hasOwnFillChild = [...svgEl.querySelectorAll('[fill]')].some(el=> el.getAttribute('fill')!=='none');
+    const rootFill = svgEl.getAttribute('fill');
+    if(rootFill!=='none' || !hasOwnFillChild){
+      svgEl.setAttribute('fill', fill);
+      svgEl.style.fill = fill;
+    }
+    svgEl.querySelectorAll('[fill]').forEach(el=>{
+      if(el.getAttribute('fill')!=='none'){ el.setAttribute('fill', fill); el.style.fill = fill; }
+    });
   }
   if(stroke){
-    if(svgEl.getAttribute('stroke') && svgEl.getAttribute('stroke')!=='none') svgEl.setAttribute('stroke', stroke);
-    svgEl.querySelectorAll('[stroke]').forEach(el=>{ if(el.getAttribute('stroke')!=='none') el.setAttribute('stroke', stroke); });
+    svgEl.setAttribute('stroke', stroke);
+    svgEl.style.stroke = stroke;
+    svgEl.querySelectorAll('[stroke]').forEach(el=>{ if(el.getAttribute('stroke')!=='none'){ el.setAttribute('stroke', stroke); el.style.stroke = stroke; } });
   }
 }
 function dropShape(svg){
@@ -3210,22 +3270,53 @@ function makeDraggable(item){
   });
   item.addEventListener('pointerup', ()=> dragging=false);
 
+  /* generic resize wiring, shared by the original bottom-right corner handle
+     and the extra corner/edge handles added below — dirX/dirY say which
+     side(s) of the item that particular handle moves (-1/0/1), so every
+     handle can grow or shrink the shape freely in its own direction, the
+     same way Word/PowerPoint's 8-handle selection box works */
+  function wireResizeHandle(handleEl, dirX, dirY){
+    let resizing=false, rsx=0, rsy=0, rw=0, rh=0, rl=0, rt=0;
+    handleEl.addEventListener('pointerdown', e=>{
+      e.stopPropagation();
+      resizing=true;
+      rsx=e.clientX; rsy=e.clientY;
+      rw=item.offsetWidth; rh=item.offsetHeight;
+      rl=parseFloat(item.style.left)||0; rt=parseFloat(item.style.top)||0;
+      handleEl.setPointerCapture(e.pointerId);
+    });
+    handleEl.addEventListener('pointermove', e=>{
+      if(!resizing) return;
+      const dx=e.clientX-rsx, dy=e.clientY-rsy;
+      if(dirX===1){
+        item.style.width = Math.max(20, rw+dx)+'px';
+      } else if(dirX===-1){
+        const newW = Math.max(20, rw-dx);
+        item.style.width = newW+'px';
+        item.style.left = (rl+(rw-newW))+'px';
+      }
+      if(dirY===1){
+        item.style.height = Math.max(20, rh+dy)+'px';
+      } else if(dirY===-1){
+        const newH = Math.max(20, rh-dy);
+        item.style.height = newH+'px';
+        item.style.top = (rt+(rh-newH))+'px';
+      }
+    });
+    handleEl.addEventListener('pointerup', ()=> resizing=false);
+    handleEl.addEventListener('pointercancel', ()=> resizing=false);
+  }
+
   const handle = item.querySelector('.resize-handle');
-  let resizing=false, rsx=0, rsy=0, rw=0, rh=0;
-  handle.addEventListener('pointerdown', e=>{
-    e.stopPropagation();
-    resizing=true;
-    rsx=e.clientX; rsy=e.clientY;
-    rw=item.offsetWidth; rh=item.offsetHeight;
-    handle.setPointerCapture(e.pointerId);
+  wireResizeHandle(handle, 1, 1); // original bottom-right corner, unchanged behavior
+
+  [['rh-n',0,-1],['rh-s',0,1],['rh-e',1,0],['rh-w',-1,0],
+   ['rh-ne',1,-1],['rh-nw',-1,-1],['rh-sw',-1,1]].forEach(([cls,dirX,dirY])=>{
+    const el = document.createElement('div');
+    el.className = 'rh-extra '+cls;
+    item.appendChild(el);
+    wireResizeHandle(el, dirX, dirY);
   });
-  handle.addEventListener('pointermove', e=>{
-    if(!resizing) return;
-    const dx=e.clientX-rsx, dy=e.clientY-rsy;
-    item.style.width = Math.max(20, rw+dx)+'px';
-    item.style.height = Math.max(20, rh+dy)+'px';
-  });
-  handle.addEventListener('pointerup', ()=> resizing=false);
 }
 
 /* ============================================================
@@ -3285,6 +3376,47 @@ document.getElementById('exportBtn').addEventListener('click', async ()=>{
     btn.disabled = false;
   }
 });
+
+/* ============================================================
+   ZOOM (view only — the CSS rule ".exporting #pagesContainer{zoom:1}"
+   above guarantees the PDF export always renders at true 100% no
+   matter what zoom level is showing on screen)
+============================================================ */
+(function(){
+  const pc = document.getElementById('pagesContainer');
+  const pctEl = document.getElementById('zoomPct');
+  const inBtn = document.getElementById('zoomInBtn');
+  const outBtn = document.getElementById('zoomOutBtn');
+  if(!pc || !pctEl || !inBtn || !outBtn) return;
+  let zoom = 100;
+  const MIN=40, MAX=200, STEP=10;
+  function apply(){
+    pc.style.zoom = (zoom/100);
+    pctEl.textContent = zoom+'%';
+    inBtn.disabled = zoom>=MAX;
+    outBtn.disabled = zoom<=MIN;
+  }
+  inBtn.addEventListener('click', ()=>{ zoom = Math.min(MAX, zoom+STEP); apply(); });
+  outBtn.addEventListener('click', ()=>{ zoom = Math.max(MIN, zoom-STEP); apply(); });
+  pctEl.addEventListener('click', ()=>{ zoom = 100; apply(); });
+  document.addEventListener('keydown', e=>{
+    const tag = (e.target && e.target.tagName) || '';
+    if(tag==='INPUT' || tag==='TEXTAREA' || tag==='SELECT') return;
+    if((e.ctrlKey||e.metaKey) && (e.key==='=' || e.key==='+')){ e.preventDefault(); zoom=Math.min(MAX,zoom+STEP); apply(); }
+    else if((e.ctrlKey||e.metaKey) && e.key==='-'){ e.preventDefault(); zoom=Math.max(MIN,zoom-STEP); apply(); }
+    else if((e.ctrlKey||e.metaKey) && e.key==='0'){ e.preventDefault(); zoom=100; apply(); }
+  });
+  const mainAreaEl = document.querySelector('.main-area');
+  if(mainAreaEl){
+    mainAreaEl.addEventListener('wheel', e=>{
+      if(!e.ctrlKey) return;
+      e.preventDefault();
+      zoom = e.deltaY<0 ? Math.min(MAX,zoom+STEP) : Math.max(MIN,zoom-STEP);
+      apply();
+    }, {passive:false});
+  }
+  apply();
+})();
 
 /* ============================================================
    INIT
