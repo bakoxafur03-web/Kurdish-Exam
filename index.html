@@ -505,6 +505,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
   margin:10px 0 0 36px;min-height:100px;border:1.5px solid var(--line);border-radius:6px;
   background-image:linear-gradient(#e9e4d3 1px, transparent 1px),linear-gradient(90deg,#e9e4d3 1px, transparent 1px);
   background-size:18px 18px;font-size:calc(13.5px * var(--qscale,1));padding:6px;
+  direction:ltr;text-align:left;
 }
 .q-math-area[contenteditable]{cursor:text;}
 
@@ -3629,6 +3630,59 @@ function makeDraggable(item){
 }
 
 /* ============================================================
+   BIDI FIX FOR PDF EXPORT
+   html2canvas doesn't fully implement the Unicode Bidi Algorithm the
+   way real browsers do, so mixed Kurdish(RTL)+Latin/numbers/symbols
+   text (e.g. "g(x)=", "2x≤5") gets its parentheses/order mirrored in
+   the exported image even though it displays correctly on screen.
+   Fix: right before rasterizing a page, temporarily wrap runs of
+   Latin/digit/math-symbol characters in that page's text with Unicode
+   directional-embedding marks (U+202A...U+202C), which forces correct
+   LTR rendering for those runs specifically during capture, then the
+   original text is restored immediately after the page is captured.
+============================================================ */
+const BIDI_ISOLATE_RE = /[A-Za-z0-9+\-*/=<>()\[\]{}.,:;%≤≥≠±√π]+(?:[ \u00A0][A-Za-z0-9+\-*/=<>()\[\]{}.,:;%≤≥≠±√π]+)*/g;
+function addonInsertBidiIsolation(root){
+  const changed = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  let n;
+  while(n = walker.nextNode()) textNodes.push(n);
+  textNodes.forEach(node=>{
+    const text = node.nodeValue;
+    if(!text) return;
+    BIDI_ISOLATE_RE.lastIndex = 0;
+    if(!BIDI_ISOLATE_RE.test(text)) return;
+    const parent = node.parentNode;
+    if(!parent) return;
+    const newNodes = [];
+    let lastIndex = 0;
+    BIDI_ISOLATE_RE.lastIndex = 0;
+    let m;
+    while(m = BIDI_ISOLATE_RE.exec(text)){
+      if(m.index > lastIndex) newNodes.push(document.createTextNode(text.slice(lastIndex, m.index)));
+      const span = document.createElement('span');
+      span.style.direction = 'ltr';
+      span.style.unicodeBidi = 'embed';
+      span.textContent = m[0];
+      newNodes.push(span);
+      lastIndex = BIDI_ISOLATE_RE.lastIndex;
+    }
+    if(lastIndex < text.length) newNodes.push(document.createTextNode(text.slice(lastIndex)));
+    newNodes.forEach(nn => parent.insertBefore(nn, node));
+    parent.removeChild(node);
+    changed.push({parent, originalNode:node, newNodes});
+  });
+  return changed;
+}
+function addonRestoreBidiIsolation(changed){
+  changed.forEach(({parent, originalNode, newNodes})=>{
+    parent.insertBefore(originalNode, newNodes[0]);
+    newNodes.forEach(nn=>{ if(nn.parentNode===parent) parent.removeChild(nn); });
+  });
+}
+
+/* ============================================================
    PDF EXPORT (rasterized to preserve Kurdish/Arabic shaping)
 ============================================================ */
 document.getElementById('exportBtn').addEventListener('click', async ()=>{
@@ -3660,12 +3714,14 @@ document.getElementById('exportBtn').addEventListener('click', async ()=>{
 
     for(let i=0;i<pages.length;i++){
       const page = pages[i];
+      const bidiChanges = addonInsertBidiIsolation(page);
       const canvas = await html2canvas(page, {
         scale: 2.2,
         useCORS: true,
         backgroundColor: '#ffffff',
         logging:false
       });
+      addonRestoreBidiIsolation(bidiChanges);
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pdfW = exportSize.w, pdfH = exportSize.h;
       const ratio = Math.min(pdfW/canvas.width, pdfH/canvas.height);
@@ -3982,7 +4038,9 @@ applyI18n();
 
       for(let i=0;i<pages.length;i++){
         const page = pages[i];
+        const bidiChanges = addonInsertBidiIsolation(page);
         const canvas = await html2canvas(page, { scale:2.2, useCORS:true, backgroundColor:'#ffffff', logging:false });
+        addonRestoreBidiIsolation(bidiChanges);
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
         const pdfW = exportSize.w, pdfH = exportSize.h;
         const ratio = Math.min(pdfW/canvas.width, pdfH/canvas.height);
