@@ -444,6 +444,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .editable-field{outline:none;border-bottom:1px dashed #999;min-width:60px;display:inline-block;padding:0 4px;}
 .editable-field:focus{border-bottom:1px solid var(--gold);background:rgba(182,134,44,.08);}
 [contenteditable]:focus{outline:1px dashed var(--gold);outline-offset:3px;}
+[contenteditable]{unicode-bidi:plaintext;}
 
 .page-body{position:relative;z-index:2;padding:20px 30px 60px;flex:1 1 auto;min-height:0;overflow:hidden;}
 
@@ -3313,7 +3314,7 @@ function dropRidbendi(){
 
   let itemsHtml = '';
   for(let i=1;i<=count;i++){
-    itemsHtml += `<div class="ridbendi-item"><span class="ridbendi-num">${toEasternDigits(i)}</span><span class="ridbendi-dots" contenteditable="true">&nbsp;</span></div>`;
+    itemsHtml += `<div class="ridbendi-item"><span class="ridbendi-num">${i}</span><span class="ridbendi-dots" contenteditable="true">&nbsp;</span></div>`;
   }
 
   const html = `<div class="q-block" style="--subject-color:${subjectColorVar()}">
@@ -3525,8 +3526,13 @@ document.getElementById('freeLogoInput').addEventListener('change', e=>{
   e.target.value='';
 });
 function dropFreeLogo(src){
-  const canvas = lastPageCanvas();
-  if(!canvas) return;
+  const pageBody = lastPageCanvas();
+  if(!pageBody) return;
+  /* append to the whole .page (not just .page-body) so the logo can be
+     freely dragged into the header area too — .page-body has overflow:hidden
+     and sits below the header, which previously clipped/blocked the item
+     from ever reaching the header region */
+  const canvas = pageBody.closest('.page') || pageBody;
   const item = document.createElement('div');
   item.className='draggable-item';
   item.style.left='30px';
