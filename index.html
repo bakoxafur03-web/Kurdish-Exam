@@ -805,6 +805,77 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
   font-size:9px;color:#9aa0b4;text-align:center;line-height:1.15;max-width:46px;
 }
 </style>
+<style id="addon-fixes-3-style">
+/* ============================================================
+   ADDITIVE FIX (additive only): template G ("Document") used four
+   open corner-bracket marks around the header — a certificate-style
+   flourish that read as dated/cluttered rather than a clean,
+   professional exam header. This removes just those four corner marks
+   (both on the actual header and on its gallery thumbnail) and
+   replaces them with a plain, internationally-familiar letterhead
+   treatment instead: a solid rule above the title and a thin rule
+   below it. Nothing else about template G — its fields, its layout,
+   or any other template — is touched; these selectors simply sit
+   later in the cascade and take over how tpl "g" is finished.
+============================================================ */
+.exam-header[data-tpl="g"]::before,
+.exam-header[data-tpl="g"]::after{
+  content:none;
+}
+.exam-header[data-tpl="g"] .br-bl,
+.exam-header[data-tpl="g"] .br-br{
+  display:none;
+}
+.exam-header[data-tpl="g"]{
+  border-top:3px solid var(--navy);
+  padding:18px 24px 14px;
+}
+.exam-header[data-tpl="g"] h2{
+  padding-bottom:10px;
+  border-bottom:1px solid var(--line);
+}
+
+.mini-header-g .corner{display:none;}
+.mini-header-g{border-top:3px solid var(--navy);padding-top:10px;}
+.mini-header-g .title{border-bottom:1px solid var(--line);padding-bottom:8px;}
+
+/* ============================================================
+   ADDITIVE FEATURE (additive only): a free/independent accent-color
+   picker for the "بابەت / Subject" panel. Previously the only way to
+   set a subject's accent color was one of the preset swatches, which
+   locked the subject's NAME and its color together — picking "Math",
+   for example, always meant the dark-red accent too. This adds its
+   own standalone color input plus a caption/reset button (markup
+   above, in the toolbar) so the subject name and the accent color can
+   each be chosen completely freely. Everything else about the
+   swatches, the subject select, and per-question color pickers is
+   unchanged.
+============================================================ */
+.tb-row{flex-wrap:wrap;}
+#freeAccentColor{width:36px;height:30px;padding:2px;border:1px solid #2e3346;border-radius:6px;background:var(--panel-soft);cursor:pointer;}
+</style>
+<style>
+/* ============================================================
+   ADDITIVE FEATURE: "کەرتی ئازاد" (free-section) becomes a freely
+   draggable + resizable floating box, the same way WordArt/shape
+   items already behave, plus a small button to insert WordArt-styled
+   text right inside it. Nothing about any other block type changes.
+============================================================ */
+.block-removable.addon-free-enhanced{position:absolute;}
+.block-removable.addon-free-enhanced .free-section{width:100%;height:100%;margin:0;}
+.block-removable .addon-free-resize{
+  position:absolute;bottom:-6px;inset-inline-end:-6px;width:13px;height:13px;
+  background:var(--gold);border-radius:3px;cursor:nwse-resize;display:none;z-index:9;
+}
+.block-removable:hover .addon-free-resize{display:block;}
+.block-removable .addon-free-wordart-btn{
+  position:absolute;top:-11px;inset-inline-start:-11px;width:22px;height:22px;border-radius:50%;
+  background:var(--navy-2);color:#fff;border:none;font-size:12px;cursor:pointer;display:none;
+  align-items:center;justify-content:center;z-index:9;box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.block-removable:hover .addon-free-wordart-btn{display:flex;}
+.exporting .addon-free-resize, .exporting .addon-free-wordart-btn{display:none !important;}
+</style>
 </head>
 <body>
 
@@ -959,6 +1030,11 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
       <select class="tb-select" id="subjectSelect"></select>
       <span class="tb-label" data-i18n="subjectColor">ڕەنگی تایبەت بەبابەتەکە</span>
       <div class="subject-swatch" id="subjectSwatch"></div>
+      <span class="tb-label" data-i18n="freeColor">ڕەنگی ئازاد (سەربەخۆ لە بابەت)</span>
+      <div class="tb-row">
+        <input type="color" id="freeAccentColor" class="tb-input" value="#0f2746">
+        <button class="tb-btn" id="resetFreeAccentColor" type="button"><span class="ic">↺</span><span data-i18n="resetColor">گەڕانەوە بۆ ڕەنگی بنەڕەتی بابەت</span></button>
+      </div>
     </div>
 
     <div class="tb-section">
@@ -992,6 +1068,11 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
 
     <div class="tb-section">
       <h3 data-i18n="tbAddContent">زیادکردنی ناوەڕۆک</h3>
+      <label class="tb-row" id="unlimitedFreeAddRow" style="align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="addonUnlimitedFreeAdd">
+        <span data-i18n="unlimitedFreeAdd">زیادکردنی ئازاد (بێ گواستنەوە بۆ پەڕەی نوێ)</span>
+      </label>
+      <span class="tb-hint" data-i18n="unlimitedFreeAddHint">کاتێک چالاککراوە، ئەگەر پەڕەکە پڕ بوو، بابەتی نوێ لەسەر هەمان پەڕە دەمێنێتەوە وەک دانەیەکی ئازاد بۆ ئەوەی بە ڕاکێشان بیخەیتە هەر شوێنێک — پەڕەی نوێ دروست ناکات و پەڕەکەش درێژتر نابێت.</span>
       <div class="tb-row">
         <button class="tb-btn" data-add="section"><span class="ic">§</span><span data-i18n="addSection">سەردێڕی بەش</span></button>
         <button class="tb-btn" data-add="mcq"><span class="ic">A-D</span><span data-i18n="addMcq">پرسیاری هەڵبژاردن</span></button>
@@ -1279,9 +1360,11 @@ ku:{
  title:"دروستکەری ئەسیلەی تاقیکردنەوە", subtitle:"پەڕگەی تاقیکردنەوەی پیشەیی دروست بکە و وەک PDF دایبەزێنە",
  pickTplTitle:"شێوازی تابلێتەکە هەڵبژێرە", pickTplDesc:"یەکێک لەم شێوازانە هەڵبژێرە، پاشان دەستبکە بە دروستکردنی تاقیکردنەوەکەت",
  tplA:"کلاسیکی فەرمی (نیشانە لەناوەند)", tplB:"ڕەنگاوڕەنگ (بۆردەری شین)", tplC:"مۆدێرن (گرادینت)", tplD:"تاریک (ستایلی نایاب)", tplE:"خشتەیی فەرمی (وەک فۆڕمی ڕەسمی)",
- tplF:"سادە (هێڵی باریک)", tplG:"بەلگەنامەیی (گۆشە چوارگۆشە)", tplH:"شریتی سەرەوە (بانەر)", tplI:"شریتی لاتەنیشت (ڕەنگاوڕەنگ)", tplJ:"خشتەیی وردەکاری (سێ ستوون)", tplBlank:"بەتاڵ (لاپەڕەی سپی)",
+ tplF:"سادە (هێڵی باریک)", tplG:"بەلگەنامەیی (هێڵی سادە)", tplH:"شریتی سەرەوە (بانەر)", tplI:"شریتی لاتەنیشت (ڕەنگاوڕەنگ)", tplJ:"خشتەیی وردەکاری (سێ ستوون)", tplBlank:"بەتاڵ (لاپەڕەی سپی)",
  choose:"هەڵبژاردن", tbBack:"گەڕانەوە", changeTpl:"گۆڕینی شێواز", tbSubject:"بابەت", subjectColor:"ڕەنگی تایبەت بەبابەتەکە",
- tbAddContent:"زیادکردنی ناوەڕۆک", addSection:"سەردێڕی بەش", addMcq:"پرسیاری هەڵبژاردن", addTf:"ڕاست/هەڵە", addBlank:"پڕکردنەوە",
+ freeColor:"ڕەنگی ئازاد (سەربەخۆ لە بابەت)", resetColor:"گەڕانەوە بۆ ڕەنگی بنەڕەتی بابەت",
+ tbAddContent:"زیادکردنی ناوەڕۆک", addSection:"سەردێڕی بەش", addMcq:"پرسیاری هەڵبژاردن", addSimple:"هەڵبژاردنی سادە", addTf:"ڕاست/هەڵە", addBlank:"پڕکردنەوە",
+ unlimitedFreeAdd:"زیادکردنی ئازاد (بێ گواستنەوە بۆ پەڕەی نوێ)", unlimitedFreeAddHint:"کاتێک چالاککراوە، ئەگەر پەڕەکە پڕ بوو، بابەتی نوێ لەسەر هەمان پەڕە دەمێنێتەوە وەک دانەیەکی ئازاد بۆ ئەوەی بە ڕاکێشان بیخەیتە هەر شوێنێک — پەڕەی نوێ دروست ناکات و پەڕەکەش درێژتر نابێت.",
  addEssay:"وەڵامی نووسراو", addTable:"خشتە", addDivider:"دابڕێژەر", addImage:"زیادکردنی وێنە",
  addTwocol:"کەرتی دوو ستوون", addBox:"چوارچێوەی وەڵام", addCutSection:"کەرتی نهێنی (بڕین)", addFreeLogo:"زیادکردنی لۆگۆ",
  tbWordart:"WordArt", wordartText:"دەقی WordArt", wordartStyle:"شێواز", insertWordart:"دانانی WordArt",
@@ -1331,9 +1414,11 @@ ar:{
  title:"منشئ الامتحانات", subtitle:"أنشئ ورقة امتحان احترافية وحمّلها بصيغة PDF",
  pickTplTitle:"اختر شكل الترويسة", pickTplDesc:"اختر أحد الأنماط أدناه، ثم ابدأ ببناء امتحانك",
  tplA:"كلاسيكي رسمي (شعار في الوسط)", tplB:"ملوّن (إطار أزرق)", tplC:"عصري (تدرّج لوني)", tplD:"داكن (نمط مميز)", tplE:"جدولي رسمي (كنموذج رسمي)",
- tplF:"بسيط (خط رفيع)", tplG:"وثائقي (زوايا مربعة)", tplH:"شريط علوي (بانر)", tplI:"شريط جانبي (ملوّن)", tplJ:"جدولي تفصيلي (ثلاثة أعمدة)", tplBlank:"فارغ (صفحة بيضاء)",
+ tplF:"بسيط (خط رفيع)", tplG:"وثائقي (خط بسيط)", tplH:"شريط علوي (بانر)", tplI:"شريط جانبي (ملوّن)", tplJ:"جدولي تفصيلي (ثلاثة أعمدة)", tplBlank:"فارغ (صفحة بيضاء)",
  choose:"اختيار", tbBack:"رجوع", changeTpl:"تغيير النمط", tbSubject:"المادة", subjectColor:"لون خاص بالمادة",
- tbAddContent:"إضافة محتوى", addSection:"عنوان قسم", addMcq:"سؤال اختياري", addTf:"صح/خطأ", addBlank:"ملء الفراغ",
+ freeColor:"لون حر (مستقل عن المادة)", resetColor:"العودة إلى اللون الافتراضي للمادة",
+ tbAddContent:"إضافة محتوى", addSection:"عنوان قسم", addMcq:"سؤال اختياري", addSimple:"اختيار بسيط", addTf:"صح/خطأ", addBlank:"ملء الفراغ",
+ unlimitedFreeAdd:"إضافة حرة (بدون الانتقال لصفحة جديدة)", unlimitedFreeAddHint:"عند التفعيل، إذا امتلأت الصفحة، سيبقى العنصر الجديد في نفس الصفحة كعنصر حر يمكنك سحبه لأي مكان — دون إنشاء صفحة جديدة ودون أن تصبح الصفحة أطول.",
  addEssay:"إجابة مقالية", addTable:"جدول", addDivider:"فاصل", addImage:"إضافة صورة",
  addTwocol:"قسم بعمودين", addBox:"إطار إجابة", addCutSection:"قسم سري (قص)", addFreeLogo:"إضافة شعار",
  tbWordart:"WordArt", wordartText:"نص WordArt", wordartStyle:"النمط", insertWordart:"إدراج WordArt",
@@ -1383,9 +1468,11 @@ en:{
  title:"Exam Builder", subtitle:"Build a professional exam paper and export it as PDF",
  pickTplTitle:"Choose your header style", pickTplDesc:"Pick one of the templates below, then start building your exam",
  tplA:"Classic formal (centered logo)", tplB:"Colorful (blue frame)", tplC:"Modern (gradient)", tplD:"Dark (signature style)", tplE:"Official table style (form-like)",
- tplF:"Minimal (thin line)", tplG:"Document (square corners)", tplH:"Top banner (ribbon)", tplI:"Side stripe (colorful)", tplJ:"Detailed table (3 columns)", tplBlank:"Blank (white page)",
+ tplF:"Minimal (thin line)", tplG:"Document (clean line)", tplH:"Top banner (ribbon)", tplI:"Side stripe (colorful)", tplJ:"Detailed table (3 columns)", tplBlank:"Blank (white page)",
  choose:"Choose", tbBack:"Back", changeTpl:"Change template", tbSubject:"Subject", subjectColor:"Subject accent color",
- tbAddContent:"Add content", addSection:"Section title", addMcq:"Multiple choice", addTf:"True / False", addBlank:"Fill in the blank",
+ freeColor:"Free color (independent of subject)", resetColor:"Reset to subject's default color",
+ tbAddContent:"Add content", addSection:"Section title", addMcq:"Multiple choice", addSimple:"Simple choice", addTf:"True / False", addBlank:"Fill in the blank",
+ unlimitedFreeAdd:"Free add (no auto page-break)", unlimitedFreeAddHint:"When on, if the page is full, a new item stays on the same page as a free block you can drag anywhere — instead of moving to a new page, and without the page getting taller.",
  addEssay:"Written answer", addTable:"Table", addDivider:"Divider", addImage:"Add image",
  addTwocol:"Two-column section", addBox:"Answer box", addCutSection:"Secret-number cut section", addFreeLogo:"Add logo",
  tbWordart:"WordArt", wordartText:"WordArt text", wordartStyle:"Style", insertWordart:"Insert WordArt",
@@ -2109,6 +2196,24 @@ function addBlock(type){
         <div class="opt"><span class="opt-letter" contenteditable="false">Ⓑ</span><span class="opt-text" contenteditable="true">${d.optB}</span></div>
         <div class="opt"><span class="opt-letter" contenteditable="false">Ⓒ</span><span class="opt-text" contenteditable="true">${d.optC}</span></div>
         <div class="opt"><span class="opt-letter" contenteditable="false">Ⓓ</span><span class="opt-text" contenteditable="true">${d.optD}</span></div>
+      </div>
+    </div>`;
+  } else if(type==='simplechoice'){
+    /* هەڵبژاردنی سادە — a lighter MCQ: just the question line plus plain
+       lettered circles, no score field and no google-search button.
+       Reuses .q-options/.opt/.opt-letter so the existing answer-key
+       marking (click a letter) and shuffle features keep working. */
+    qCounter++;
+    html = `<div class="q-block" style="--subject-color:${subjectColorVar()}">
+      <div class="q-head">
+        <div class="q-number" contenteditable="true">${qCounter}</div>
+        <div class="q-text" contenteditable="true">${d.writeQuestion}</div>
+      </div>
+      <div class="q-options" style="display:flex;flex-wrap:wrap;gap:10px 26px;">
+        <div class="opt"><span class="opt-letter" contenteditable="false">Ⓐ</span></div>
+        <div class="opt"><span class="opt-letter" contenteditable="false">Ⓑ</span></div>
+        <div class="opt"><span class="opt-letter" contenteditable="false">Ⓒ</span></div>
+        <div class="opt"><span class="opt-letter" contenteditable="false">Ⓓ</span></div>
       </div>
     </div>`;
   } else if(type==='twocol'){
@@ -2849,7 +2954,8 @@ document.addEventListener('pointerdown', e=>{
   if(!shapeFloatToolbarEl || !shapeFloatToolbarEl.classList.contains('visible')) return;
   const insideBar = shapeFloatToolbarEl.contains(e.target);
   const insideShapeText = e.target.closest && e.target.closest('.shape-text-layer');
-  if(!insideBar && !insideShapeText) shapeFloatToolbarEl.classList.remove('visible');
+  const insideQuestionContent = e.target.isContentEditable && e.target.closest && e.target.closest('#pagesContainer .block-removable');
+  if(!insideBar && !insideShapeText && !insideQuestionContent) shapeFloatToolbarEl.classList.remove('visible');
 });
 window.addEventListener('scroll', ()=>{
   const active = document.activeElement;
@@ -3928,7 +4034,7 @@ applyI18n();
   }
   function addonShuffleVersions(){
     const holders = [...document.querySelectorAll('#pagesContainer .block-removable')]
-      .filter(h=> h.querySelector('.q-block') && !h.classList.contains('free-positioned'));
+      .filter(h=> h.querySelector('.q-block'));
     if(holders.length < 2){
       alert(ADDON_I18N[addonLang()].notEnough);
       return;
@@ -3975,6 +4081,117 @@ applyI18n();
     });
   }
   addonLabelColorSwatches();
+
+  /* ============================================================
+     ADDITIVE FEATURE: free/independent accent color — decouples the
+     "بابەت / Subject" name from its accent color. Before this, the only
+     way to change the accent color was to click one of the preset
+     subject swatches, which always changed the subject name AND its
+     fixed color together. This wires up the standalone #freeAccentColor
+     picker (added in the markup) so it can override the color on its
+     own, whatever subject is currently chosen — and a reset button to
+     go back to that subject's original default. subjectColorVar() and
+     selectSubject() are reassigned here (both were plain top-level
+     function declarations, so this is a safe, purely additive override)
+     to consult that free color; every existing call site — addBlock(),
+     the per-question color pickers, etc — keeps working exactly as
+     before, it just now also respects the free color when one is set. */
+  let customAccentColor = null;
+  const addonOrigSubjectColorVar = subjectColorVar;
+  subjectColorVar = function(){
+    return customAccentColor || addonOrigSubjectColorVar();
+  };
+
+  function addonRefreshAccentColor(){
+    const color = subjectColorVar();
+    document.querySelectorAll('[style*="--subject-color"]').forEach(el=>{
+      el.style.setProperty('--subject-color', color);
+      if(el.classList.contains('section-title') && typeof hexToRgba==='function'){
+        el.style.background = hexToRgba(color, 0.14);
+      }
+    });
+    document.querySelectorAll('.q-color-picker').forEach(inp=> inp.value = color);
+  }
+
+  const addonFreeColorInput = document.getElementById('freeAccentColor');
+  if(addonFreeColorInput){
+    addonFreeColorInput.value = subjectColorVar();
+    addonFreeColorInput.addEventListener('input', e=>{
+      customAccentColor = e.target.value;
+      addonRefreshAccentColor();
+    });
+  }
+  const addonResetColorBtn = document.getElementById('resetFreeAccentColor');
+  if(addonResetColorBtn){
+    addonResetColorBtn.addEventListener('click', ()=>{
+      customAccentColor = null;
+      if(addonFreeColorInput) addonFreeColorInput.value = currentSubject.color;
+      addonRefreshAccentColor();
+    });
+  }
+
+  if(typeof selectSubject === 'function'){
+    const addonOrigSelectSubject = selectSubject;
+    selectSubject = function(id){
+      addonOrigSelectSubject(id);
+      if(addonFreeColorInput && !customAccentColor){
+        addonFreeColorInput.value = currentSubject.color;
+      }
+    };
+  }
+
+  /* ============================================================
+     ADDITIVE FEATURE: "زیادکردنی ئازاد / Free add" — an opt-in toggle,
+     OFF by default so nothing changes unless the user turns it on.
+     Normally, once a page is full, adding one more question makes the
+     app auto-create a new page and move the new question there — which
+     fights against manually dragging that question into open space on
+     the CURRENT page. With the toggle on, every newly added block is
+     placed on the same page it was added to as a free-positioned item
+     (exactly like a block the user has already dragged), stacked with
+     a small cascading offset — so it never triggers a new page and the
+     page itself never grows taller, and the user is free to then drag
+     it anywhere, including on top of / alongside other content, adding
+     as many as they like. addBlock() is reassigned here (it was a
+     plain top-level function declaration, so this is a safe, purely
+     additive override): the original function still runs first and
+     does everything it always did — this only steps in afterward, and
+     only while the checkbox is checked, to relocate the freshly added
+     block back onto its original page. Undo/Redo (Ctrl+Z / Ctrl+Y)
+     keep working automatically here since they already replay the raw
+     DOM changes recorded by the existing MutationObserver, whatever
+     those changes are. */
+  let addonFreeAddOffset = 0;
+  const addonOrigAddBlock = addBlock;
+  addBlock = function(type){
+    const toggle = document.getElementById('addonUnlimitedFreeAdd');
+    if(!toggle || !toggle.checked){
+      addonOrigAddBlock(type);
+      return;
+    }
+    const targetCanvas = lastPageCanvas();
+    const pagesBefore = document.querySelectorAll('.page').length;
+    addonOrigAddBlock(type);
+    const holders = document.querySelectorAll('#pagesContainer .block-removable');
+    const holder = holders[holders.length-1];
+    if(holder && targetCanvas && !holder.classList.contains('free-positioned')){
+      const rect = holder.getBoundingClientRect();
+      addonFreeAddOffset = (addonFreeAddOffset + 26) % 300;
+      holder.style.width = rect.width + 'px';
+      holder.classList.add('free-positioned');
+      holder.style.position = 'absolute';
+      holder.style.left = '16px';
+      holder.style.top = (16 + addonFreeAddOffset) + 'px';
+      holder.style.zIndex = '';
+      targetCanvas.style.position = 'relative';
+      targetCanvas.appendChild(holder);
+      if(document.querySelectorAll('.page').length > pagesBefore && typeof removeEmptyTrailingPages==='function'){
+        removeEmptyTrailingPages();
+      }
+      if(typeof renumberQuestions==='function') renumberQuestions();
+      if(typeof refreshScore==='function') refreshScore();
+    }
+  };
 
   /* ============================================================
      ADDITIVE FEATURE: Ctrl+C / Ctrl+V copy-paste for the free-floating
@@ -4077,6 +4294,153 @@ applyI18n();
     }
   });
 
+  /* ============================================================
+     ADDITIVE FEATURE: bring the existing "FLOATING SHAPE TEXT
+     TOOLBAR" (buildShapeFloatToolbar/positionShapeFloatToolbar,
+     defined earlier) to the content-questions section too — MCQ
+     question text, options, true/false, fill-in-the-blank, essay,
+     table, section titles, answer boxes, two-column sections, cut
+     sections, math areas, bullet lists — i.e. every contenteditable
+     field inside a block added from "زیادکردنی ناوەڕۆک / Add content".
+     This reuses the exact same toolbar element and the exact same
+     execFormat()/restoreSelection() engine already wired to it —
+     nothing about the toolbar's buttons, the shape-caption behavior,
+     or any other element is changed. It only adds a second, more
+     general way to summon/position/keep-open that same bar, and
+     positions it above whichever field the cursor is actually in
+     (rather than above the whole block), so it tracks typing closely.
+  ============================================================ */
+  function addonIsQuestionContentEditable(el){
+    return !!(el && el.isContentEditable && el.closest && el.closest('#pagesContainer .block-removable'));
+  }
+  function addonPositionFloatToolbarNear(el){
+    if(!el || typeof buildShapeFloatToolbar!=='function') return;
+    const bar = buildShapeFloatToolbar();
+    bar.classList.add('visible');
+    const rect = el.getBoundingClientRect();
+    const barRect = bar.getBoundingClientRect();
+    let top = rect.top - barRect.height - 10;
+    if(top < 6) top = rect.bottom + 10;
+    let left = rect.left + (rect.width/2) - (barRect.width/2);
+    left = Math.max(6, Math.min(left, window.innerWidth - barRect.width - 6));
+    bar.style.top = top+'px';
+    bar.style.left = left+'px';
+  }
+  document.addEventListener('focusin', e=>{
+    if(addonIsQuestionContentEditable(e.target)) addonPositionFloatToolbarNear(e.target);
+  });
+  document.addEventListener('input', e=>{
+    if(addonIsQuestionContentEditable(e.target)) addonPositionFloatToolbarNear(e.target);
+  }, true);
+  window.addEventListener('scroll', ()=>{
+    const active = document.activeElement;
+    if(typeof shapeFloatToolbarEl!=='undefined' && shapeFloatToolbarEl && shapeFloatToolbarEl.classList.contains('visible') && addonIsQuestionContentEditable(active)){
+      addonPositionFloatToolbarNear(active);
+    }
+  }, true);
+  window.addEventListener('resize', ()=>{
+    const active = document.activeElement;
+    if(typeof shapeFloatToolbarEl!=='undefined' && shapeFloatToolbarEl && shapeFloatToolbarEl.classList.contains('visible') && addonIsQuestionContentEditable(active)){
+      addonPositionFloatToolbarNear(active);
+    }
+  });
+
+})();
+
+(function(){
+/* ============================================================
+   ADDITIVE FEATURE: "کەرتی ئازاد" (free-section) as a free-floating,
+   resizable box — the same way WordArt/shape items already work —
+   plus a mini button on it to insert WordArt-styled text right at
+   the cursor inside it. addBlock() is reassigned again here (same
+   safe pattern used above): the current addBlock still runs first
+   and does everything it already did; this only steps in afterward,
+   and only for type==='free', to enhance the block it just created.
+   Undo/Redo keep working automatically (MutationObserver-based).
+============================================================ */
+const addonPrevAddBlockFree = addBlock;
+addBlock = function(type){
+  addonPrevAddBlockFree(type);
+  if(type === 'free'){
+    const holders = document.querySelectorAll('#pagesContainer .block-removable');
+    const holder = holders[holders.length-1];
+    const freeEl = holder ? holder.querySelector('.free-section') : null;
+    if(holder && freeEl) addonEnhanceFreeSection(holder, freeEl);
+  }
+};
+
+function addonEnhanceFreeSection(holder, freeEl){
+  const canvas = freeEl.closest('.page-body') || (typeof lastPageCanvas==='function' ? lastPageCanvas() : null);
+  if(!canvas) return;
+  const holderRect = holder.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  holder.style.width = Math.max(180, holderRect.width) + 'px';
+  holder.style.height = Math.max(60, holderRect.height) + 'px';
+  holder.classList.add('free-positioned', 'addon-free-enhanced');
+  holder.style.position = 'absolute';
+  holder.style.left = Math.max(0, holderRect.left - canvasRect.left) + 'px';
+  holder.style.top = Math.max(0, holderRect.top - canvasRect.top) + 'px';
+  holder.style.zIndex = '';
+  canvas.style.position = 'relative';
+  canvas.appendChild(holder);
+
+  /* resize handle — same drag-to-resize behavior as WordArt/shape items */
+  const rh = document.createElement('div');
+  rh.className = 'addon-free-resize';
+  holder.appendChild(rh);
+  let resizing = false, rsx = 0, rsy = 0, rw = 0, rh0 = 0;
+  rh.addEventListener('pointerdown', e=>{
+    e.stopPropagation(); e.preventDefault();
+    resizing = true; rsx = e.clientX; rsy = e.clientY;
+    rw = holder.offsetWidth; rh0 = holder.offsetHeight;
+    rh.setPointerCapture(e.pointerId);
+  });
+  rh.addEventListener('pointermove', e=>{
+    if(!resizing) return;
+    const dx = e.clientX - rsx, dy = e.clientY - rsy;
+    holder.style.width = Math.max(80, rw + dx) + 'px';
+    holder.style.height = Math.max(40, rh0 + dy) + 'px';
+  });
+  const addonStopResize = ()=> resizing = false;
+  rh.addEventListener('pointerup', addonStopResize);
+  rh.addEventListener('pointercancel', addonStopResize);
+
+  /* mini "insert WordArt here" button — reuses the existing WordArt
+     text/style inputs already in the toolbar, but inserts the styled
+     span directly at the cursor inside THIS free-section instead of
+     creating a separate floating box */
+  const waBtn = document.createElement('button');
+  waBtn.type = 'button';
+  waBtn.className = 'addon-free-wordart-btn ui-only';
+  waBtn.title = 'دانانی WordArt لێرە';
+  waBtn.textContent = '✦';
+  waBtn.addEventListener('pointerdown', e=> e.stopPropagation());
+  waBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    const input = document.getElementById('wordartInput');
+    const styleSel = document.getElementById('wordartStyle');
+    const text = (input && input.value.trim()) || (freeEl.textContent.trim() ? '' : 'دەق');
+    if(!text){ freeEl.focus(); return; }
+    const style = styleSel ? styleSel.value : 'wa-plain';
+    const span = document.createElement('span');
+    span.className = 'wordart ' + style;
+    span.setAttribute('contenteditable', 'true');
+    span.style.display = 'inline-block';
+    span.style.fontSize = style === 'wa-stamp' ? '13px' : '22px';
+    span.textContent = text;
+    freeEl.focus();
+    if(typeof savedRange !== 'undefined' && savedRange && freeEl.contains(savedRange.startContainer)){
+      savedRange.collapse(false);
+      savedRange.insertNode(span);
+      if(typeof placeCursorAfter === 'function') placeCursorAfter(span);
+    } else {
+      freeEl.appendChild(document.createTextNode(' '));
+      freeEl.appendChild(span);
+    }
+    if(input) input.value = '';
+  });
+  holder.appendChild(waBtn);
+}
 })();
 </script>
 </body>
