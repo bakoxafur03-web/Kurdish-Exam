@@ -70,12 +70,27 @@ body{
 .brand-text h1{font-size:16px;margin:0;font-weight:800;letter-spacing:.2px;}
 .brand-text p{margin:0;font-size:11px;color:#9aa0b4;}
 
-.lang-switch{display:flex;gap:6px;background:var(--panel-soft);padding:4px;border-radius:30px;}
-.lang-switch button{
-  border:none;background:transparent;color:#9aa0b4;padding:6px 14px;border-radius:30px;
-  font-size:12px;font-weight:700;cursor:pointer;transition:.2s;
+.lang-switch{
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(180deg,var(--panel-soft),var(--panel-2));
+  padding:6px 14px 6px 10px;border-radius:30px;
+  border:1px solid #3a3f52;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04), 0 6px 16px -8px rgba(0,0,0,.5);
+  transition:.2s;
 }
-.lang-switch button.active{background:var(--gold);color:#241a05;}
+.lang-switch:hover{border-color:var(--gold);}
+.lang-switch-icon{font-size:14px;line-height:1;filter:grayscale(.15);}
+.lang-switch-select{
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  border:none;background:transparent;color:var(--gold);
+  font-size:12px;font-weight:800;letter-spacing:.2px;cursor:pointer;
+  padding:4px 20px 4px 2px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23b6862c'><path d='M5.5 7.5l4.5 4.5 4.5-4.5z'/></svg>");
+  background-repeat:no-repeat;background-position:left 0 center;background-size:14px;
+  direction:rtl;
+}
+.lang-switch-select:focus{outline:none;}
+.lang-switch-select option{background:var(--panel-2);color:#e8e6df;font-weight:600;}
 
 /* ===================== STEP 1: GALLERY ===================== */
 .wrap{max-width:1280px;margin:0 auto;padding:28px;}
@@ -340,6 +355,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .exam-header[data-tpl="a"] .hd-grid3{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;}
 .exam-header[data-tpl="a"] .hd-col{font-size:12px;line-height:2.1;font-family:'Noto Naskh Arabic',serif;}
 .exam-header[data-tpl="a"] .hd-col-right{text-align:start;}
+.exam-header[data-tpl="a"] .hd-info-box{border:1.5px dashed var(--gold-deep);border-radius:8px;padding:8px 10px;}
 .exam-header[data-tpl="a"] .hd-col-left{text-align:start;}
 .exam-header[data-tpl="a"] .hd-col-logo{display:flex;justify-content:center;}
 .exam-header[data-tpl="a"] .hd-logo{
@@ -891,11 +907,23 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
     <div class="lang-switch">
-      <button data-lang="ku" class="active">کوردی</button>
-      <button data-lang="ar">العربية</button>
-      <button data-lang="en">English</button>
+      <span class="lang-switch-icon">🌐</span>
+      <select id="langSwitchSelect" class="lang-switch-select">
+        <option value="ku" selected>کوردی سۆرانی</option>
+        <option value="bad">کوردی بادینی</option>
+        <option value="tk">تورکمانی / Türkmence</option>
+        <option value="syr">ܣܘܪܝܝܐ / سریانی</option>
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+      </select>
     </div>
-    <button class="about-btn-header" id="googleTranslateBtn" title="Google Translate" data-i18n-title="googleTranslateTitle">🌐</button>
+    <button class="about-btn-header" id="googleTranslateBtn" title="Google Translate" data-i18n-title="googleTranslateTitle" style="display:flex;align-items:center;justify-content:center;padding:0;">
+      <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="2" y="2" width="44" height="44" rx="9" fill="#4285F4"/>
+        <text x="15" y="24" font-family="'Noto Kufi Arabic',Arial,sans-serif" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">文</text>
+        <text x="33" y="34" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="#fff" text-anchor="middle">A</text>
+      </svg>
+    </button>
     <button class="about-btn-header" id="aboutBtn" title="About">ℹ</button>
   </div>
 </header>
@@ -1519,9 +1547,160 @@ en:{
  pageSizeLbl:"Page size", sizeA4:"A4 (210×297mm)", sizeA3:"A3 (297×420mm)", sizeA5:"A5 (148×210mm)", sizeLetter:"Letter (215.9×279.4mm)",
  mathGridHeading:"Simple grid / graph paper (choose your own columns, rows, and size)", addMathGrid:"Add simple grid",
  gridRowsPrompt:"How many grid rows?", gridColsPrompt:"How many grid columns?", shapeWidthTitle:"Width (px)", shapeHeightTitle:"Height (px)"
+},
+bad:{
+ title:"دروستکەری ئەسیلەی تاقیکردنەوێ", subtitle:"پەڕگەیا تاقیکردنەوێ یا پیشەیی دروست بکە و وەکی PDF دابگرە",
+ pickTplTitle:"شێوازێ سەرنڤیسێ هەلبژێرە", pickTplDesc:"یەک ژ ڤان شێوازان هەلبژێرە، پاشی دەست بکە ب دروستکرنا تاقیکردنەوێ خۆ",
+ tplA:"کلاسیکی فەرمی (لۆگۆ ل ناڤناڤ)", tplB:"رەنگین (چوارچێوا شین)", tplC:"مۆدێرن (گرادینت)", tplD:"تاریک (شێوازێ تایبەت)", tplE:"خشتەیی فەرمی (وەکی فۆرمەکا فەرمی)",
+ tplF:"سادە (هێلەکا باریک)", tplG:"بەلگەنامەیی (هێلەکا سادە)", tplH:"شریتێ سەرەوە (بانەر)", tplI:"شریتێ تەنیشتێ (رەنگین)", tplJ:"خشتەیی وردەکاری (سێ ستوون)", tplBlank:"ڤالا (پەرەکا سپی)",
+ choose:"هەلبژارتن", tbBack:"ڤەگەر", changeTpl:"گۆرینا شێواز", tbSubject:"بابەت", subjectColor:"رەنگێ تایبەت ب بابەتی",
+ freeColor:"رەنگێ ئازاد (سەربخۆ ژ بابەتی)", resetColor:"ڤەگەریان بۆ رەنگێ بنەرەتی یێ بابەتی",
+ tbAddContent:"زێدەکرنا ناڤەرۆک", addSection:"سەردێرا بەشی", addMcq:"پرسیارا هەلبژارتنێ", addSimple:"هەلبژارتنا سادە", addTf:"راست/چەوت", addBlank:"پڕکرنەوێ",
+ unlimitedFreeAdd:"زێدەکرنا ئازاد (بێ گوهاستن بۆ پەرەکا نوی)", unlimitedFreeAddHint:"کەنگی چالاک بیت، ئەگەر پەرە پڕ بیت، بابەتێ نوی ل سەر هەمان پەرێ دمینیت وەکی دانەیەکا ئازاد بۆ ڤێ یا ب راکێشانێ بخەیە هەر شوینەکی — پەرەکا نوی دروست ناکەت و پەرە درێژتر نابیت.",
+ addEssay:"وەلامێ نڤیسراوی", addTable:"خشتە", addDivider:"دابەشکەر", addImage:"زێدەکرنا وێنەیی",
+ addTwocol:"بەشێ دو ستوونان", addBox:"چوارچێوا وەلامی", addCutSection:"بەشێ نهینی (برین)", addFreeLogo:"زێدەکرنا لۆگۆیی",
+ tbWordart:"WordArt", wordartText:"دەقێ WordArt", wordartStyle:"شێواز", insertWordart:"دانانا WordArt",
+ waGradient:"رەنگین (گرادینت)", waOutline:"دەرهێل (Outline)", waShadow:"سێبەرا 3D", waNeon:"نیۆن", waStamp:"مۆر (Stamp)",
+ tbMath:"ئامرازێ بیرکارییێ", symbols:"هێمایان (کلیک بکە بۆ زێدەکرنێ)", equation:"دانانا یەکسانیێ (LaTeX)", insertEq:"دانانا یەکسانیێ",
+ mathGeoHeading:"هێلکاری بۆ وانا بیرکارییێ (کلیک بکە بۆ زێدەکرنێ، پاشی راکێشە بۆ ناڤ پرسیاری)",
+ mathGeoLabelNone:"بێ ناڤنیشان", mathGeoLabelUnit:"هەلبژارتنا یەکەی (سم/م/پلە)", mathGeoLabelCustom:"نڤیسینا تایبەت",
+ mathGeoCustomPlaceholder:"بۆ نموونە: 5 سم",
+ tbShapes:"شێوان (Shapes)", tbFormat:"فۆرماتێ دەقی", tbPageStyle:"شێوازێ پەرەیی", borderStyle:"شێوازێ چوارچێوێ",
+ tbLogo:"لۆگۆیێ قوتابخانێ", logoUpload:"وێنەیێ لۆگۆیی هەلبژێرە",
+ tbHeader:"سەرنڤیس", headerBg:"وێنەیێ پاشبنیمای سەرنڤیسی", headerBgFade:"روناکیا پاشبنیمایی",
+ headerMoveHint:"کەنگی کورسۆر دخەیە سەر سەرنڤیسی، دوگمەیا ✛ دەردکەڤیت — راکێشە بۆ گوهاستنا شوینێ سەرنڤیسی، یان ↺ کلیک بکە بۆ ڤەگەریانێ بۆ شوینێ سەرەتایی.",
+ headerDragTitle:"راکێشە بۆ گوهاستنا سەرنڤیسی", headerResetTitle:"ڤەگەریان بۆ شوینێ سەرەتایی",
+ fontFamily:"جۆرێ فۆنتی", fontNaskh:"Noto Naskh Arabic", fontKufi:"Noto Kufi Arabic", fontTajawal:"Tajawal",
+ fontInter:"Inter", fontTimes:"Times New Roman", fontGeorgia:"Georgia", fontCourier:"Courier New", fontArial:"Arial",
+ borderDouble:"دووانی (پێشنیار)", borderThin:"باریک", borderOrnate:"گەورە و بەهێز", borderNone:"بێ چوارچێوێ",
+ bgImage:"وێنەیێ پاشبنیمایی", remove:"ژێبرن", tbPages:"پەرەیان", addPage:"زێدەکرنا پەرەکا نوی",
+ tbExport:"دەرهێنان", fileName:"ناڤێ فایلی", exportPdf:"دابگرتنا PDF",
+ exportNote:"ئەڤ سیستەمە پەرەیان وەکی وێنەیی دگریت بۆ ڤێ یا نڤیسینا کوردی/عەرەبی ب تەڤایی ڕێک بیت د PDF دا.",
+ totalScore:"کۆیا نمرەیێ", hint:"دەستێ خۆ بنێ سەر هەر دەقەکی بۆ نڤیسینێ، وێنە و شێوان راکێشە بۆ هەر شوینەکی، ژمارا نمرا هەر پرسیارەکی گوهورە — کۆیا گشتی خۆکارانە نوی دبیت.",
+ deletePage:"ژێبرنا پەرەیی", schoolName:"ناڤێ قوتابخانێ", studentName:"ناڤێ قوتابیی", className:"پۆل", subject:"بابەت", time:"دەم", date:"بەروار",
+ groupLbl:"گروپ", yearLbl:"سالا خواندنێ", levelLbl:"ئامادەیی سەردەمی ناحکومی",
+ examTitle:"تاقیکردنەوێ کۆتایی وەرزی", q:"پ", optA:"هەلبژارتنا یەکێ", optB:"هەلبژارتنا دویێ", optC:"هەلبژارتنا سیێ", optD:"هەلبژارتنا چارێ",
+ trueLbl:"راست", falseLbl:"چەوت", writeQuestion:"دەقێ پرسیاری ڤرێ بنڤیسە...", sectionLbl:"ناڤنیشانێ بەشی", score:"نمرە",
+ colOne:"ستوونا یەکێ...", colTwo:"ستوونا دویێ...",
+ removeBlock:"ژێبرنا ڤی بەشی", headerDeleteTitle:"ژێبرنا سەرنڤیسی", headerRestoreTitle:"ڤەگەریانا سەرنڤیسی", termLbl:"خولا یەکێ",
+ tableRowsPrompt:"چەند ریز دڤێت؟", tableColsPrompt:"چەند ستوون دڤێت؟",
+ mcqColsLbl:"ژمارا هەلبژارتنێ ل هەر ریزەکی", addFraction:"بەشێ رێژەیی (کەسر)", addExponent:"ژمارا توانایی", addSqrt:"رەگا هێمایی (√)",
+ fracTop:"ژمارا سەرەوێ", fracBottom:"ژمارا خوارەوێ", baseNum:"بناغە", expNum:"توان", sqrtContent:"ژمارە", mathStructures:"پێکهاتا بیرکارییێ (کلیک بکە بۆ زێدەکرنێ ل شوینێ کورسۆری)",
+ wholeBlockLbl:"بۆلدکرنا هەمی دەقێ پرسیاری ب یەک جاری", boldAll:"بۆلدی هەمی بکە",
+ allQSizeLbl:"مەزناهیا دەقێ هەمی پرسیاران (ب یەک کلیکی)", qSizeS:"بچووک", qSizeM:"ناڤین", qSizeL:"مەزن", qSizeXl:"گەلەک مەزن",
+ addMath:"پرسیارا بیرکارییێ", addFree:"بەشێ ئازاد", writeMathQuestion:"پرسیارا بیرکارییێ ڤرێ بنڤیسە...",
+ textAlign:"ئاراستا نڤیسینێ", bgSizeLbl:"شێوازێ قیاسا وێنەیی", bgCover:"پڕکرنەوێ (Cover)", bgContain:"دیتنا تەڤایی (Contain)", bgStretch:"راکێشان (Stretch)", bgScaleLbl:"مەزنکرن/بچووککرنەوێ",
+ aboutTitle:"دەربارا ئەپلیکەیشنی", aboutText:"ئەڤ ئەپلیکەیشنە ژلایێ Bako Xafur ڤە دروستکری یە، دەرچووی بەشێ زانستا کۆمپیوتەری و گەشەپێدەرێ بوارێ ئەپلیکەیشنێن مۆبایلی و وێب پرۆگرامینگی، شارەزایێ بوارێ پرۆگرامینگی.", aboutClose:"باشە",
+ imgShapeLbl:"شێوازێ وێنەیی", imgShapePlain:"ئاسایی (بێ شێواز)", imgShapeCircle:"بازنەیی (Circle)", imgShapeSquare:"چوارگۆشەیا سادە (Square)", imgShapeFrame:"چوارچێوە/خشتە (Frame)",
+ frameBgColorLbl:"رەنگێ پاشبنیما چوارچێوێ", frameTextColorLbl:"رەنگێ نڤیسینا چوارچێوێ", frameCaption:"وەسفێ وێنەیی...",
+ addBulletList:"زێدەکرنا خالبەندی", bulletStyleLbl:"شێوازێ خالبەندی", bulletStyleNumber:"ب ژمارە", bulletStyleSymbol:"ب هێما", bulletStyleImage:"ب وێنە",
+ bulletPlaceholder:"خالەکا نوی بنڤیسە...", addBulletItemTitle:"زێدەکرنا خالەکا نوی", delBulletItemTitle:"ژێبرنا ڤێ خالێ", pickBulletImgTitle:"هەلبژارتنا وێنەیا خالبەندی",
+ googleSearchTitle:"گەران ب ڤی پرسیاری ل گووگل", renumberBtn:"ژمارەکرنا خۆکار یا پرسیاران", renumberTitle:"ڤەگەریانا هەمی ژماران بۆ رێزبەندا خۆکار",
+ addRidbendi:"زێدەکرنا رێزبەندی", ridbendiCountPrompt:"چەند ژمارە دڤێت؟", ridbendiLayoutPrompt:"ئایا ب ستوونی (یەک ژێر یەکێ) ریز بیت؟\nباشە (OK) = ستوونی\nپاشگەزبوون (Cancel) = ئاسۆیی (پاڵ ب پاڵ)",
+ tbTableColor:"رەنگێ خشتێ", tableColorHint:"سەرەتا کلیک ل سەر خشتێ بکە بۆ دیاریکرنێ، پاشی رەنگ هەلبژێرە.", resetTableColors:"ڤەگەریانا رەنگێ خشتێ",
+ pageSizeLbl:"قەبارا پەرەیی", sizeA4:"A4 (210×297mm)", sizeA3:"A3 (297×420mm)", sizeA5:"A5 (148×210mm)", sizeLetter:"Letter (215.9×279.4mm)",
+ mathGridHeading:"تۆڕەکا سادە / کاغەزێ گراف (ب دلێ خۆ ژمارا ستوون و ریز و قەبارێ دیاری بکە)", addMathGrid:"زێدەکرنا تۆڕەکا سادە",
+ gridRowsPrompt:"چەند ریز دڤێت بۆ تۆڕی؟", gridColsPrompt:"چەند ستوون دڤێت بۆ تۆڕی؟", shapeWidthTitle:"پان (px)", shapeHeightTitle:"درێژی (px)"
+},
+tk:{
+ title:"Imtihan Düzenleyici", subtitle:"Profesyonel bir imtihan kağıdı hazırla we PDF olarak indir",
+ pickTplTitle:"Başlık şeklini seç", pickTplDesc:"Aşağıdaki şekillerden birini seç, sonra imtihanını hazırlamağa başla",
+ tplA:"Klasik resmi (ortada logo)", tplB:"Renkli (mavi çerçeve)", tplC:"Modern (degrade)", tplD:"Koyu (özel stil)", tplE:"Resmi cetvelli (form gibi)",
+ tplF:"Sade (ince çizgi)", tplG:"Belge tarzı (temiz çizgi)", tplH:"Üst bant (banner)", tplI:"Yan şerit (renkli)", tplJ:"Ayrıntılı cetvel (üç sütun)", tplBlank:"Boş (beyaz sayfa)",
+ choose:"Seç", tbBack:"Geri", changeTpl:"Şekli değiştir", tbSubject:"Ders", subjectColor:"Dersin rengi",
+ freeColor:"Serbest renk (dersten bağımsız)", resetColor:"Dersin varsayılan rengine dön",
+ tbAddContent:"İçerik ekle", addSection:"Bölüm başlığı", addMcq:"Çoktan seçmeli soru", addSimple:"Basit seçim", addTf:"Doğru / Yanlış", addBlank:"Boşluk doldurma",
+ unlimitedFreeAdd:"Serbest ekleme (yeni sayfaya geçmeden)", unlimitedFreeAddHint:"Açık olduğunda, sayfa doluysa yeni öge aynı sayfada serbest bir öge olarak kalır we her yere sürüklenebilir — yeni sayfa açılmaz we sayfa uzamaz.",
+ addEssay:"Yazılı cevap", addTable:"Cetvel", addDivider:"Ayraç", addImage:"Resim ekle",
+ addTwocol:"İki sütunlu bölüm", addBox:"Cevap kutusu", addCutSection:"Gizli bölüm (kesme)", addFreeLogo:"Logo ekle",
+ tbWordart:"WordArt", wordartText:"WordArt metni", wordartStyle:"Stil", insertWordart:"WordArt ekle",
+ waGradient:"Degrade", waOutline:"Dış çizgi", waShadow:"3D gölge", waNeon:"Neon", waStamp:"Mühür",
+ tbMath:"Matematik araçları", symbols:"Semboller (eklemek için tıkla)", equation:"Denklem ekle (LaTeX)", insertEq:"Denklem ekle",
+ mathGeoHeading:"Matematik dersi için geometrik çizimler (eklemek için tıkla, sonra soruya sürükle)",
+ mathGeoLabelNone:"Etiket yok", mathGeoLabelUnit:"Birim seç (cm/m/°)", mathGeoLabelCustom:"Özel yazı",
+ mathGeoCustomPlaceholder:"Mesela: 5 sm",
+ tbShapes:"Şekiller (Shapes)", tbFormat:"Metin biçimi", tbPageStyle:"Sayfa stili", borderStyle:"Çerçeve stili",
+ tbLogo:"Okul logosu", logoUpload:"Logo resmi seç",
+ tbHeader:"Üst bilgi", headerBg:"Üst bilgi arka plan resmi", headerBgFade:"Arka plan solukluğu",
+ headerMoveHint:"Üst bilginin üzerine gelince ✛ tutamağı çıkar — üst bilgiyi taşımak için sürükle, ya da ↺ tıklayarak ilk yerine döndür.",
+ headerDragTitle:"Üst bilgiyi taşımak için sürükle", headerResetTitle:"İlk yerine döndür",
+ fontFamily:"Yazı tipi", fontNaskh:"Noto Naskh Arabic", fontKufi:"Noto Kufi Arabic", fontTajawal:"Tajawal",
+ fontInter:"Inter", fontTimes:"Times New Roman", fontGeorgia:"Georgia", fontCourier:"Courier New", fontArial:"Arial",
+ borderDouble:"Çift çizgi (önerilen)", borderThin:"İnce", borderOrnate:"Kalın we süslü", borderNone:"Çerçevesiz",
+ bgImage:"Arka plan resmi", remove:"Kaldır", tbPages:"Sayfalar", addPage:"Yeni sayfa ekle",
+ tbExport:"Dışa aktar", fileName:"Dosya adı", exportPdf:"PDF indir",
+ exportNote:"Kürtçe/Arapça yazının PDF'te doğru görünmesi için sayfalar resim olarak kaydedilir.",
+ totalScore:"Toplam puan", hint:"Düzenlemek için herhangi bir metne dokun, resim we şekilleri istediğin yere sürükle, her sorunun puanını değiştir — genel toplam otomatik güncellenir.",
+ deletePage:"Sayfayı sil", schoolName:"Okul adı", studentName:"Öğrenci adı", className:"Sınıf", subject:"Ders", time:"Süre", date:"Tarih",
+ groupLbl:"Grup", yearLbl:"Eğitim yılı", levelLbl:"Gayri hükümet hazırlık",
+ examTitle:"Dönem sonu imtihanı", q:"S", optA:"Seçenek A", optB:"Seçenek B", optC:"Seçenek C", optD:"Seçenek D",
+ trueLbl:"Doğru", falseLbl:"Yanlış", writeQuestion:"Soru metnini buraya yaz...", sectionLbl:"Bölüm başlığı", score:"Puan",
+ colOne:"Birinci sütun...", colTwo:"İkinci sütun...",
+ removeBlock:"Bu bölümü kaldır", headerDeleteTitle:"Üst bilgiyi sil", headerRestoreTitle:"Üst bilgiyi geri getir", termLbl:"Birinci dönem",
+ tableRowsPrompt:"Kaç satır istiyorsun?", tableColsPrompt:"Kaç sütun istiyorsun?",
+ mcqColsLbl:"Her satırda kaç seçenek", addFraction:"Kesir bloğu", addExponent:"Üs sayısı", addSqrt:"Karekök (√)",
+ fracTop:"Üst sayı", fracBottom:"Alt sayı", baseNum:"Taban", expNum:"Üs", sqrtContent:"sayı", mathStructures:"Matematik yapıları (imleçte eklemek için tıkla)",
+ wholeBlockLbl:"Tüm soru metnini bir kerede kalınlaştır", boldAll:"Hepsini kalınlaştır",
+ allQSizeLbl:"Tüm soruların yazı boyutu (tek tıkla)", qSizeS:"Küçük", qSizeM:"Orta", qSizeL:"Büyük", qSizeXl:"Çok büyük",
+ addMath:"Matematik sorusu", addFree:"Serbest bölüm", writeMathQuestion:"Matematik sorusunu buraya yaz...",
+ textAlign:"Metin hizalama", bgSizeLbl:"Resim boyut modu", bgCover:"Kaplama (Cover)", bgContain:"Sığdır (Contain)", bgStretch:"Uzat (Stretch)", bgScaleLbl:"Yakınlaştır/uzaklaştır",
+ aboutTitle:"Uygulama hakkında", aboutText:"Bu uygulama, Bilgisayar Bilimleri mezunu we programlama uzmanı Bako Xafur tarafından geliştirilmiştir.", aboutClose:"Tamam",
+ tbTableColor:"Cetvel renkleri", tableColorHint:"Önce cetvele tıklayarak seç, sonra renk seç.", resetTableColors:"Cetvel renklerini sıfırla",
+ pageSizeLbl:"Sayfa boyutu", sizeA4:"A4 (210×297mm)", sizeA3:"A3 (297×420mm)", sizeA5:"A5 (148×210mm)", sizeLetter:"Letter (215.9×279.4mm)",
+ mathGridHeading:"Basit ızgara / grafik kağıdı (sütun, satır we boyutu kendin seç)", addMathGrid:"Basit ızgara ekle",
+ gridRowsPrompt:"Izgarada kaç satır olsun?", gridColsPrompt:"Izgarada kaç sütun olsun?", shapeWidthTitle:"Genişlik (px)", shapeHeightTitle:"Yükseklik (px)"
+},
+syr:{
+ title:"ܥܒܘܕܐ ܕܒܘܚܪܢܐ", subtitle:"ܥܒܶܕ ܦܶܬܩܐ ܕܒܘܚܪܢܐ ܡܗܝܪܐ ܘܚܘܬ ܐܝܟ PDF",
+ pickTplTitle:"ܓܒܝ ܛܘܦܣܐ ܕܪܝܫܐ", pickTplDesc:"ܓܒܝ ܚܕ ܡܢ ܗܠܝܢ ܛܘܦܣ̈ܐ، ܘܗܪܟܐ ܫܪܝ ܒܒܢܝܢܐ ܕܒܘܚܪܢܟ",
+ tplA:"ܥܬܝܩܐ ܪܫܡܝܐ (ܠܘܓܘ ܒܡܨܥܬܐ)", tplB:"ܨܒܘܥܢܐ (ܟܘܢܐ ܟܚܘܠܐ)", tplC:"ܥܨܪܝܐ (ܓܪܢܕ)", tplD:"ܚܫܘܟܐ (ܛܘܦܣܐ ܡܝܘܬܪܐ)", tplE:"ܦܬܘܪܝܐ ܪܫܡܝܐ",
+ tplF:"ܦܫܝܛܐ (ܚܛ ܪܩܝܩ)", tplG:"ܟܬܒܝܐ (ܚܛ ܦܫܝܛܐ)", tplH:"ܣܪܛܐ ܥܠܝܐ", tplI:"ܣܪܛܐ ܓܒܝܐ", tplJ:"ܦܬܘܪܝܐ (ܬܠܬܐ ܥܡܘܕ̈ܐ)", tplBlank:"ܣܪܝܩܐ",
+ choose:"ܓܒܝ", tbBack:"ܗܦܘܟ", changeTpl:"ܫܚܠܦ ܛܘܦܣܐ", tbSubject:"ܡܕܪܫܬܐ", subjectColor:"ܓܘܢܐ ܕܡܕܪܫܬܐ",
+ freeColor:"ܓܘܢܐ ܚܐܪܐ", resetColor:"ܗܦܘܟ ܠܓܘܢܐ ܫܪܫܝܐ",
+ tbAddContent:"ܐܘܣܦ ܬܘܟܢܐ", addSection:"ܪܝܫܐ ܕܦܣܘܩܬܐ", addMcq:"ܫܘܐܠܐ ܓܒܝܐ", addSimple:"ܓܒܝܐ ܦܫܝܛܐ", addTf:"ܫܪܝܪܐ/ܕܓܠܐ", addBlank:"ܡܠܝ ܣܪܝܩܘܬܐ",
+ unlimitedFreeAdd:"ܐܘܣܦܢܐ ܚܐܪܐ", unlimitedFreeAddHint:"ܡܐ ܕܡܦܬܚܐ، ܐܢ ܦܬܩܐ ܡܠܝܐ، ܬܘܟܢܐ ܚܕܬܐ ܦܐܫ ܒܗ ܦܬܩܐ ܐܝܟ ܦܣܘܩܬܐ ܚܐܪܬܐ.",
+ addEssay:"ܦܘܢܝܐ ܟܬܝܒܐ", addTable:"ܦܬܘܪܐ", addDivider:"ܦܪܘܫܐ", addImage:"ܐܘܣܦ ܨܘܪܬܐ",
+ addTwocol:"ܦܣܘܩܬܐ ܕܬܪܝܢ ܥܡܘܕ̈ܐ", addBox:"ܩܒܘܬܐ ܕܦܘܢܝܐ", addCutSection:"ܦܣܘܩܬܐ ܓܢܝܙܬܐ", addFreeLogo:"ܐܘܣܦ ܠܘܓܘ",
+ tbWordart:"WordArt", wordartText:"ܟܬܒܐ ܕWordArt", wordartStyle:"ܛܘܦܣܐ", insertWordart:"ܐܘܣܦ WordArt",
+ waGradient:"ܓܪܢܕ", waOutline:"ܣܝܡ ܓܘܢܐ", waShadow:"ܛܠܢܝܬܐ 3D", waNeon:"ܢܝܘܢ", waStamp:"ܛܒܥܐ",
+ tbMath:"ܡܐܢ̈ܐ ܕܚܘܫܒܢܐ", symbols:"ܐܬܘ̈ܬܐ (ܓܘܫ ܠܐܘܣܦܢܐ)", equation:"ܐܘܣܦ ܫܘܘܝܘܬܐ (LaTeX)", insertEq:"ܐܘܣܦ ܫܘܘܝܘܬܐ",
+ mathGeoHeading:"ܨܘܪ̈ܐ ܕܗܢܕܣܐ ܠܝܘܠܦܢܐ ܕܚܘܫܒܢܐ",
+ mathGeoLabelNone:"ܠܝܬ ܟܬܒܐ", mathGeoLabelUnit:"ܓܒܝ ܡܫܘܚܬܐ (ܣܡ/ܡ/°)", mathGeoLabelCustom:"ܟܬܒܐ ܕܝܠܢܝܐ",
+ mathGeoCustomPlaceholder:"ܛܘܦܣܐ: 5 ܣܡ",
+ tbShapes:"ܨܘܪ̈ܐ", tbFormat:"ܛܘܦܣܐ ܕܟܬܒܐ", tbPageStyle:"ܛܘܦܣܐ ܕܦܬܩܐ", borderStyle:"ܛܘܦܣܐ ܕܣܝܡ ܓܘܢܐ",
+ tbLogo:"ܠܘܓܘ ܕܒܝ ܣܦܪܐ", logoUpload:"ܓܒܝ ܨܘܪܬ ܠܘܓܘ",
+ tbHeader:"ܪܝܫܐ", headerBg:"ܨܘܪܬܐ ܕܒܣܬܪ ܪܝܫܐ", headerBgFade:"ܢܘܗܪܐ ܕܒܣܬܪܐ",
+ headerMoveHint:"ܟܕ ܡܛܝܬ ܥܠ ܪܝܫܐ، ܦܐܫ ܚܙܝܬܐ ✛ — ܓܪܘܫ ܠܫܘܚܠܦܐ ܕܕܘܟܬܐ، ܐܘ ↺ ܠܗܦܟܐ.",
+ headerDragTitle:"ܓܪܘܫ ܠܫܘܚܠܦܐ ܕܪܝܫܐ", headerResetTitle:"ܗܦܘܟ ܠܕܘܟܬܐ ܩܕܡܝܬܐ",
+ fontFamily:"ܛܘܦܣܐ ܕܐܬܘ̈ܬܐ", fontNaskh:"Noto Naskh Arabic", fontKufi:"Noto Kufi Arabic", fontTajawal:"Tajawal",
+ fontInter:"Inter", fontTimes:"Times New Roman", fontGeorgia:"Georgia", fontCourier:"Courier New", fontArial:"Arial",
+ borderDouble:"ܙܘܓܐ (ܡܝܘܬܪܐ)", borderThin:"ܪܩܝܩ", borderOrnate:"ܥܒܝ ܘܙܝܢܬܢܐ", borderNone:"ܠܝܬ ܣܝܡ ܓܘܢܐ",
+ bgImage:"ܨܘܪܬܐ ܕܒܣܬܪܐ", remove:"ܫܩܘܠ", tbPages:"ܦܬܩ̈ܐ", addPage:"ܐܘܣܦ ܦܬܩܐ ܚܕܬܐ",
+ tbExport:"ܡܦܩܢܐ", fileName:"ܫܡܐ ܕܦܝܠ", exportPdf:"ܚܘܬ PDF",
+ exportNote:"ܦܬܩ̈ܐ ܦܐܫܝ ܢܣܝܒܐ ܐܝܟ ܨܘܪ̈ܐ ܕܟܬܒܐ ܟܘܪܕܝܐ/ܥܪܒܝܐ ܢܦܩ ܫܦܝܪ ܒPDF.",
+ totalScore:"ܟܠܗ ܢܘܩܙ̈ܐ", hint:"ܓܘܫ ܥܠ ܟܬܒܐ ܠܥܒܕܘܬܐ، ܓܪܘܫ ܨܘܪ̈ܐ ܘܨܘܪ̈ܬܐ ܠܟܠ ܕܘܟܐ، ܫܚܠܦ ܢܘܩܙ̈ܐ ܕܟܠ ܫܘܐܠܐ — ܟܠܗ ܡܬܚܕܬ ܐܘܛܘܡܛܝܩܐܝܬ.",
+ deletePage:"ܫܩܘܠ ܦܬܩܐ", schoolName:"ܫܡܐ ܕܒܝ ܣܦܪܐ", studentName:"ܫܡܐ ܕܝܠܘܦܐ", className:"ܨܦܐ", subject:"ܡܕܪܫܬܐ", time:"ܥܕܢܐ", date:"ܝܘܡܢܐ",
+ groupLbl:"ܓܘܫܡܐ", yearLbl:"ܫܢܬܐ ܕܝܘܠܦܢܐ", levelLbl:"ܛܝܝܒܘܬܐ ܠܐ ܚܘܟܘܡܝܬܐ",
+ examTitle:"ܒܘܚܪܢܐ ܕܚܪܬܐ ܕܘܪܓܐ", q:"ܫ", optA:"ܓܒܝܐ ܐ", optB:"ܓܒܝܐ ܒ", optC:"ܓܒܝܐ ܓ", optD:"ܓܒܝܐ ܕ",
+ trueLbl:"ܫܪܝܪܐ", falseLbl:"ܕܓܠܐ", writeQuestion:"ܟܬܘܒ ܟܬܒܐ ܕܫܘܐܠܐ ܗܪܟܐ...", sectionLbl:"ܪܝܫܐ ܕܦܣܘܩܬܐ", score:"ܢܘܩܙ̈ܐ",
+ colOne:"ܥܡܘܕܐ ܩܕܡܝܐ...", colTwo:"ܥܡܘܕܐ ܕܬܪܝܢ...",
+ removeBlock:"ܫܩܘܠ ܗܢܐ ܦܣܘܩܬܐ", headerDeleteTitle:"ܫܩܘܠ ܪܝܫܐ", headerRestoreTitle:"ܐܗܦܟ ܪܝܫܐ", termLbl:"ܕܘܪܓܐ ܩܕܡܝܐ",
+ tableRowsPrompt:"ܟܡܐ ܣܪ̈ܛܐ ܒܥܝܬ؟", tableColsPrompt:"ܟܡܐ ܥܡܘܕ̈ܐ ܒܥܝܬ؟",
+ mcqColsLbl:"ܡܢܝܢܐ ܕܓܒ̈ܝܐ ܒܟܠ ܣܪܛܐ", addFraction:"ܦܣܘܩܬܐ ܕܟܣܪ", addExponent:"ܡܢܝܢܐ ܕܚܝܠܐ", addSqrt:"ܥܩܪܐ (√)",
+ fracTop:"ܡܢܝܢܐ ܥܠܝܐ", fracBottom:"ܡܢܝܢܐ ܬܚܬܝܐ", baseNum:"ܫܬܐܣܬܐ", expNum:"ܚܝܠܐ", sqrtContent:"ܡܢܝܢܐ", mathStructures:"ܒܢܝܢ̈ܐ ܕܚܘܫܒܢܐ",
+ wholeBlockLbl:"ܥܒܕ ܥܒܝ ܟܠܗ ܟܬܒܐ ܕܫܘܐܠܐ ܒܚܕܐ ܙܒܢܐ", boldAll:"ܥܒܕ ܟܠܗ ܥܒܝ",
+ allQSizeLbl:"ܩܘܛܢܐ ܕܟܬܒܐ ܕܟܠܗ ܫܘܐܠ̈ܐ", qSizeS:"ܙܥܘܪܐ", qSizeM:"ܡܨܥܝܐ", qSizeL:"ܪܒܐ", qSizeXl:"ܪܒܐ ܛܒ",
+ addMath:"ܫܘܐܠܐ ܕܚܘܫܒܢܐ", addFree:"ܦܣܘܩܬܐ ܚܐܪܬܐ", writeMathQuestion:"ܟܬܘܒ ܫܘܐܠܐ ܕܚܘܫܒܢܐ ܗܪܟܐ...",
+ textAlign:"ܣܘܕܪܐ ܕܟܬܒܐ", bgSizeLbl:"ܛܘܦܣܐ ܕܩܘܛܢ ܨܘܪܬܐ", bgCover:"ܟܣܝܬܐ (Cover)", bgContain:"ܓܘ (Contain)", bgStretch:"ܡܬܝܚܐ (Stretch)", bgScaleLbl:"ܪܒܘܝܐ/ܙܥܘܪܝܐ",
+ aboutTitle:"ܥܠ ܦܪܘܓܪܡܐ", aboutText:"ܗܢܐ ܦܪܘܓܪܡܐ ܥܒܝܕܐ ܡܢ Bako Xafur، ܓܡܝܪܐ ܕܝܕܥܬܐ ܕܟܘܡܦܝܘܬܪ.", aboutClose:"ܛܒ",
+ tbTableColor:"ܓܘ̈ܢܐ ܕܦܬܘܪܐ", tableColorHint:"ܓܘܫ ܥܠ ܦܬܘܪܐ ܩܕܡܐ ܠܓܒܝܐ، ܘܗܪܟܐ ܓܒܝ ܓܘܢܐ.", resetTableColors:"ܐܗܦܟ ܓܘ̈ܢܐ ܕܦܬܘܪܐ",
+ pageSizeLbl:"ܩܘܛܢܐ ܕܦܬܩܐ", sizeA4:"A4 (210×297mm)", sizeA3:"A3 (297×420mm)", sizeA5:"A5 (148×210mm)", sizeLetter:"Letter (215.9×279.4mm)",
+ mathGridHeading:"ܫܒܟܬܐ ܦܫܝܛܬܐ", addMathGrid:"ܐܘܣܦ ܫܒܟܬܐ ܦܫܝܛܬܐ",
+ gridRowsPrompt:"ܟܡܐ ܣܪ̈ܛܐ ܠܫܒܟܬܐ؟", gridColsPrompt:"ܟܡܐ ܥܡܘܕ̈ܐ ܠܫܒܟܬܐ؟", shapeWidthTitle:"ܦܬܝܘܬܐ (px)", shapeHeightTitle:"ܪܘܡܐ (px)"
 }
 };
 let currentLang='ku';
+const LTR_LANGS = ['en','tk'];
 function applyI18n(){
   const dict = I18N[currentLang];
   document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -1530,52 +1709,53 @@ function applyI18n(){
   });
   document.getElementById('scorePill').textContent = dict.totalScore+': '+currentTotalScore;
   document.documentElement.lang = currentLang;
-  document.documentElement.dir = currentLang==='en' ? 'ltr' : 'rtl';
+  document.documentElement.dir = LTR_LANGS.includes(currentLang) ? 'ltr' : 'rtl';
 }
 function setLanguage(lang){
   if(!I18N[lang]) return;
   currentLang = lang;
-  document.querySelectorAll('.lang-switch button').forEach(b=> b.classList.toggle('active', b.dataset.lang===lang));
+  const sel = document.getElementById('langSwitchSelect');
+  if(sel) sel.value = lang;
   applyI18n();
+  refreshHeaderLanguage();
   refreshScore();
+  if(typeof buildSubjectSelect==='function') buildSubjectSelect();
 }
-document.querySelectorAll('.lang-switch button').forEach(b=>{
-  b.addEventListener('click',()=> setLanguage(b.dataset.lang));
-});
+document.getElementById('langSwitchSelect').addEventListener('change', e=> setLanguage(e.target.value));
 
 /* ============================================================
    SUBJECTS
 ============================================================ */
 const SUBJECTS = [
- {id:'math', ku:'بیرکاری', ar:'الرياضيات', en:'Mathematics', color:'#8a3a2e'},
- {id:'kurdish', ku:'کوردی', ar:'الكردية', en:'Kurdish', color:'#1f4a8a'},
- {id:'arabic', ku:'عەرەبی', ar:'العربية', en:'Arabic', color:'#1f4a8a'},
- {id:'english', ku:'ئینگلیزی', ar:'الإنجليزية', en:'English', color:'#1f4a8a'},
- {id:'french', ku:'فەرەنسی', ar:'الفرنسية', en:'French', color:'#1f4a8a'},
- {id:'science', ku:'زانست', ar:'العلوم', en:'Science', color:'#1f6b4d'},
- {id:'biology', ku:'زیندەزانی', ar:'الأحياء', en:'Biology', color:'#1f6b4d'},
- {id:'chemistry', ku:'کیمیا', ar:'الكيمياء', en:'Chemistry', color:'#1f6b4d'},
- {id:'physics', ku:'فیزیا', ar:'الفيزياء', en:'Physics', color:'#1f6b4d'},
- {id:'history', ku:'مێژوو', ar:'التاريخ', en:'History', color:'#7a5a1f'},
- {id:'geography', ku:'جوگرافیا', ar:'الجغرافيا', en:'Geography', color:'#7a5a1f'},
- {id:'economics', ku:'ئابووری', ar:'الاقتصاد', en:'Economics', color:'#7a5a1f'},
- {id:'social', ku:'یەکەی کۆمەڵایەتی', ar:'التربية الاجتماعية', en:'Social Studies', color:'#7a5a1f'},
- {id:'islamic', ku:'ئایینی ئیسلامی', ar:'التربية الإسلامية', en:'Islamic Studies', color:'#5a7a3a'},
- {id:'computer', ku:'کۆمپیوتەر', ar:'الحاسوب', en:'Computer', color:'#3a3f7a'},
- {id:'art', ku:'هونەر', ar:'الفنون', en:'Art', color:'#a6395a'},
- {id:'music', ku:'مۆسیقا', ar:'الموسيقى', en:'Music', color:'#a6395a'},
- {id:'pe', ku:'وەرزش', ar:'التربية الرياضية', en:'PE', color:'#1f6b8a'},
- {id:'civics', ku:'پەروەردەی نیشتمانی', ar:'التربية الوطنية', en:'Civics', color:'#5a7a3a'},
- {id:'philosophy', ku:'فەلسەفە', ar:'الفلسفة', en:'Philosophy', color:'#7a5a1f'},
- {id:'psychology', ku:'دەروونزانی', ar:'علم النفس', en:'Psychology', color:'#a6395a'},
- {id:'sociology', ku:'کۆمەڵزانی', ar:'علم الاجتماع', en:'Sociology', color:'#7a5a1f'},
- {id:'statistics', ku:'ئامار', ar:'الإحصاء', en:'Statistics', color:'#8a3a2e'},
- {id:'geology', ku:'زینزانی زەوی', ar:'الجيولوجيا', en:'Geology', color:'#1f6b4d'},
- {id:'it', ku:'تەکنەلۆجیای زانیاری', ar:'تكنولوجيا المعلومات', en:'IT / ICT', color:'#3a3f7a'},
- {id:'kurdishlit', ku:'ئەدەبی کوردی', ar:'الأدب الكردي', en:'Kurdish Literature', color:'#1f4a8a'},
- {id:'health', ku:'پەروەردەی تەندروستی', ar:'التربية الصحية', en:'Health Education', color:'#1f6b8a'},
- {id:'business', ku:'بازرگانی', ar:'إدارة الأعمال', en:'Business Studies', color:'#7a5a1f'},
- {id:'law', ku:'یاسا', ar:'القانون', en:'Law', color:'#3a3f7a'}
+ {id:'math', ku:'بیرکاری', bad:'بیرکاری', tk:'Matematik', syr:'ܚܘܫܒܢܐ', ar:'الرياضيات', en:'Mathematics', color:'#8a3a2e'},
+ {id:'kurdish', ku:'کوردی', bad:'کوردی', tk:'Kürtçe', syr:'ܟܘܪܕܝܐ', ar:'الكردية', en:'Kurdish', color:'#1f4a8a'},
+ {id:'arabic', ku:'عەرەبی', bad:'عەرەبی', tk:'Arapça', syr:'ܥܪܒܝܐ', ar:'العربية', en:'Arabic', color:'#1f4a8a'},
+ {id:'english', ku:'ئینگلیزی', bad:'ئینگلیزی', tk:'İngilizce', syr:'ܐܢܓܠܝܫܝܐ', ar:'الإنجليزية', en:'English', color:'#1f4a8a'},
+ {id:'french', ku:'فەرەنسی', bad:'فەرەنسی', tk:'Fransızca', syr:'ܦܪܢܣܝܐ', ar:'الفرنسية', en:'French', color:'#1f4a8a'},
+ {id:'science', ku:'زانست', bad:'زانست', tk:'Fen Bilgisi', syr:'ܝܕܥܬܐ', ar:'العلوم', en:'Science', color:'#1f6b4d'},
+ {id:'biology', ku:'زیندەزانی', bad:'زیندەزانی', tk:'Biyoloji', syr:'ܒܝܘܠܘܓܝܐ', ar:'الأحياء', en:'Biology', color:'#1f6b4d'},
+ {id:'chemistry', ku:'کیمیا', bad:'کیمیا', tk:'Kimya', syr:'ܟܝܡܝܐ', ar:'الكيمياء', en:'Chemistry', color:'#1f6b4d'},
+ {id:'physics', ku:'فیزیا', bad:'فیزیا', tk:'Fizik', syr:'ܦܝܙܝܩܐ', ar:'الفيزياء', en:'Physics', color:'#1f6b4d'},
+ {id:'history', ku:'مێژوو', bad:'مێژوو', tk:'Tarih', syr:'ܬܫܥܝܬܐ', ar:'التاريخ', en:'History', color:'#7a5a1f'},
+ {id:'geography', ku:'جوگرافیا', bad:'جوگرافیا', tk:'Coğrafya', syr:'ܓܐܘܓܪܦܝܐ', ar:'الجغرافيا', en:'Geography', color:'#7a5a1f'},
+ {id:'economics', ku:'ئابووری', bad:'ئابووری', tk:'Ekonomi', syr:'ܐܝܩܘܢܘܡܝܐ', ar:'الاقتصاد', en:'Economics', color:'#7a5a1f'},
+ {id:'social', ku:'یەکەی کۆمەڵایەتی', bad:'پەروەردا کۆمەلایەتی', tk:'Sosyal Bilgiler', syr:'ܝܘܠܦܢܐ ܥܘܡܪܢܝܐ', ar:'التربية الاجتماعية', en:'Social Studies', color:'#7a5a1f'},
+ {id:'islamic', ku:'ئایینی ئیسلامی', bad:'پەروەردا ئیسلامی', tk:'Din Bilgisi', syr:'ܝܘܠܦܢܐ ܐܝܣܠܡܝܐ', ar:'التربية الإسلامية', en:'Islamic Studies', color:'#5a7a3a'},
+ {id:'computer', ku:'کۆمپیوتەر', bad:'کۆمپیوتەر', tk:'Bilgisayar', syr:'ܡܚܫܒܬܐ', ar:'الحاسوب', en:'Computer', color:'#3a3f7a'},
+ {id:'art', ku:'هونەر', bad:'هونەر', tk:'Sanat', syr:'ܐܘܡܢܘܬܐ', ar:'الفنون', en:'Art', color:'#a6395a'},
+ {id:'music', ku:'مۆسیقا', bad:'مۆسیقا', tk:'Müzik', syr:'ܡܘܣܝܩܐ', ar:'الموسيقى', en:'Music', color:'#a6395a'},
+ {id:'pe', ku:'وەرزش', bad:'وەرزش', tk:'Beden Eğitimi', syr:'ܪܒܝܬܐ ܦܓܪܢܝܬܐ', ar:'التربية الرياضية', en:'PE', color:'#1f6b8a'},
+ {id:'civics', ku:'پەروەردەی نیشتمانی', bad:'پەروەردا نیشتمانی', tk:'Vatandaşlık Bilgisi', syr:'ܝܘܠܦܢܐ ܐܬܪܢܝܐ', ar:'التربية الوطنية', en:'Civics', color:'#5a7a3a'},
+ {id:'philosophy', ku:'فەلسەفە', bad:'فەلسەفە', tk:'Felsefe', syr:'ܦܝܠܘܣܘܦܝܐ', ar:'الفلسفة', en:'Philosophy', color:'#7a5a1f'},
+ {id:'psychology', ku:'دەروونزانی', bad:'دەروونناسی', tk:'Psikoloji', syr:'ܝܕܥܬܐ ܢܦܫܢܝܬܐ', ar:'علم النفس', en:'Psychology', color:'#a6395a'},
+ {id:'sociology', ku:'کۆمەڵزانی', bad:'کۆمەلناسی', tk:'Sosyoloji', syr:'ܝܕܥܬܐ ܥܘܡܪܢܝܬܐ', ar:'علم الاجتماع', en:'Sociology', color:'#7a5a1f'},
+ {id:'statistics', ku:'ئامار', bad:'ئامار', tk:'İstatistik', syr:'ܐܝܣܛܐܛܝܣܛܝܩܐ', ar:'الإحصاء', en:'Statistics', color:'#8a3a2e'},
+ {id:'geology', ku:'زینزانی زەوی', bad:'زینزانیا زەوی', tk:'Jeoloji', syr:'ܝܕܥܬܐ ܕܐܪܥܐ', ar:'الجيولوجيا', en:'Geology', color:'#1f6b4d'},
+ {id:'it', ku:'تەکنەلۆجیای زانیاری', bad:'تەکنەلۆژیا زانیاریی', tk:'Bilişim Teknolojileri', syr:'ܬܟܢܠܘܓܝܐ ܕܝܕܥܬܐ', ar:'تكنولوجيا المعلومات', en:'IT / ICT', color:'#3a3f7a'},
+ {id:'kurdishlit', ku:'ئەدەبی کوردی', bad:'ئەدەبێ کوردی', tk:'Kürt Edebiyatı', syr:'ܟܬܒܢܘܬܐ ܟܘܪܕܝܬܐ', ar:'الأدب الكردي', en:'Kurdish Literature', color:'#1f4a8a'},
+ {id:'health', ku:'پەروەردەی تەندروستی', bad:'پەروەردا تەندروستی', tk:'Sağlık Eğitimi', syr:'ܝܘܠܦܢܐ ܕܚܘܠܡܢܐ', ar:'التربية الصحية', en:'Health Education', color:'#1f6b8a'},
+ {id:'business', ku:'بازرگانی', bad:'بازرگانی', tk:'İşletme', syr:'ܬܐܓܘܪܬܐ', ar:'إدارة الأعمال', en:'Business Studies', color:'#7a5a1f'},
+ {id:'law', ku:'یاسا', bad:'یاسا', tk:'Hukuk', syr:'ܢܡܘܣܐ', ar:'القانون', en:'Law', color:'#3a3f7a'}
 ];
 let currentSubject = SUBJECTS[0];
 
@@ -1660,24 +1840,29 @@ document.getElementById('aboutOverlay').addEventListener('click', e=>{
 let pageCount = 0;
 function makeHeaderHTML(tpl){
   const d = I18N[currentLang];
+  const L = (key)=>`<span class="hd-lbl" data-lbl="${key}">${d[key]}</span>`;
+  const SUBJ = ()=>`<span class="hd-subj" data-subj-id="${currentSubject.id}">${currentSubject[currentLang]||currentSubject.ku}</span>`;
+  const HRS = ()=>`<span class="hd-hrs">${currentLang==='en'?'hrs':''}</span>`;
   if(tpl==='blank'){
     return `<div class="exam-header" data-tpl="blank"></div>`;
   }
   if(tpl==='a'){
     return `<div class="exam-header" data-tpl="a">
-      <div class="hd-title-top" contenteditable="true">${d.examTitle}</div>
+      <div class="hd-title-top" contenteditable="true">${L('examTitle')}</div>
       <div class="hd-grid3">
         <div class="hd-col hd-col-right" contenteditable="true">
-          ${d.levelLbl}<br>
-          ${d.className}: <span class="editable-field">.....</span><br>
-          ${d.groupLbl}: <span class="editable-field">A</span>
+          <div class="hd-info-box">
+            ${L('levelLbl')}<br>
+            ${L('className')}: <span class="editable-field">.....</span><br>
+            ${L('groupLbl')}: <span class="editable-field">A</span>
+          </div>
         </div>
         <div class="hd-col-logo"><div class="hd-logo">LOGO</div></div>
         <div class="hd-col hd-col-left" contenteditable="true">
-          ${d.subject}: <span class="editable-field">${currentSubject[currentLang]||currentSubject.ku}</span><br>
-          ${d.yearLbl}: <span class="editable-field">2025-2026</span><br>
-          ${d.time}: <span class="editable-field">2 ${currentLang==='en'?'hrs':''}</span><br>
-          ${d.date}: <span class="editable-field">..../..../......</span>
+          ${L('subject')}: <span class="editable-field">${SUBJ()}</span><br>
+          ${L('yearLbl')}: <span class="editable-field">2025-2026</span><br>
+          ${L('time')}: <span class="editable-field">2 ${HRS()}</span><br>
+          ${L('date')}: <span class="editable-field">..../..../......</span>
         </div>
       </div>
     </div>`;
@@ -1685,77 +1870,77 @@ function makeHeaderHTML(tpl){
   if(tpl==='e'){
     return `<div class="exam-header" data-tpl="e">
       <div class="hd-table-grid">
-        <div class="hd-cell" contenteditable="true">${d.studentName}: <span class="editable-field">.......................</span></div>
-        <div class="hd-cell" contenteditable="true">${d.schoolName}: <span class="editable-field">.......................</span></div>
+        <div class="hd-cell" contenteditable="true">${L('studentName')}: <span class="editable-field">.......................</span></div>
+        <div class="hd-cell" contenteditable="true">${L('schoolName')}: <span class="editable-field">.......................</span></div>
         <div class="hd-cell" contenteditable="true">
-          ${d.className}: <span class="editable-field">.....</span><br>
-          ${d.subject}: <span class="editable-field">${currentSubject[currentLang]||currentSubject.ku}</span><br>
-          ${d.time}: <span class="editable-field">..........</span><br>
-          ${d.date}: <span class="editable-field">..../..../......</span>
+          ${L('className')}: <span class="editable-field">.....</span><br>
+          ${L('subject')}: <span class="editable-field">${SUBJ()}</span><br>
+          ${L('time')}: <span class="editable-field">..........</span><br>
+          ${L('date')}: <span class="editable-field">..../..../......</span>
         </div>
         <div class="hd-cell hd-cell-logo"><div class="hd-logo">LOGO</div></div>
-        <div class="hd-cell hd-cell-span2" contenteditable="true">${d.examTitle}</div>
-        <div class="hd-cell hd-cell-span2" contenteditable="true">${d.yearLbl}: <span class="editable-field">2025-2026</span></div>
+        <div class="hd-cell hd-cell-span2" contenteditable="true">${L('examTitle')}</div>
+        <div class="hd-cell hd-cell-span2" contenteditable="true">${L('yearLbl')}: <span class="editable-field">2025-2026</span></div>
       </div>
     </div>`;
   }
   if(tpl==='b'){
     return `<div class="exam-header" data-tpl="b">
-      <div class="hd-bar" contenteditable="true">${d.examTitle}</div>
+      <div class="hd-bar" contenteditable="true">${L('examTitle')}</div>
       <div class="hd-dots"><span style="background:#e06c75"></span><span style="background:#e5c07b"></span><span style="background:#56b6c2"></span><span style="background:#98c379"></span><span style="background:#c678dd"></span></div>
       <div class="hd-fields" contenteditable="true">
-        <div>${d.schoolName}: <span class="editable-field">.................</span></div>
-        <div>${d.studentName}: <span class="editable-field">.................</span></div>
-        <div>${d.className}: <span class="editable-field">......</span></div>
-        <div>${d.subject}: <span class="editable-field">${currentSubject[currentLang]||currentSubject.ku}</span></div>
+        <div>${L('schoolName')}: <span class="editable-field">.................</span></div>
+        <div>${L('studentName')}: <span class="editable-field">.................</span></div>
+        <div>${L('className')}: <span class="editable-field">......</span></div>
+        <div>${L('subject')}: <span class="editable-field">${SUBJ()}</span></div>
       </div>
     </div>`;
   }
   if(tpl==='c'){
     return `<div class="exam-header" data-tpl="c">
-      <div class="hd-top"><h2 contenteditable="true">${d.examTitle}</h2><span contenteditable="true">2026</span></div>
+      <div class="hd-top"><h2 contenteditable="true">${L('examTitle')}</h2><span contenteditable="true">2026</span></div>
       <div class="hd-fields" contenteditable="true">
-        <span>${d.schoolName}: <span class="editable-field">..............</span></span>
-        <span>${d.className}: <span class="editable-field">.....</span></span>
-        <span>${d.subject}: <span class="editable-field">${currentSubject[currentLang]||currentSubject.ku}</span></span>
-        <span>${d.time}: <span class="editable-field">........</span></span>
+        <span>${L('schoolName')}: <span class="editable-field">..............</span></span>
+        <span>${L('className')}: <span class="editable-field">.....</span></span>
+        <span>${L('subject')}: <span class="editable-field">${SUBJ()}</span></span>
+        <span>${L('time')}: <span class="editable-field">........</span></span>
       </div>
     </div>`;
   }
   if(tpl==='f'){
     return `<div class="exam-header" data-tpl="f">
-      <div class="hd-top"><h2 contenteditable="true">${d.examTitle}</h2><span contenteditable="true">2025-2026</span></div>
+      <div class="hd-top"><h2 contenteditable="true">${L('examTitle')}</h2><span contenteditable="true">2025-2026</span></div>
       <div class="hd-fields" contenteditable="true">
-        <span>${d.schoolName}: <span class="editable-field">..............</span></span>
-        <span>${d.studentName}: <span class="editable-field">..............</span></span>
-        <span>${d.className}: <span class="editable-field">.....</span></span>
-        <span>${d.subject}: <span class="editable-field">${currentSubject[currentLang]||currentSubject.ku}</span></span>
-        <span>${d.time}: <span class="editable-field">........</span></span>
+        <span>${L('schoolName')}: <span class="editable-field">..............</span></span>
+        <span>${L('studentName')}: <span class="editable-field">..............</span></span>
+        <span>${L('className')}: <span class="editable-field">.....</span></span>
+        <span>${L('subject')}: <span class="editable-field">${SUBJ()}</span></span>
+        <span>${L('time')}: <span class="editable-field">........</span></span>
       </div>
     </div>`;
   }
   if(tpl==='g'){
     return `<div class="exam-header" data-tpl="g">
       <span class="br-bl"></span><span class="br-br"></span>
-      <h2 contenteditable="true">${d.examTitle}</h2>
+      <h2 contenteditable="true">${L('examTitle')}</h2>
       <div class="hd-fields" contenteditable="true">
-        <span>${d.schoolName}: <span class="editable-field">..............</span></span>
-        <span>${d.className}: <span class="editable-field">.....</span></span>
-        <span>${d.subject}: <span class="editable-field">${currentSubject[currentLang]||currentSubject.ku}</span></span>
-        <span>${d.yearLbl}: <span class="editable-field">2025-2026</span></span>
+        <span>${L('schoolName')}: <span class="editable-field">..............</span></span>
+        <span>${L('className')}: <span class="editable-field">.....</span></span>
+        <span>${L('subject')}: <span class="editable-field">${SUBJ()}</span></span>
+        <span>${L('yearLbl')}: <span class="editable-field">2025-2026</span></span>
       </div>
     </div>`;
   }
   if(tpl==='h'){
     return `<div class="exam-header" data-tpl="h">
-      <div class="hd-banner" contenteditable="true">${d.examTitle}</div>
+      <div class="hd-banner" contenteditable="true">${L('examTitle')}</div>
       <div class="hd-fields" contenteditable="true">
-        <div>${d.schoolName}: <span class="editable-field">.................</span></div>
-        <div>${d.studentName}: <span class="editable-field">.................</span></div>
-        <div>${d.className}: <span class="editable-field">......</span></div>
-        <div>${d.subject}: <span class="editable-field">${currentSubject[currentLang]||currentSubject.ku}</span></div>
-        <div>${d.time}: <span class="editable-field">........</span></div>
-        <div>${d.date}: <span class="editable-field">..../..../......</span></div>
+        <div>${L('schoolName')}: <span class="editable-field">.................</span></div>
+        <div>${L('studentName')}: <span class="editable-field">.................</span></div>
+        <div>${L('className')}: <span class="editable-field">......</span></div>
+        <div>${L('subject')}: <span class="editable-field">${SUBJ()}</span></div>
+        <div>${L('time')}: <span class="editable-field">........</span></div>
+        <div>${L('date')}: <span class="editable-field">..../..../......</span></div>
       </div>
     </div>`;
   }
@@ -1763,12 +1948,12 @@ function makeHeaderHTML(tpl){
     return `<div class="exam-header" data-tpl="i">
       <div class="hd-stripe"></div>
       <div class="hd-body">
-        <h2 contenteditable="true">${d.examTitle}</h2>
+        <h2 contenteditable="true">${L('examTitle')}</h2>
         <div class="hd-fields" contenteditable="true">
-          <span>${d.schoolName}: <span class="editable-field">..............</span></span>
-          <span>${d.className}: <span class="editable-field">.....</span></span>
-          <span>${d.subject}: <span class="editable-field">${currentSubject[currentLang]||currentSubject.ku}</span></span>
-          <span>${d.time}: <span class="editable-field">........</span></span>
+          <span>${L('schoolName')}: <span class="editable-field">..............</span></span>
+          <span>${L('className')}: <span class="editable-field">.....</span></span>
+          <span>${L('subject')}: <span class="editable-field">${SUBJ()}</span></span>
+          <span>${L('time')}: <span class="editable-field">........</span></span>
         </div>
       </div>
     </div>`;
@@ -1776,26 +1961,40 @@ function makeHeaderHTML(tpl){
   if(tpl==='j'){
     return `<div class="exam-header" data-tpl="j">
       <div class="hd-j-grid">
-        <div class="hd-j-cell hd-j-red" contenteditable="true">${d.schoolName}</div>
-        <div class="hd-j-cell hd-j-title" contenteditable="true">${d.examTitle}</div>
-        <div class="hd-j-cell" contenteditable="true">${d.subject}: <span class="editable-field">${currentSubject[currentLang]||currentSubject.ku}</span></div>
-        <div class="hd-j-cell" contenteditable="true">${d.studentName}: <span class="editable-field">.......................</span></div>
-        <div class="hd-j-cell hd-j-blue" contenteditable="true"><span class="editable-field">${d.termLbl}</span></div>
-        <div class="hd-j-cell" contenteditable="true">${d.date}: <span class="editable-field">..../..../......</span></div>
-        <div class="hd-j-cell hd-j-red" contenteditable="true">${d.className}: <span class="editable-field">.....</span></div>
-        <div class="hd-j-cell" contenteditable="true">${d.yearLbl}: <span class="editable-field">2025-2026</span></div>
-        <div class="hd-j-cell" contenteditable="true">${d.time}: <span class="editable-field">2 ${currentLang==='en'?'hrs':''}</span></div>
+        <div class="hd-j-cell hd-j-red" contenteditable="true">${L('schoolName')}</div>
+        <div class="hd-j-cell hd-j-title" contenteditable="true">${L('examTitle')}</div>
+        <div class="hd-j-cell" contenteditable="true">${L('subject')}: <span class="editable-field">${SUBJ()}</span></div>
+        <div class="hd-j-cell" contenteditable="true">${L('studentName')}: <span class="editable-field">.......................</span></div>
+        <div class="hd-j-cell hd-j-blue" contenteditable="true"><span class="editable-field">${L('termLbl')}</span></div>
+        <div class="hd-j-cell" contenteditable="true">${L('date')}: <span class="editable-field">..../..../......</span></div>
+        <div class="hd-j-cell hd-j-red" contenteditable="true">${L('className')}: <span class="editable-field">.....</span></div>
+        <div class="hd-j-cell" contenteditable="true">${L('yearLbl')}: <span class="editable-field">2025-2026</span></div>
+        <div class="hd-j-cell" contenteditable="true">${L('time')}: <span class="editable-field">2 ${HRS()}</span></div>
       </div>
     </div>`;
   }
   return `<div class="exam-header" data-tpl="d">
-    <div class="hd-top"><strong contenteditable="true">${d.examTitle}</strong><span contenteditable="true">2025 - 2026</span></div>
+    <div class="hd-top"><strong contenteditable="true">${L('examTitle')}</strong><span contenteditable="true">2025 - 2026</span></div>
     <div class="hd-fields" contenteditable="true">
-      <span>${d.schoolName}: <span class="editable-field">..............</span></span>
-      <span>${d.className}: <span class="editable-field">.....</span></span>
-      <span>${d.subject}: <span class="editable-field">${currentSubject[currentLang]||currentSubject.ku}</span></span>
+      <span>${L('schoolName')}: <span class="editable-field">..............</span></span>
+      <span>${L('className')}: <span class="editable-field">.....</span></span>
+      <span>${L('subject')}: <span class="editable-field">${SUBJ()}</span></span>
     </div>
   </div>`;
+}
+function refreshHeaderLanguage(){
+  const d = I18N[currentLang];
+  document.querySelectorAll('.exam-header .hd-lbl').forEach(el=>{
+    const key = el.dataset.lbl;
+    if(d[key]!==undefined) el.textContent = d[key];
+  });
+  document.querySelectorAll('.exam-header .hd-subj').forEach(el=>{
+    const s = SUBJECTS.find(x=>x.id===el.dataset.subjId) || currentSubject;
+    el.textContent = s[currentLang]||s.ku;
+  });
+  document.querySelectorAll('.exam-header .hd-hrs').forEach(el=>{
+    el.textContent = currentLang==='en' ? 'hrs' : '';
+  });
 }
 
 function applyTemplateToExistingPages(tpl){
@@ -3847,9 +4046,10 @@ applyI18n();
     document.getElementById('addonShuffleHint').textContent = d.shuffleHint;
     document.getElementById('addonShuffleLbl').textContent = d.shuffleBtn;
   }
-  document.querySelectorAll('.lang-switch button[data-lang]').forEach(b=>{
-    b.addEventListener('click', ()=> addonApplyI18n(b.dataset.lang));
-  });
+  const addonLangSelectEl = document.getElementById('langSwitchSelect');
+  if(addonLangSelectEl){
+    addonLangSelectEl.addEventListener('change', ()=> addonApplyI18n(addonLangSelectEl.value));
+  }
   addonApplyI18n('ku');
   function addonLang(){ return (typeof currentLang!=='undefined' && ADDON_I18N[currentLang]) ? currentLang : 'ku'; }
 
@@ -4511,4 +4711,3 @@ function addonEnhanceFreeSection(holder, freeEl){
 </script>
 </body>
 </html>
-
