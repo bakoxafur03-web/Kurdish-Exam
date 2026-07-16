@@ -205,6 +205,27 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
   padding:8px;border-radius:8px;font-size:12px;font-family:inherit;
 }
 .tb-label{font-size:11px;color:#9aa0b4;margin:6px 0 4px;display:block;}
+
+/* ===== scoped tidy-up: only affects the "زیادکردنی ناوەڕۆک / Add content" panel ===== */
+.content-add-section .tb-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.content-add-section .tb-row:has(> .tb-btn:only-child){grid-template-columns:1fr;}
+.content-add-section .tb-btn{min-height:58px;justify-content:center;text-align:center;}
+.content-add-section .ac-toggle-card{background:#1c1f2b;border:1px solid #3a3f52;border-radius:8px;padding:10px 12px;margin-bottom:14px;}
+.content-add-section .ac-toggle-row{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;font-weight:600;}
+.content-add-section .ac-toggle-row input{accent-color:var(--gold);width:16px;height:16px;flex:none;}
+.content-add-section .ac-toggle-card .tb-hint{margin-top:8px;}
+.content-add-section .ac-suboption{background:#1c1f2b;border-inline-start:3px solid var(--gold);border-radius:0 8px 8px 0;padding:8px 10px 10px;margin:-2px 0 12px;}
+.content-add-section .ac-suboption .tb-label{margin-top:0;}
+.content-add-section .ac-suboption .tb-row{margin:8px 0 0;}
+
+/* ===== toolbar tab bar (groups the sidebar sections into Header / Content / Decoration) ===== */
+.tb-tabbar{display:flex;gap:6px;margin:0 0 16px;position:sticky;top:0;background:var(--panel-2);padding:4px 0 10px;z-index:2;}
+.tb-tabbtn{flex:1;background:#2b2f40;border:1px solid #3a3f52;color:#e8e6df;padding:9px 4px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;}
+.tb-tabbtn:hover{border-color:var(--gold);}
+.tb-tabbtn.active{background:var(--gold);color:#241a05;border-color:var(--gold);}
+.tb-tabpanel{display:none;}
+.tb-tabpanel.active{display:block;}
+
 .subject-swatch{display:flex;gap:6px;flex-wrap:wrap;}
 .subject-swatch button{
   border:2px solid transparent;width:28px;height:28px;border-radius:50%;cursor:pointer;
@@ -355,7 +376,7 @@ select.tb-select, input.tb-input, input[type=color].tb-color{
 .exam-header[data-tpl="a"] .hd-grid3{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;}
 .exam-header[data-tpl="a"] .hd-col{font-size:12px;line-height:2.1;font-family:'Noto Naskh Arabic',serif;}
 .exam-header[data-tpl="a"] .hd-col-right{text-align:start;}
-.exam-header[data-tpl="a"] .hd-info-box{border:1.5px dashed var(--gold-deep);border-radius:8px;padding:8px 10px;}
+.exam-header[data-tpl="a"] .hd-info-box{}
 .exam-header[data-tpl="a"] .hd-col-left{text-align:start;}
 .exam-header[data-tpl="a"] .hd-col-logo{display:flex;justify-content:center;}
 .exam-header[data-tpl="a"] .hd-logo{
@@ -1049,12 +1070,19 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
 <!-- ============ STEP 2: BUILDER ============ -->
 <section class="builder" id="builderScreen">
   <aside class="toolbar">
-
     <div class="tb-section">
       <h3 data-i18n="tbBack">گەڕانەوە</h3>
       <div class="tb-row"><button class="tb-btn" id="btnBackGallery"><span class="ic">⤺</span><span data-i18n="changeTpl">گۆڕینی شێواز</span></button></div>
     </div>
 
+
+    <div class="tb-tabbar">
+      <button type="button" class="tb-tabbtn active" data-tab="header" data-i18n="tabHeader">سەرنووس</button>
+      <button type="button" class="tb-tabbtn" data-tab="content" data-i18n="tabContent">ناوەڕۆک</button>
+      <button type="button" class="tb-tabbtn" data-tab="decor" data-i18n="tabDecor">ڕازاندنەوە</button>
+    </div>
+
+    <div class="tb-tabpanel active" data-tabpanel="header">
     <div class="tb-section">
       <h3 data-i18n="tbSubject">بابەت</h3>
       <select class="tb-select" id="subjectSelect"></select>
@@ -1097,89 +1125,148 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
     </div>
 
     <div class="tb-section">
+      <h3 data-i18n="tbPageStyle">ستایلی پەڕە</h3>
+      <span class="tb-label" data-i18n="pageSizeLbl">قەبارەی پەڕە</span>
+      <select class="tb-select" id="pageSizeSelect">
+        <option value="a4" selected data-i18n="sizeA4">A4 (210×297mm)</option>
+        <option value="a3" data-i18n="sizeA3">A3 (297×420mm)</option>
+        <option value="a5" data-i18n="sizeA5">A5 (148×210mm)</option>
+        <option value="letter" data-i18n="sizeLetter">Letter (215.9×279.4mm)</option>
+      </select>
+      <span class="tb-label" data-i18n="borderStyle">شێوازی بۆردەر</span>
+      <select class="tb-select" id="borderStyle">
+        <option value="double" data-i18n="borderDouble">دووانی (پێشنیار)</option>
+        <option value="thin" data-i18n="borderThin">باریک</option>
+        <option value="ornate" data-i18n="borderOrnate">گەورە و بەهێز</option>
+        <option value="none" data-i18n="borderNone">بێ بۆردەر</option>
+      </select>
+      <span class="tb-label" data-i18n="bgImage">وێنەی پاشبنەما</span>
+      <div class="tb-row">
+        <input type="file" id="bgImageInput" accept="image/*" class="tb-input">
+        <button class="tb-btn" id="clearBg"><span class="ic">✕</span><span data-i18n="remove">سڕینەوە</span></button>
+      </div>
+      <span class="tb-label" data-i18n="bgSizeLbl">شێوازی قیاسی وێنە</span>
+      <select class="tb-select" id="bgSizeMode">
+        <option value="cover" data-i18n="bgCover">پڕکردنەوە (Cover)</option>
+        <option value="contain" data-i18n="bgContain">بینینی تەواو (Contain)</option>
+        <option value="stretch" data-i18n="bgStretch">ڕاکێشان (Stretch)</option>
+      </select>
+      <span class="tb-label"><span data-i18n="bgScaleLbl">گەورەکردن/بچووککردنەوە</span> — <span id="bgScaleVal">100%</span></span>
+      <input type="range" class="tb-input" id="bgScaleSlider" min="20" max="300" step="5" value="100">
+    </div>
+
+    <div class="tb-section">
+      <h3 data-i18n="tbPages">پەڕەکان</h3>
+      <div class="tb-row"><button class="tb-btn" id="addPageBtn"><span class="ic">+</span><span data-i18n="addPage">زیادکردنی پەڕەی نوێ</span></button></div>
+    </div>
+
+    <div class="tb-section">
+      <h3 data-i18n="tbExport">دەرهێنان</h3>
+      <span class="tb-label" data-i18n="fileName">ناوی فایل</span>
+      <input class="tb-input" id="pdfName" value="تاقیکردنەوە">
+      <div class="tb-row" style="margin-top:10px;">
+        <button class="tb-btn" id="exportBtn" style="background:var(--gold);color:#241a05;font-weight:800;"><span class="ic">⇩</span><span data-i18n="exportPdf">دابەزاندنی PDF</span></button>
+      </div>
+      <p style="font-size:10.5px;color:#9aa0b4;margin-top:8px;line-height:1.6;" data-i18n="exportNote">
+        ئەم سیستەمە پەڕەکان وەک وێنە دەگرێت بۆ ئەوەی نووسینی کوردی/عەرەبی بە تەواوی ڕێک بێت لە PDF کەدا.
+      </p>
+    </div>
+    </div>
+
+    <div class="tb-tabpanel" data-tabpanel="content">
+    <div class="tb-section content-add-section">
       <h3 data-i18n="tbAddContent">زیادکردنی ناوەڕۆک</h3>
-      <label class="tb-row" id="unlimitedFreeAddRow" style="align-items:center;gap:8px;cursor:pointer;">
-        <input type="checkbox" id="addonUnlimitedFreeAdd">
-        <span data-i18n="unlimitedFreeAdd">زیادکردنی ئازاد (بێ گواستنەوە بۆ پەڕەی نوێ)</span>
-      </label>
-      <span class="tb-hint" data-i18n="unlimitedFreeAddHint">کاتێک چالاککراوە، ئەگەر پەڕەکە پڕ بوو، بابەتی نوێ لەسەر هەمان پەڕە دەمێنێتەوە وەک دانەیەکی ئازاد بۆ ئەوەی بە ڕاکێشان بیخەیتە هەر شوێنێک — پەڕەی نوێ دروست ناکات و پەڕەکەش درێژتر نابێت.</span>
+      <div class="ac-toggle-card">
+        <label class="ac-toggle-row" id="unlimitedFreeAddRow" style="cursor:pointer;">
+          <input type="checkbox" id="addonUnlimitedFreeAdd">
+          <span data-i18n="unlimitedFreeAdd">زیادکردنی ئازاد (بێ گواستنەوە بۆ پەڕەی نوێ)</span>
+        </label>
+        <span class="tb-hint" data-i18n="unlimitedFreeAddHint">کاتێک چالاککراوە، ئەگەر پەڕەکە پڕ بوو، بابەتی نوێ لەسەر هەمان پەڕە دەمێنێتەوە وەک دانەیەکی ئازاد بۆ ئەوەی بە ڕاکێشان بیخەیتە هەر شوێنێک — پەڕەی نوێ دروست ناکات و پەڕەکەش درێژتر نابێت.</span>
+      </div>
+    </div>
+
+    <div class="tb-section content-add-section">
+      <h3 data-i18n="grpStructure">پێکهاتە و بەشەکان</h3>
       <div class="tb-row">
         <button class="tb-btn" data-add="section"><span class="ic">§</span><span data-i18n="addSection">سەردێڕی بەش</span></button>
-        <button class="tb-btn" data-add="mcq"><span class="ic">A-D</span><span data-i18n="addMcq">پرسیاری هەڵبژاردن</span></button>
-      </div>
-      <span class="tb-label" data-i18n="mcqColsLbl">ژمارەی هەڵبژاردن لە هەر ڕیزێک</span>
-      <select class="tb-select" id="mcqColumns">
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4" selected>4</option>
-      </select>
-      <div class="tb-row">
-        <button class="tb-btn" data-add="tf"><span class="ic">✓✗</span><span data-i18n="addTf">ڕاست/هەڵە</span></button>
-        <button class="tb-btn" data-add="blank"><span class="ic">__</span><span data-i18n="addBlank">پڕکردنەوە</span></button>
-      </div>
-      <div class="tb-row">
-        <button class="tb-btn" data-add="essay"><span class="ic">✎</span><span data-i18n="addEssay">وەڵامی نووسراو</span></button>
-        <button class="tb-btn" data-add="table"><span class="ic">▦</span><span data-i18n="addTable">خشتە</span></button>
-      </div>
-      <div class="tb-row">
         <button class="tb-btn" data-add="twocol"><span class="ic">▥</span><span data-i18n="addTwocol">کەرتی دوو ستوون</span></button>
-        <button class="tb-btn" data-add="box"><span class="ic">▢</span><span data-i18n="addBox">چوارچێوەی وەڵام</span></button>
       </div>
       <div class="tb-row">
+        <button class="tb-btn" data-add="box"><span class="ic">▢</span><span data-i18n="addBox">چوارچێوەی وەڵام</span></button>
         <button class="tb-btn" data-add="divider"><span class="ic">⋯</span><span data-i18n="addDivider">دابڕێژەر</span></button>
-        <button class="tb-btn" id="addImageBtn"><span class="ic">🖼</span><span data-i18n="addImage">زیادکردنی وێنە</span></button>
-      </div>
-      <span class="tb-label" data-i18n="imgShapeLbl">شێوازی وێنە</span>
-      <select class="tb-select" id="imageShapeMode">
-        <option value="plain" data-i18n="imgShapePlain">ئاسایی (بێ شێواز)</option>
-        <option value="circle" data-i18n="imgShapeCircle">بازنەیی (Circle)</option>
-        <option value="square" data-i18n="imgShapeSquare">چوارگۆشەی سادە (Square)</option>
-        <option value="frame" data-i18n="imgShapeFrame">چوارچێوە/خشتە (Frame)</option>
-      </select>
-      <div class="tb-row" id="frameColorRow" style="display:none;">
-        <input type="color" class="tb-color" id="frameBgColor" value="#ffffff" title="ڕەنگی باکگراوندی چوارچێوە">
-        <input type="color" class="tb-color" id="frameTextColor" value="#1b1f2a" title="ڕەنگی نووسینی چوارچێوە">
       </div>
       <div class="tb-row">
         <button class="tb-btn" data-add="cutsection"><span class="ic">✂</span><span data-i18n="addCutSection">کەرتی نهێنی (بڕین)</span></button>
-        <button class="tb-btn" id="addFreeLogoBtn"><span class="ic">⊙</span><span data-i18n="addFreeLogo">زیادکردنی لۆگۆ</span></button>
-      </div>
-      <div class="tb-row">
-        <button class="tb-btn" data-add="math"><span class="ic">∑</span><span data-i18n="addMath">پرسیاری بیرکاری</span></button>
         <button class="tb-btn" data-add="free"><span class="ic">🖊</span><span data-i18n="addFree">کەرتی ئازاد</span></button>
       </div>
+    </div>
+
+    <div class="tb-section content-add-section">
+      <h3 data-i18n="grpQuestions">پرسیار و وەڵامەکان</h3>
+      <div class="tb-row">
+        <button class="tb-btn" data-add="mcq"><span class="ic">A-D</span><span data-i18n="addMcq">پرسیاری هەڵبژاردن</span></button>
+        <button class="tb-btn" data-add="tf"><span class="ic">✓✗</span><span data-i18n="addTf">ڕاست/هەڵە</span></button>
+      </div>
+      <div class="ac-suboption">
+        <span class="tb-label" data-i18n="mcqColsLbl">ژمارەی هەڵبژاردن لە هەر ڕیزێک</span>
+        <select class="tb-select" id="mcqColumns">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+        </select>
+      </div>
+      <div class="tb-row">
+        <button class="tb-btn" data-add="blank"><span class="ic">__</span><span data-i18n="addBlank">پڕکردنەوە</span></button>
+        <button class="tb-btn" data-add="essay"><span class="ic">✎</span><span data-i18n="addEssay">وەڵامی نووسراو</span></button>
+      </div>
+      <div class="tb-row">
+        <button class="tb-btn" data-add="table"><span class="ic">▦</span><span data-i18n="addTable">خشتە</span></button>
+        <button class="tb-btn" data-add="math"><span class="ic">∑</span><span data-i18n="addMath">پرسیاری بیرکاری</span></button>
+      </div>
+    </div>
+
+    <div class="tb-section content-add-section">
+      <h3 data-i18n="grpMedia">وێنە و لۆگۆ</h3>
+      <div class="tb-row">
+        <button class="tb-btn" id="addImageBtn"><span class="ic">🖼</span><span data-i18n="addImage">زیادکردنی وێنە</span></button>
+        <button class="tb-btn" id="addFreeLogoBtn"><span class="ic">⊙</span><span data-i18n="addFreeLogo">زیادکردنی لۆگۆ</span></button>
+      </div>
+      <div class="ac-suboption">
+        <span class="tb-label" data-i18n="imgShapeLbl">شێوازی وێنە</span>
+        <select class="tb-select" id="imageShapeMode">
+          <option value="plain" data-i18n="imgShapePlain">ئاسایی (بێ شێواز)</option>
+          <option value="circle" data-i18n="imgShapeCircle">بازنەیی (Circle)</option>
+          <option value="square" data-i18n="imgShapeSquare">چوارگۆشەی سادە (Square)</option>
+          <option value="frame" data-i18n="imgShapeFrame">چوارچێوە/خشتە (Frame)</option>
+        </select>
+        <div class="tb-row" id="frameColorRow" style="display:none;">
+          <input type="color" class="tb-color" id="frameBgColor" value="#ffffff" title="ڕەنگی باکگراوندی چوارچێوە">
+          <input type="color" class="tb-color" id="frameTextColor" value="#1b1f2a" title="ڕەنگی نووسینی چوارچێوە">
+        </div>
+      </div>
+      <input type="file" id="imageInput" accept="image/*" multiple style="display:none">
+      <input type="file" id="freeLogoInput" accept="image/*" style="display:none">
+    </div>
+
+    <div class="tb-section content-add-section">
+      <h3 data-i18n="grpLists">لیستە و ژمارەکردن</h3>
       <div class="tb-row">
         <button class="tb-btn" data-add="bulletlist"><span class="ic">•</span><span data-i18n="addBulletList">زیادکردنی خاڵبەندی</span></button>
         <button class="tb-btn" id="renumberBtn" title="گەڕاندنەوەی هەموو ژمارەکان بۆ ڕیزبەندی خۆکار" data-i18n-title="renumberTitle"><span class="ic">#</span><span data-i18n="renumberBtn">ژمارەکردنەوەی خۆکاری</span></button>
       </div>
+      <div class="ac-suboption">
+        <span class="tb-label" data-i18n="bulletStyleLbl">شێوازی خاڵبەندی</span>
+        <select class="tb-select" id="bulletStyleMode">
+          <option value="number" data-i18n="bulletStyleNumber">بەژمارە</option>
+          <option value="symbol" data-i18n="bulletStyleSymbol">بەهێما</option>
+          <option value="image" data-i18n="bulletStyleImage">بەوێنە</option>
+        </select>
+      </div>
       <div class="tb-row">
         <button class="tb-btn" data-add="ridbendi"><span class="ic">1.2.3</span><span data-i18n="addRidbendi">زیادکردنی ڕیزبەندی</span></button>
       </div>
-      <span class="tb-label" data-i18n="bulletStyleLbl">شێوازی خاڵبەندی</span>
-      <select class="tb-select" id="bulletStyleMode">
-        <option value="number" data-i18n="bulletStyleNumber">بەژمارە</option>
-        <option value="symbol" data-i18n="bulletStyleSymbol">بەهێما</option>
-        <option value="image" data-i18n="bulletStyleImage">بەوێنە</option>
-      </select>
-      <input type="file" id="imageInput" accept="image/*" multiple style="display:none">
-      <input type="file" id="freeLogoInput" accept="image/*" style="display:none">
       <input type="file" id="bulletImgInput" accept="image/*" style="display:none">
-    </div>
-
-    <div class="tb-section">
-      <h3 data-i18n="tbWordart">WordArt</h3>
-      <span class="tb-label" data-i18n="wordartText">دەقی WordArt</span>
-      <div class="tb-row"><input class="tb-input" id="wordartInput" placeholder="نموونە: سەرکەوتوو بیت!"></div>
-      <span class="tb-label" data-i18n="wordartStyle">شێواز</span>
-      <select class="tb-select" id="wordartStyle">
-        <option value="wa-gradient" data-i18n="waGradient">ڕەنگاوڕەنگ (گرادینت)</option>
-        <option value="wa-outline" data-i18n="waOutline">دەرهێڵ (Outline)</option>
-        <option value="wa-shadow" data-i18n="waShadow">سێبەری 3D</option>
-        <option value="wa-neon" data-i18n="waNeon">نیۆن</option>
-        <option value="wa-stamp" data-i18n="waStamp">مۆر (Stamp)</option>
-      </select>
-      <div class="tb-row" style="margin-top:8px;"><button class="tb-btn" id="insertWordartBtn"><span class="ic">✦</span><span data-i18n="insertWordart">دانانی WordArt</span></button></div>
     </div>
 
     <div class="tb-section math-only" id="mathToolbar">
@@ -1219,6 +1306,49 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
 
       <span class="tb-label" data-i18n="mathGridHeading">تۆڕی سادە / کاغەزی گراف (بەدڵی خۆت ژمارەی ستوون و ڕیز و قەبارەکەی دیاری بکە)</span>
       <div class="tb-row"><button class="tb-btn" data-add="mathgrid"><span class="ic">▦</span><span data-i18n="addMathGrid">زیادکردنی تۆڕی سادە</span></button></div>
+    </div>
+
+    <div class="tb-section" id="addonHistorySection">
+      <h3 id="addonHistoryTitle">گەڕانەوە/دووبارەکردنەوە</h3>
+      <div class="tb-row addon-row">
+        <button class="tb-btn addon-undo" id="addonUndoBtn" type="button" disabled><span class="ic">↶</span><span id="addonUndoLbl">گەڕانەوە</span></button>
+        <button class="tb-btn addon-redo" id="addonRedoBtn" type="button" disabled><span class="ic">↷</span><span id="addonRedoLbl">دووبارەکردنەوە</span></button>
+      </div>
+      <span class="tb-hint" id="addonHistoryHint">Ctrl+Z گەڕانەوە، Ctrl+Y دووبارەکردنەوە</span>
+    </div>
+
+    <div class="tb-section" id="addonAnswerKeySection">
+      <h3 id="addonAnswerKeyTitle">وەڵامی ڕاست (Answer Key)</h3>
+      <span class="tb-hint" id="addonAnswerKeyHint">کلیک لەسەر پیتی هەڵبژاردنێک (Ⓐ...) یان لەسەر ڕاست/هەڵە بکە بۆ دیاریکردنی وەڵامی ڕاست، پاشان دوگمەی خوارەوە بەکاربێنە.</span>
+      <div class="tb-row" style="margin-top:8px;">
+        <button class="tb-btn addon-key-btn" id="addonExportKeyBtn" type="button"><span class="ic">🔑</span><span id="addonExportKeyLbl">دابەزاندنی وەڵامی ڕاست (PDF)</span></button>
+      </div>
+    </div>
+
+    <div class="tb-section" id="addonShuffleSection">
+      <h3 id="addonShuffleTitle">وەشانی جیاواز</h3>
+      <span class="tb-hint" id="addonShuffleHint">ڕیزبەندی پرسیارەکان و هەڵبژاردنەکانیان بەهەڕەمەکی دەگۆڕێت بۆ دروستکردنی وەشانێکی نوێ لە هەمان تاقیکردنەوە (دژی ساختەکاری). دەتوانیت بە Undo بیگەڕێنیتەوە.</span>
+      <div class="tb-row" style="margin-top:8px;">
+        <button class="tb-btn addon-shuffle-btn" id="addonShuffleBtn" type="button"><span class="ic">🔀</span><span id="addonShuffleLbl">دروستکردنی وەشانی تێکەڵ</span></button>
+      </div>
+    </div>
+
+    </div>
+
+    <div class="tb-tabpanel" data-tabpanel="decor">
+    <div class="tb-section">
+      <h3 data-i18n="tbWordart">WordArt</h3>
+      <span class="tb-label" data-i18n="wordartText">دەقی WordArt</span>
+      <div class="tb-row"><input class="tb-input" id="wordartInput" placeholder="نموونە: سەرکەوتوو بیت!"></div>
+      <span class="tb-label" data-i18n="wordartStyle">شێواز</span>
+      <select class="tb-select" id="wordartStyle">
+        <option value="wa-gradient" data-i18n="waGradient">ڕەنگاوڕەنگ (گرادینت)</option>
+        <option value="wa-outline" data-i18n="waOutline">دەرهێڵ (Outline)</option>
+        <option value="wa-shadow" data-i18n="waShadow">سێبەری 3D</option>
+        <option value="wa-neon" data-i18n="waNeon">نیۆن</option>
+        <option value="wa-stamp" data-i18n="waStamp">مۆر (Stamp)</option>
+      </select>
+      <div class="tb-row" style="margin-top:8px;"><button class="tb-btn" id="insertWordartBtn"><span class="ic">✦</span><span data-i18n="insertWordart">دانانی WordArt</span></button></div>
     </div>
 
     <div class="tb-section">
@@ -1294,76 +1424,6 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
       </div>
     </div>
 
-    <div class="tb-section">
-      <h3 data-i18n="tbPageStyle">ستایلی پەڕە</h3>
-      <span class="tb-label" data-i18n="pageSizeLbl">قەبارەی پەڕە</span>
-      <select class="tb-select" id="pageSizeSelect">
-        <option value="a4" selected data-i18n="sizeA4">A4 (210×297mm)</option>
-        <option value="a3" data-i18n="sizeA3">A3 (297×420mm)</option>
-        <option value="a5" data-i18n="sizeA5">A5 (148×210mm)</option>
-        <option value="letter" data-i18n="sizeLetter">Letter (215.9×279.4mm)</option>
-      </select>
-      <span class="tb-label" data-i18n="borderStyle">شێوازی بۆردەر</span>
-      <select class="tb-select" id="borderStyle">
-        <option value="double" data-i18n="borderDouble">دووانی (پێشنیار)</option>
-        <option value="thin" data-i18n="borderThin">باریک</option>
-        <option value="ornate" data-i18n="borderOrnate">گەورە و بەهێز</option>
-        <option value="none" data-i18n="borderNone">بێ بۆردەر</option>
-      </select>
-      <span class="tb-label" data-i18n="bgImage">وێنەی پاشبنەما</span>
-      <div class="tb-row">
-        <input type="file" id="bgImageInput" accept="image/*" class="tb-input">
-        <button class="tb-btn" id="clearBg"><span class="ic">✕</span><span data-i18n="remove">سڕینەوە</span></button>
-      </div>
-      <span class="tb-label" data-i18n="bgSizeLbl">شێوازی قیاسی وێنە</span>
-      <select class="tb-select" id="bgSizeMode">
-        <option value="cover" data-i18n="bgCover">پڕکردنەوە (Cover)</option>
-        <option value="contain" data-i18n="bgContain">بینینی تەواو (Contain)</option>
-        <option value="stretch" data-i18n="bgStretch">ڕاکێشان (Stretch)</option>
-      </select>
-      <span class="tb-label"><span data-i18n="bgScaleLbl">گەورەکردن/بچووککردنەوە</span> — <span id="bgScaleVal">100%</span></span>
-      <input type="range" class="tb-input" id="bgScaleSlider" min="20" max="300" step="5" value="100">
-    </div>
-
-    <div class="tb-section">
-      <h3 data-i18n="tbPages">پەڕەکان</h3>
-      <div class="tb-row"><button class="tb-btn" id="addPageBtn"><span class="ic">+</span><span data-i18n="addPage">زیادکردنی پەڕەی نوێ</span></button></div>
-    </div>
-
-    <div class="tb-section">
-      <h3 data-i18n="tbExport">دەرهێنان</h3>
-      <span class="tb-label" data-i18n="fileName">ناوی فایل</span>
-      <input class="tb-input" id="pdfName" value="تاقیکردنەوە">
-      <div class="tb-row" style="margin-top:10px;">
-        <button class="tb-btn" id="exportBtn" style="background:var(--gold);color:#241a05;font-weight:800;"><span class="ic">⇩</span><span data-i18n="exportPdf">دابەزاندنی PDF</span></button>
-      </div>
-      <p style="font-size:10.5px;color:#9aa0b4;margin-top:8px;line-height:1.6;" data-i18n="exportNote">
-        ئەم سیستەمە پەڕەکان وەک وێنە دەگرێت بۆ ئەوەی نووسینی کوردی/عەرەبی بە تەواوی ڕێک بێت لە PDF کەدا.
-      </p>
-    </div>
-    <div class="tb-section" id="addonHistorySection">
-      <h3 id="addonHistoryTitle">گەڕانەوە/دووبارەکردنەوە</h3>
-      <div class="tb-row addon-row">
-        <button class="tb-btn addon-undo" id="addonUndoBtn" type="button" disabled><span class="ic">↶</span><span id="addonUndoLbl">گەڕانەوە</span></button>
-        <button class="tb-btn addon-redo" id="addonRedoBtn" type="button" disabled><span class="ic">↷</span><span id="addonRedoLbl">دووبارەکردنەوە</span></button>
-      </div>
-      <span class="tb-hint" id="addonHistoryHint">Ctrl+Z گەڕانەوە، Ctrl+Y دووبارەکردنەوە</span>
-    </div>
-
-    <div class="tb-section" id="addonAnswerKeySection">
-      <h3 id="addonAnswerKeyTitle">وەڵامی ڕاست (Answer Key)</h3>
-      <span class="tb-hint" id="addonAnswerKeyHint">کلیک لەسەر پیتی هەڵبژاردنێک (Ⓐ...) یان لەسەر ڕاست/هەڵە بکە بۆ دیاریکردنی وەڵامی ڕاست، پاشان دوگمەی خوارەوە بەکاربێنە.</span>
-      <div class="tb-row" style="margin-top:8px;">
-        <button class="tb-btn addon-key-btn" id="addonExportKeyBtn" type="button"><span class="ic">🔑</span><span id="addonExportKeyLbl">دابەزاندنی وەڵامی ڕاست (PDF)</span></button>
-      </div>
-    </div>
-
-    <div class="tb-section" id="addonShuffleSection">
-      <h3 id="addonShuffleTitle">وەشانی جیاواز</h3>
-      <span class="tb-hint" id="addonShuffleHint">ڕیزبەندی پرسیارەکان و هەڵبژاردنەکانیان بەهەڕەمەکی دەگۆڕێت بۆ دروستکردنی وەشانێکی نوێ لە هەمان تاقیکردنەوە (دژی ساختەکاری). دەتوانیت بە Undo بیگەڕێنیتەوە.</span>
-      <div class="tb-row" style="margin-top:8px;">
-        <button class="tb-btn addon-shuffle-btn" id="addonShuffleBtn" type="button"><span class="ic">🔀</span><span id="addonShuffleLbl">دروستکردنی وەشانی تێکەڵ</span></button>
-      </div>
     </div>
   </aside>
 
@@ -1394,6 +1454,8 @@ ku:{
  choose:"هەڵبژاردن", tbBack:"گەڕانەوە", changeTpl:"گۆڕینی شێواز", tbSubject:"بابەت", subjectColor:"ڕەنگی تایبەت بەبابەتەکە",
  freeColor:"ڕەنگی ئازاد (سەربەخۆ لە بابەت)", resetColor:"گەڕانەوە بۆ ڕەنگی بنەڕەتی بابەت",
  tbAddContent:"زیادکردنی ناوەڕۆک", addSection:"سەردێڕی بەش", addMcq:"پرسیاری هەڵبژاردن", addSimple:"هەڵبژاردنی سادە", addTf:"ڕاست/هەڵە", addBlank:"پڕکردنەوە",
+ grpStructure:"پێکهاتە و بەشەکان", grpQuestions:"پرسیار و وەڵامەکان", grpMedia:"وێنە و لۆگۆ", grpLists:"لیستە و ژمارەکردن",
+ tabHeader:"سەرنووس", tabContent:"ناوەڕۆک", tabDecor:"ڕازاندنەوە",
  unlimitedFreeAdd:"زیادکردنی ئازاد (بێ گواستنەوە بۆ پەڕەی نوێ)", unlimitedFreeAddHint:"کاتێک چالاککراوە، ئەگەر پەڕەکە پڕ بوو، بابەتی نوێ لەسەر هەمان پەڕە دەمێنێتەوە وەک دانەیەکی ئازاد بۆ ئەوەی بە ڕاکێشان بیخەیتە هەر شوێنێک — پەڕەی نوێ دروست ناکات و پەڕەکەش درێژتر نابێت.",
  addEssay:"وەڵامی نووسراو", addTable:"خشتە", addDivider:"دابڕێژەر", addImage:"زیادکردنی وێنە",
  addTwocol:"کەرتی دوو ستوون", addBox:"چوارچێوەی وەڵام", addCutSection:"کەرتی نهێنی (بڕین)", addFreeLogo:"زیادکردنی لۆگۆ",
@@ -1448,6 +1510,8 @@ ar:{
  choose:"اختيار", tbBack:"رجوع", changeTpl:"تغيير النمط", tbSubject:"المادة", subjectColor:"لون خاص بالمادة",
  freeColor:"لون حر (مستقل عن المادة)", resetColor:"العودة إلى اللون الافتراضي للمادة",
  tbAddContent:"إضافة محتوى", addSection:"عنوان قسم", addMcq:"سؤال اختياري", addSimple:"اختيار بسيط", addTf:"صح/خطأ", addBlank:"ملء الفراغ",
+ grpStructure:"الهيكل والأقسام", grpQuestions:"الأسئلة والإجابات", grpMedia:"الصور والشعار", grpLists:"القوائم والترقيم",
+ tabHeader:"الترويسة", tabContent:"المحتوى", tabDecor:"التزيين",
  unlimitedFreeAdd:"إضافة حرة (بدون الانتقال لصفحة جديدة)", unlimitedFreeAddHint:"عند التفعيل، إذا امتلأت الصفحة، سيبقى العنصر الجديد في نفس الصفحة كعنصر حر يمكنك سحبه لأي مكان — دون إنشاء صفحة جديدة ودون أن تصبح الصفحة أطول.",
  addEssay:"إجابة مقالية", addTable:"جدول", addDivider:"فاصل", addImage:"إضافة صورة",
  addTwocol:"قسم بعمودين", addBox:"إطار إجابة", addCutSection:"قسم سري (قص)", addFreeLogo:"إضافة شعار",
@@ -1502,6 +1566,8 @@ en:{
  choose:"Choose", tbBack:"Back", changeTpl:"Change template", tbSubject:"Subject", subjectColor:"Subject accent color",
  freeColor:"Free color (independent of subject)", resetColor:"Reset to subject's default color",
  tbAddContent:"Add content", addSection:"Section title", addMcq:"Multiple choice", addSimple:"Simple choice", addTf:"True / False", addBlank:"Fill in the blank",
+ grpStructure:"Structure & Sections", grpQuestions:"Questions & Answers", grpMedia:"Images & Logo", grpLists:"Lists & Numbering",
+ tabHeader:"Header", tabContent:"Content", tabDecor:"Decoration",
  unlimitedFreeAdd:"Free add (no auto page-break)", unlimitedFreeAddHint:"When on, if the page is full, a new item stays on the same page as a free block you can drag anywhere — instead of moving to a new page, and without the page getting taller.",
  addEssay:"Written answer", addTable:"Table", addDivider:"Divider", addImage:"Add image",
  addTwocol:"Two-column section", addBox:"Answer box", addCutSection:"Secret-number cut section", addFreeLogo:"Add logo",
@@ -1556,6 +1622,8 @@ bad:{
  choose:"هەلبژارتن", tbBack:"ڤەگەر", changeTpl:"گۆرینا شێواز", tbSubject:"بابەت", subjectColor:"رەنگێ تایبەت ب بابەتی",
  freeColor:"رەنگێ ئازاد (سەربخۆ ژ بابەتی)", resetColor:"ڤەگەریان بۆ رەنگێ بنەرەتی یێ بابەتی",
  tbAddContent:"زێدەکرنا ناڤەرۆک", addSection:"سەردێرا بەشی", addMcq:"پرسیارا هەلبژارتنێ", addSimple:"هەلبژارتنا سادە", addTf:"راست/چەوت", addBlank:"پڕکرنەوێ",
+ grpStructure:"پێکهاتە و بەشان", grpQuestions:"پرسیار و بەرسڤ", grpMedia:"وێنە و لۆگۆ", grpLists:"لیستە و ژمارکرن",
+ tabHeader:"سەرنڤیس", tabContent:"ناڤەرۆک", tabDecor:"ڕازاندن",
  unlimitedFreeAdd:"زێدەکرنا ئازاد (بێ گوهاستن بۆ پەرەکا نوی)", unlimitedFreeAddHint:"کەنگی چالاک بیت، ئەگەر پەرە پڕ بیت، بابەتێ نوی ل سەر هەمان پەرێ دمینیت وەکی دانەیەکا ئازاد بۆ ڤێ یا ب راکێشانێ بخەیە هەر شوینەکی — پەرەکا نوی دروست ناکەت و پەرە درێژتر نابیت.",
  addEssay:"وەلامێ نڤیسراوی", addTable:"خشتە", addDivider:"دابەشکەر", addImage:"زێدەکرنا وێنەیی",
  addTwocol:"بەشێ دو ستوونان", addBox:"چوارچێوا وەلامی", addCutSection:"بەشێ نهینی (برین)", addFreeLogo:"زێدەکرنا لۆگۆیی",
@@ -1610,6 +1678,8 @@ tk:{
  choose:"Seç", tbBack:"Geri", changeTpl:"Şekli değiştir", tbSubject:"Ders", subjectColor:"Dersin rengi",
  freeColor:"Serbest renk (dersten bağımsız)", resetColor:"Dersin varsayılan rengine dön",
  tbAddContent:"İçerik ekle", addSection:"Bölüm başlığı", addMcq:"Çoktan seçmeli soru", addSimple:"Basit seçim", addTf:"Doğru / Yanlış", addBlank:"Boşluk doldurma",
+ grpStructure:"Yapı ve Bölümler", grpQuestions:"Sorular ve Cevaplar", grpMedia:"Görseller ve Logo", grpLists:"Listeler ve Numaralandırma",
+ tabHeader:"Başlık", tabContent:"İçerik", tabDecor:"Süsleme",
  unlimitedFreeAdd:"Serbest ekleme (yeni sayfaya geçmeden)", unlimitedFreeAddHint:"Açık olduğunda, sayfa doluysa yeni öge aynı sayfada serbest bir öge olarak kalır we her yere sürüklenebilir — yeni sayfa açılmaz we sayfa uzamaz.",
  addEssay:"Yazılı cevap", addTable:"Cetvel", addDivider:"Ayraç", addImage:"Resim ekle",
  addTwocol:"İki sütunlu bölüm", addBox:"Cevap kutusu", addCutSection:"Gizli bölüm (kesme)", addFreeLogo:"Logo ekle",
@@ -1658,6 +1728,8 @@ syr:{
  choose:"ܓܒܝ", tbBack:"ܗܦܘܟ", changeTpl:"ܫܚܠܦ ܛܘܦܣܐ", tbSubject:"ܡܕܪܫܬܐ", subjectColor:"ܓܘܢܐ ܕܡܕܪܫܬܐ",
  freeColor:"ܓܘܢܐ ܚܐܪܐ", resetColor:"ܗܦܘܟ ܠܓܘܢܐ ܫܪܫܝܐ",
  tbAddContent:"ܐܘܣܦ ܬܘܟܢܐ", addSection:"ܪܝܫܐ ܕܦܣܘܩܬܐ", addMcq:"ܫܘܐܠܐ ܓܒܝܐ", addSimple:"ܓܒܝܐ ܦܫܝܛܐ", addTf:"ܫܪܝܪܐ/ܕܓܠܐ", addBlank:"ܡܠܝ ܣܪܝܩܘܬܐ",
+ grpStructure:"ܒܢܝܢܐ ܘܦܣܘ̈ܩܬܐ", grpQuestions:"ܫܘ̈ܐܠܐ ܘܦܘܢ̈ܝܐ", grpMedia:"ܨܘܪ̈ܬܐ ܘܠܘܓܘ", grpLists:"ܪ̈ܫܝܡܬܐ ܘܡܢܝܢܐ",
+ tabHeader:"ܪܝܫܐ", tabContent:"ܬܘܟܢܐ", tabDecor:"ܨܒܬܐ",
  unlimitedFreeAdd:"ܐܘܣܦܢܐ ܚܐܪܐ", unlimitedFreeAddHint:"ܡܐ ܕܡܦܬܚܐ، ܐܢ ܦܬܩܐ ܡܠܝܐ، ܬܘܟܢܐ ܚܕܬܐ ܦܐܫ ܒܗ ܦܬܩܐ ܐܝܟ ܦܣܘܩܬܐ ܚܐܪܬܐ.",
  addEssay:"ܦܘܢܝܐ ܟܬܝܒܐ", addTable:"ܦܬܘܪܐ", addDivider:"ܦܪܘܫܐ", addImage:"ܐܘܣܦ ܨܘܪܬܐ",
  addTwocol:"ܦܣܘܩܬܐ ܕܬܪܝܢ ܥܡܘܕ̈ܐ", addBox:"ܩܒܘܬܐ ܕܦܘܢܝܐ", addCutSection:"ܦܣܘܩܬܐ ܓܢܝܙܬܐ", addFreeLogo:"ܐܘܣܦ ܠܘܓܘ",
@@ -1699,6 +1771,13 @@ syr:{
  gridRowsPrompt:"ܟܡܐ ܣܪ̈ܛܐ ܠܫܒܟܬܐ؟", gridColsPrompt:"ܟܡܐ ܥܡܘܕ̈ܐ ܠܫܒܟܬܐ؟", shapeWidthTitle:"ܦܬܝܘܬܐ (px)", shapeHeightTitle:"ܪܘܡܐ (px)"
 }
 };
+/* toolbar tab bar: switches between Header / Content / Decoration panels in the sidebar */
+function setToolbarTab(tab){
+  document.querySelectorAll('.tb-tabpanel').forEach(p=> p.classList.toggle('active', p.dataset.tabpanel===tab));
+  document.querySelectorAll('.tb-tabbtn').forEach(b=> b.classList.toggle('active', b.dataset.tab===tab));
+}
+document.querySelectorAll('.tb-tabbtn').forEach(b=> b.addEventListener('click', ()=> setToolbarTab(b.dataset.tab)));
+
 let currentLang='ku';
 const LTR_LANGS = ['en','tk'];
 function applyI18n(){
