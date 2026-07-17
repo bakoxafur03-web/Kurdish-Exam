@@ -915,6 +915,136 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
 .block-removable:hover .addon-free-wordart-btn{display:flex;}
 .exporting .addon-free-resize, .exporting .addon-free-wordart-btn{display:none !important;}
 </style>
+<style>
+/* ============================================================
+   ADDITIVE FEATURE: extra mini-toolbar on "کەرتی ئازاد" (free-section)
+   floating boxes — a Google-search button, a red "✗" stamp button, and
+   a dedicated free-drag handle that moves the box with no boundary
+   clamp at all (unlike the shared drag handle every block already has,
+   which snaps back inside the page edges). Nothing about the existing
+   free-section resize handle, WordArt button, or any other block type
+   is touched.
+============================================================ */
+.block-removable .addon-free-toolbar2{
+  position:absolute;top:-34px;inset-inline-start:0;display:none;gap:5px;z-index:10;
+}
+.block-removable:hover .addon-free-toolbar2{display:flex;}
+.block-removable .addon-free-toolbar2 button{
+  width:24px;height:24px;border-radius:6px;border:none;cursor:pointer;
+  background:var(--navy-2);color:#fff;font-size:12px;display:flex;
+  align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.block-removable .addon-free-toolbar2 .addon-free-redx-btn{background:var(--danger);font-weight:900;}
+.block-removable .addon-free-toolbar2 .addon-free-drag-btn{cursor:move;background:var(--gold-deep);}
+.exporting .addon-free-toolbar2{display:none !important;}
+
+/* ============================================================
+   ADDITIVE FEATURE: freehand "کێشانی دەستی" (Draw) tool — an SVG layer
+   over every page that lets the person draw freely in any pen color,
+   plus an eraser and a select mode to go back to normal editing.
+============================================================ */
+.addon-draw-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:600;}
+body.addon-draw-mode-pen .addon-draw-overlay{pointer-events:auto;cursor:crosshair;}
+body.addon-draw-mode-eraser .addon-draw-overlay{pointer-events:auto;cursor:cell;}
+.exporting .addon-draw-overlay{pointer-events:none !important;}
+.addon-draw-mode-btn.active{outline:2px solid var(--gold);outline-offset:-2px;}
+.addon-draw-swatch-row{align-items:center;flex-wrap:wrap;gap:8px;}
+.addon-draw-swatch{
+  width:22px;height:22px;border-radius:50%;border:2px solid #3a3f52;cursor:pointer;padding:0;flex:none;
+}
+.addon-draw-swatch.active{border-color:#fff;box-shadow:0 0 0 2px var(--gold);}
+</style>
+<style>
+/* ============================================================
+   ADDITIVE FEATURE: copy & paste buttons on "هەڵبژاردنی سادە" (Simple
+   Choice) blocks only — lets the person duplicate that one question
+   with a click. Placed in the one corner not already used by the
+   existing del/drag/color-picker controls. Nothing else is touched.
+============================================================ */
+.addon-simple-copy-btn, .addon-simple-paste-btn{
+  position:absolute;bottom:-9px;width:22px;height:22px;border-radius:50%;
+  background:var(--teal);color:#fff;border:2px solid #fff;font-size:11px;cursor:pointer;
+  display:none;align-items:center;justify-content:center;z-index:8;box-shadow:0 2px 8px rgba(0,0,0,.3);
+  padding:0;
+}
+.addon-simple-copy-btn{inset-inline-end:-9px;}
+.addon-simple-paste-btn{inset-inline-end:-37px;background:var(--gold-deep);}
+.block-removable:hover .addon-simple-copy-btn,
+.block-removable:hover .addon-simple-paste-btn{display:flex;}
+.exporting .addon-simple-copy-btn, .exporting .addon-simple-paste-btn{display:none !important;}
+</style>
+<style>
+/* ============================================================
+   ADDITIVE FEATURE: copy & paste buttons on "هێڵکاری بۆ وانەی بیرکاری"
+   (math-geometry drawings), and a color picker on "زیادکردنی تۆڕی
+   سادە" (simple grid) items so their line color can be changed to
+   anything. Placed in corners not already used by the existing
+   shape-controls/shape-size-inputs/rotate-handle/resize-handle/del-x.
+============================================================ */
+.draggable-item .addon-geo-toolbar{
+  position:absolute;bottom:-30px;inset-inline-start:0;display:none;gap:4px;z-index:9;
+}
+.draggable-item:hover .addon-geo-toolbar,
+.draggable-item.dg-active .addon-geo-toolbar{display:flex;}
+.draggable-item .addon-geo-toolbar button{
+  width:22px;height:22px;border-radius:6px;border:none;cursor:pointer;
+  background:var(--teal);color:#fff;font-size:11px;display:flex;
+  align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.draggable-item .addon-geo-toolbar .addon-geo-paste-btn{background:var(--gold-deep);}
+.exporting .addon-geo-toolbar{display:none !important;}
+
+/* ============================================================
+   ADDITIVE FEATURE: directional move-buttons on "هێڵکاری بۆ وانەی
+   بیرکاری" (math-geometry drawings), so the drawing can be nudged
+   into place with a click besides the existing mouse-drag. Placed
+   on its own row further below the copy/paste toolbar above (not
+   sharing its row), and centered, so it never overlaps or covers
+   the copy/paste buttons regardless of how narrow the drawing is.
+============================================================ */
+.draggable-item .addon-geo-move-pad{
+  position:absolute;bottom:-58px;left:50%;transform:translateX(-50%);display:none;gap:2px;z-index:9;
+  direction:ltr;
+}
+.draggable-item:hover .addon-geo-move-pad,
+.draggable-item.dg-active .addon-geo-move-pad{display:flex;}
+.draggable-item .addon-geo-move-pad button{
+  width:22px;height:22px;border-radius:6px;border:none;cursor:pointer;
+  background:var(--teal);color:#fff;font-size:12px;display:flex;
+  align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.exporting .addon-geo-move-pad{display:none !important;}
+
+/* ============================================================
+   ADDITIVE FEATURE: directional move-buttons for content-question
+   blocks (multiple choice, fill-in, math question, free section...),
+   the same ◀▲▼▶ nudge pad already added to math-geometry drawings
+   above, so any question block can also be nudged into place with a
+   click. Placed at bottom, opposite corner from the existing
+   per-question color picker, so nothing already on the block is
+   covered.
+============================================================ */
+.block-removable .addon-block-move-pad{
+  position:absolute;bottom:-9px;inset-inline-end:-9px;display:none;gap:2px;z-index:8;
+  direction:ltr;
+}
+.block-removable:hover .addon-block-move-pad{display:flex;}
+.block-removable .addon-block-move-pad button{
+  width:20px;height:20px;border-radius:6px;border:none;cursor:pointer;
+  background:var(--navy);color:#fff;font-size:10px;display:flex;
+  align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.exporting .addon-block-move-pad{display:none !important;}
+
+.addon-grid-color-picker{
+  position:absolute;top:-12px;inset-inline-start:-12px;width:17px;height:17px;padding:0;
+  border:1px solid #fff;border-radius:4px;cursor:pointer;display:none;z-index:7;
+  box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.draggable-item:hover .addon-grid-color-picker,
+.draggable-item.dg-active .addon-grid-color-picker{display:block;}
+.exporting .addon-grid-color-picker{display:none !important;}
+</style>
 </head>
 <body>
 
@@ -1207,6 +1337,9 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
         <button class="tb-btn" data-add="mcq"><span class="ic">A-D</span><span data-i18n="addMcq">پرسیاری هەڵبژاردن</span></button>
         <button class="tb-btn" data-add="tf"><span class="ic">✓✗</span><span data-i18n="addTf">ڕاست/هەڵە</span></button>
       </div>
+      <div class="tb-row">
+        <!-- <button class="tb-btn" data-add="simplechoice"><span class="ic">Ⓐ</span><span data-i18n="addSimple">هەڵبژاردنی سادە</span></button> -->
+      </div>
       <div class="ac-suboption">
         <span class="tb-label" data-i18n="mcqColsLbl">ژمارەی هەڵبژاردن لە هەر ڕیزێک</span>
         <select class="tb-select" id="mcqColumns">
@@ -1421,6 +1554,33 @@ footer.hint{color:#9aa0b4;font-size:11.5px;max-width:600px;text-align:center;}
       </div>
       <div class="tb-row" style="margin-top:8px;">
         <button class="tb-btn" id="tableColorResetBtn"><span class="ic">✕</span><span data-i18n="resetTableColors">گەڕاندنەوەی ڕەنگی خشتە</span></button>
+      </div>
+    </div>
+
+    <div class="tb-section">
+      <h3>کێشانی دەستی (Draw)</h3>
+      <span class="tb-hint">قەڵەم هەڵبژێرە و بەسەر لاپەڕەکەدا بکێشە، بەهەر ڕەنگێک کە بتەوێت.</span>
+      <div class="tb-row" id="drawModeRow">
+        <button type="button" class="tb-btn addon-draw-mode-btn active" id="drawModeSelectBtn" data-mode="select"><span class="ic">⤴</span>هەڵبژاردن</button>
+        <button type="button" class="tb-btn addon-draw-mode-btn" id="drawModePenBtn" data-mode="pen"><span class="ic">🖊</span>کێشان</button>
+        <button type="button" class="tb-btn addon-draw-mode-btn" id="drawModeEraserBtn" data-mode="eraser"><span class="ic">🧹</span>سڕینەوە</button>
+      </div>
+      <span class="tb-label">ڕەنگی قەڵەم</span>
+      <div class="tb-row addon-draw-swatch-row" id="drawSwatchRow">
+        <button type="button" class="addon-draw-swatch active" data-color="#f4d1a6" style="background:#f4d1a6" title="پێستەیی"></button>
+        <button type="button" class="addon-draw-swatch" data-color="#111111" style="background:#111111" title="ڕەش"></button>
+        <button type="button" class="addon-draw-swatch" data-color="#d1382e" style="background:#d1382e" title="سور"></button>
+        <button type="button" class="addon-draw-swatch" data-color="#3b4bd6" style="background:#3b4bd6" title="شین"></button>
+        <button type="button" class="addon-draw-swatch" data-color="#8a8f98" style="background:#8a8f98" title="خۆڵەمێشی"></button>
+        <button type="button" class="addon-draw-swatch" data-color="#f4d100" style="background:#f4d100" title="زەرد"></button>
+        <input type="color" id="drawCustomColor" class="tb-color" value="#111111" title="ڕەنگی دڵخواز">
+      </div>
+      <span class="tb-label">ئەستووری قەڵەم</span>
+      <div class="tb-row">
+        <input type="range" id="drawWidthRange" min="1" max="14" value="3" style="width:100%;">
+      </div>
+      <div class="tb-row" style="margin-top:8px;">
+        <button type="button" class="tb-btn" id="drawClearBtn"><span class="ic">✕</span>سڕینەوەی هەموو کێشانەکان</button>
       </div>
     </div>
 
@@ -4785,6 +4945,574 @@ function addonEnhanceFreeSection(holder, freeEl){
     if(input) input.value = '';
   });
   holder.appendChild(waBtn);
+}
+})();
+
+(function(){
+/* ============================================================
+   ADDITIVE FEATURE: three more controls on every "کەرتی ئازاد"
+   (free-section) floating box created above — a Google-search button
+   for whatever text is already typed inside it, a red "✗" stamp
+   button, and a second, dedicated drag handle with NO boundary clamp
+   at all (drag it anywhere, even past the page edges — unlike the
+   shared drag handle every block already has, which snaps back
+   inside the page). addBlock is wrapped again the same safe way used
+   above: everything addBlock already does (including the earlier
+   free-section enhancement) runs first, unchanged; this only adds
+   extra buttons onto the block it just created, for type==='free'.
+============================================================ */
+const addonPrevAddBlockFree2 = addBlock;
+addBlock = function(type){
+  addonPrevAddBlockFree2(type);
+  if(type === 'free'){
+    const holders = document.querySelectorAll('#pagesContainer .block-removable');
+    const holder = holders[holders.length-1];
+    const freeEl = holder ? holder.querySelector('.free-section') : null;
+    if(holder && freeEl) addonEnhanceFreeSection2(holder, freeEl);
+  }
+};
+
+function addonEnhanceFreeSection2(holder, freeEl){
+  const bar = document.createElement('div');
+  bar.className = 'addon-free-toolbar2 ui-only';
+  bar.addEventListener('pointerdown', e=> e.stopPropagation());
+
+  /* Google search of whatever text is currently written in this free section */
+  const searchBtn = document.createElement('button');
+  searchBtn.type = 'button';
+  searchBtn.className = 'addon-free-search-btn';
+  searchBtn.title = 'گەڕان بەم دەقە لە گووگڵ';
+  searchBtn.textContent = '🔍';
+  searchBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    const query = freeEl.textContent.trim();
+    if(query) window.open('https://www.google.com/search?q='+encodeURIComponent(query), '_blank', 'noopener');
+  });
+  bar.appendChild(searchBtn);
+
+  /* red "✗" stamp, inserted right at the cursor inside this free section —
+     reuses the same insert-at-cursor pattern as the WordArt button above */
+  const redxBtn = document.createElement('button');
+  redxBtn.type = 'button';
+  redxBtn.className = 'addon-free-redx-btn';
+  redxBtn.title = 'دانانی نیشانەی سوور ✗';
+  redxBtn.textContent = '✗';
+  redxBtn.addEventListener('pointerdown', e=> e.stopPropagation());
+  redxBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    const span = document.createElement('span');
+    span.setAttribute('contenteditable', 'false');
+    span.style.color = '#d1382e';
+    span.style.fontWeight = '900';
+    span.style.fontSize = '22px';
+    span.style.display = 'inline-block';
+    span.style.margin = '0 3px';
+    span.textContent = '✗';
+    freeEl.focus();
+    if(typeof savedRange !== 'undefined' && savedRange && freeEl.contains(savedRange.startContainer)){
+      savedRange.collapse(false);
+      savedRange.insertNode(span);
+      if(typeof placeCursorAfter === 'function') placeCursorAfter(span);
+    } else {
+      freeEl.appendChild(span);
+    }
+  });
+  bar.appendChild(redxBtn);
+
+  /* unlimited-drag handle: moves the box with the pointer, with no clamp
+     to the page edges (the shared block-drag-handle above always snaps
+     the block back inside the page when it's released) */
+  const dragBtn = document.createElement('button');
+  dragBtn.type = 'button';
+  dragBtn.className = 'addon-free-drag-btn';
+  dragBtn.title = 'ڕاکێشانی بێسنور';
+  dragBtn.textContent = '✥';
+  let dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+  dragBtn.addEventListener('pointerdown', e=>{
+    e.stopPropagation(); e.preventDefault();
+    dragging = true;
+    startX = e.clientX; startY = e.clientY;
+    startLeft = parseFloat(holder.style.left) || 0;
+    startTop = parseFloat(holder.style.top) || 0;
+    dragBtn.setPointerCapture(e.pointerId);
+  });
+  dragBtn.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    holder.style.left = (startLeft + (e.clientX - startX)) + 'px';
+    holder.style.top = (startTop + (e.clientY - startY)) + 'px';
+  });
+  function addonStopFreeDrag(){ dragging = false; }
+  dragBtn.addEventListener('pointerup', addonStopFreeDrag);
+  dragBtn.addEventListener('pointercancel', addonStopFreeDrag);
+  bar.appendChild(dragBtn);
+
+  holder.appendChild(bar);
+}
+})();
+
+(function(){
+/* ============================================================
+   ADDITIVE FEATURE: freehand "کێشانی دەستی" (Draw) tool. Adds a
+   transparent SVG drawing layer on top of every page (existing pages
+   plus any page created afterwards, via wrapping addPage the same
+   safe pattern used elsewhere in this file) and wires up the new
+   mode / color-swatch / custom-color / width / eraser / clear
+   controls added in the decor tab. Nothing about the existing page
+   markup, addPage's own behavior, or any other tool is changed —
+   drawing only becomes active while "کێشان" mode is selected, so
+   normal editing is completely unaffected otherwise.
+============================================================ */
+let addonDrawColor = '#f4d1a6';
+let addonDrawWidth = 3;
+let addonDrawMode = 'select'; // 'select' | 'pen' | 'eraser'
+
+function addonSvgEl(tag){ return document.createElementNS('http://www.w3.org/2000/svg', tag); }
+
+function addonAttachDrawOverlay(canvas){
+  if(!canvas || canvas.querySelector(':scope > svg.addon-draw-overlay')) return;
+  const svg = addonSvgEl('svg');
+  svg.setAttribute('class', 'addon-draw-overlay');
+  let curPath = null, drawing = false;
+
+  function addonPtFromEvent(e){
+    const r = svg.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+  function addonEraseAt(e){
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    if(target && target.tagName && target.tagName.toLowerCase()==='path' && target.closest('.addon-draw-overlay')){
+      target.remove();
+    }
+  }
+  svg.addEventListener('pointerdown', e=>{
+    if(addonDrawMode === 'pen'){
+      drawing = true;
+      const p = addonPtFromEvent(e);
+      curPath = addonSvgEl('path');
+      curPath.setAttribute('stroke', addonDrawColor);
+      curPath.setAttribute('stroke-width', addonDrawWidth);
+      curPath.setAttribute('fill', 'none');
+      curPath.setAttribute('stroke-linecap', 'round');
+      curPath.setAttribute('stroke-linejoin', 'round');
+      curPath.setAttribute('d', `M${p.x},${p.y}`);
+      svg.appendChild(curPath);
+      svg.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    } else if(addonDrawMode === 'eraser'){
+      drawing = true;
+      addonEraseAt(e);
+      svg.setPointerCapture(e.pointerId);
+    }
+  });
+  svg.addEventListener('pointermove', e=>{
+    if(!drawing) return;
+    if(addonDrawMode === 'pen' && curPath){
+      const p = addonPtFromEvent(e);
+      curPath.setAttribute('d', curPath.getAttribute('d') + ` L${p.x},${p.y}`);
+    } else if(addonDrawMode === 'eraser'){
+      addonEraseAt(e);
+    }
+  });
+  function addonStopDraw(){ drawing = false; curPath = null; }
+  svg.addEventListener('pointerup', addonStopDraw);
+  svg.addEventListener('pointercancel', addonStopDraw);
+  svg.addEventListener('pointerleave', addonStopDraw);
+
+  canvas.style.position = canvas.style.position || 'relative';
+  canvas.appendChild(svg);
+}
+
+function addonAttachAllDrawOverlays(){
+  document.querySelectorAll('#pagesContainer .page-body').forEach(addonAttachDrawOverlay);
+}
+addonAttachAllDrawOverlays();
+
+if(typeof addPage === 'function'){
+  const addonPrevAddPageDraw = addPage;
+  addPage = function(){
+    addonPrevAddPageDraw();
+    addonAttachAllDrawOverlays();
+  };
+}
+
+function addonSetDrawMode(mode){
+  addonDrawMode = mode;
+  document.body.classList.remove('addon-draw-mode-pen', 'addon-draw-mode-eraser');
+  if(mode === 'pen') document.body.classList.add('addon-draw-mode-pen');
+  if(mode === 'eraser') document.body.classList.add('addon-draw-mode-eraser');
+  document.querySelectorAll('.addon-draw-mode-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+}
+const addonSelBtn = document.getElementById('drawModeSelectBtn');
+const addonPenBtn = document.getElementById('drawModePenBtn');
+const addonEraserBtn = document.getElementById('drawModeEraserBtn');
+if(addonSelBtn) addonSelBtn.addEventListener('click', ()=> addonSetDrawMode('select'));
+if(addonPenBtn) addonPenBtn.addEventListener('click', ()=> addonSetDrawMode('pen'));
+if(addonEraserBtn) addonEraserBtn.addEventListener('click', ()=> addonSetDrawMode('eraser'));
+
+document.querySelectorAll('.addon-draw-swatch').forEach(sw=>{
+  sw.addEventListener('click', ()=>{
+    addonDrawColor = sw.dataset.color;
+    document.querySelectorAll('.addon-draw-swatch').forEach(b=> b.classList.remove('active'));
+    sw.classList.add('active');
+    const custom = document.getElementById('drawCustomColor');
+    if(custom) custom.value = addonDrawColor;
+  });
+});
+const addonCustomColorInput = document.getElementById('drawCustomColor');
+if(addonCustomColorInput){
+  addonCustomColorInput.addEventListener('input', e=>{
+    addonDrawColor = e.target.value;
+    document.querySelectorAll('.addon-draw-swatch').forEach(b=> b.classList.remove('active'));
+  });
+}
+const addonWidthRange = document.getElementById('drawWidthRange');
+if(addonWidthRange){
+  addonWidthRange.addEventListener('input', e=>{ addonDrawWidth = parseFloat(e.target.value) || 3; });
+}
+const addonClearBtn = document.getElementById('drawClearBtn');
+if(addonClearBtn){
+  addonClearBtn.addEventListener('click', ()=>{
+    document.querySelectorAll('.addon-draw-overlay path').forEach(p=> p.remove());
+  });
+}
+})();
+
+(function(){
+/* ============================================================
+   ADDITIVE FEATURE: copy & paste for "هەڵبژاردنی سادە" (Simple Choice)
+   blocks only. addBlock is wrapped again the same safe pattern used
+   above: everything it already does runs first, unchanged; this only
+   adds a copy button and a paste button onto the block it just
+   created, for type==='simplechoice'. Copying stores a clone of that
+   one block; pasting inserts a fresh, fully-working duplicate right
+   after it (its own delete/drag/color-picker/copy/paste controls are
+   rewired so they work independently of the original).
+============================================================ */
+let addonSimpleChoiceClipboard = null;
+const addonPrevAddBlockSimple = addBlock;
+addBlock = function(type){
+  addonPrevAddBlockSimple(type);
+  if(type === 'simplechoice'){
+    const holders = document.querySelectorAll('#pagesContainer .block-removable');
+    const holder = holders[holders.length-1];
+    if(holder) addonAddSimpleChoiceCopyPaste(holder);
+  }
+};
+
+function addonRewireSimpleChoiceClone(holder){
+  const dragHandle = holder.querySelector(':scope > .block-drag-handle');
+  if(dragHandle && typeof initBlockDrag === 'function') initBlockDrag(holder, dragHandle);
+  const delBtn = holder.querySelector(':scope > .block-del-btn');
+  if(delBtn) delBtn.addEventListener('click', ()=>{
+    holder.remove();
+    if(typeof refreshScore==='function') refreshScore();
+    if(typeof renumberQuestions==='function') renumberQuestions();
+    if(typeof repaginate==='function') repaginate();
+  });
+  const colorPicker = holder.querySelector(':scope > .q-color-picker');
+  const qNode = holder.querySelector(':scope > .q-block');
+  if(colorPicker && qNode){
+    colorPicker.addEventListener('input', e=> qNode.style.setProperty('--subject-color', e.target.value));
+    colorPicker.addEventListener('pointerdown', e=> e.stopPropagation());
+  }
+  holder.querySelectorAll(':scope > .addon-simple-copy-btn, :scope > .addon-simple-paste-btn').forEach(b=> b.remove());
+  addonAddSimpleChoiceCopyPaste(holder);
+}
+
+function addonInsertClonedSimpleChoice(refHolder){
+  if(!addonSimpleChoiceClipboard) return;
+  const clone = addonSimpleChoiceClipboard.cloneNode(true);
+  clone.classList.remove('dragging');
+  addonRewireSimpleChoiceClone(clone);
+  refHolder.parentElement.insertBefore(clone, refHolder.nextSibling);
+  if(typeof renumberQuestions==='function') renumberQuestions();
+  if(typeof refreshScore==='function') refreshScore();
+  if(typeof repaginate==='function') repaginate();
+}
+
+function addonAddSimpleChoiceCopyPaste(holder){
+  const copyBtn = document.createElement('button');
+  copyBtn.type = 'button';
+  copyBtn.className = 'addon-simple-copy-btn ui-only';
+  copyBtn.title = 'کۆپیکردنی ئەم پرسیارە';
+  copyBtn.textContent = '📋';
+  copyBtn.addEventListener('pointerdown', e=> e.stopPropagation());
+  copyBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    addonSimpleChoiceClipboard = holder.cloneNode(true);
+  });
+  holder.appendChild(copyBtn);
+
+  const pasteBtn = document.createElement('button');
+  pasteBtn.type = 'button';
+  pasteBtn.className = 'addon-simple-paste-btn ui-only';
+  pasteBtn.title = 'پاستکردنی پرسیاری کۆپیکراو دوای ئەمە';
+  pasteBtn.textContent = '📥';
+  pasteBtn.addEventListener('pointerdown', e=> e.stopPropagation());
+  pasteBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    addonInsertClonedSimpleChoice(holder);
+  });
+  holder.appendChild(pasteBtn);
+}
+})();
+
+(function(){
+/* ============================================================
+   ADDITIVE FEATURE: copy & paste for "هێڵکاری بۆ وانەی بیرکاری"
+   (math-geometry drawings) — lets the person duplicate a drawing and
+   drag the duplicate wherever it should go. dropMathShape is wrapped
+   the same safe pattern used elsewhere in this file: everything it
+   already does runs first, unchanged; this only adds a copy button
+   and a paste button onto the drawing it just created. (Its buttons
+   already call dropMathShape through an arrow function that looks the
+   name up at click time, so this wrap is picked up correctly.)
+============================================================ */
+let addonGeoClipboard = null;
+const addonPrevDropMathShape = dropMathShape;
+dropMathShape = function(svg){
+  addonPrevDropMathShape(svg);
+  const items = document.querySelectorAll('#pagesContainer .draggable-item');
+  const item = items[items.length-1];
+  if(item) addonAddGeoCopyPaste(item);
+};
+
+function addonRewireGeoClone(clone){
+  if(typeof makeDraggable === 'function') makeDraggable(clone);
+  if(clone.querySelector('.rotate-handle') && typeof makeRotatable === 'function') makeRotatable(clone);
+  const fillInput = clone.querySelector('.shape-fill');
+  const strokeInput = clone.querySelector('.shape-stroke');
+  if(fillInput){
+    fillInput.addEventListener('input', e=>{
+      if(typeof applyShapeColor === 'function') applyShapeColor(clone, e.target.value, null);
+      clone.querySelectorAll('svg [fill]').forEach(el=>{ if(el.getAttribute('fill')!=='none') el.style.fill = e.target.value; });
+    });
+  }
+  if(strokeInput){
+    strokeInput.addEventListener('input', e=>{
+      if(typeof applyShapeColor === 'function') applyShapeColor(clone, null, e.target.value);
+      const svgEl = clone.querySelector('svg');
+      if(svgEl) svgEl.style.stroke = e.target.value;
+      clone.querySelectorAll('svg [stroke]').forEach(el=>{ if(el.getAttribute('stroke')!=='none') el.style.stroke = e.target.value; });
+    });
+  }
+  clone.querySelectorAll('.shape-controls input, .shape-size-inputs input').forEach(inp=> inp.addEventListener('pointerdown', e=> e.stopPropagation()));
+  const wInput = clone.querySelector('.shape-w-input');
+  const hInput = clone.querySelector('.shape-h-input');
+  if(wInput) wInput.addEventListener('input', e=>{ if(e.target.value) clone.style.width = e.target.value+'px'; });
+  if(hInput) hInput.addEventListener('input', e=>{ if(e.target.value) clone.style.height = e.target.value+'px'; });
+  const textLayer = clone.querySelector('.shape-text-layer');
+  if(textLayer) textLayer.addEventListener('pointerdown', e=> e.stopPropagation());
+  const geoLabel = clone.querySelector('.math-geo-label');
+  if(geoLabel) geoLabel.addEventListener('pointerdown', e=> e.stopPropagation());
+  clone.querySelectorAll('.addon-geo-toolbar').forEach(b=> b.remove());
+  addonAddGeoCopyPaste(clone);
+}
+
+function addonInsertClonedGeo(refItem){
+  if(!addonGeoClipboard) return;
+  const canvas = refItem.parentElement || (typeof lastPageCanvas === 'function' ? lastPageCanvas() : null);
+  if(!canvas) return;
+  const clone = addonGeoClipboard.cloneNode(true);
+  clone.classList.remove('dg-active');
+  const baseLeft = parseFloat(addonGeoClipboard.style.left) || 0;
+  const baseTop = parseFloat(addonGeoClipboard.style.top) || 0;
+  clone.style.left = (baseLeft + 24) + 'px';
+  clone.style.top = (baseTop + 24) + 'px';
+  canvas.style.position = 'relative';
+  canvas.appendChild(clone);
+  addonRewireGeoClone(clone);
+}
+
+function addonAddGeoCopyPaste(item){
+  const bar = document.createElement('div');
+  bar.className = 'addon-geo-toolbar ui-only';
+  bar.addEventListener('pointerdown', e=> e.stopPropagation());
+
+  const copyBtn = document.createElement('button');
+  copyBtn.type = 'button';
+  copyBtn.title = 'کۆپیکردنی ئەم هێڵکارییە';
+  copyBtn.textContent = '📋';
+  copyBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    addonGeoClipboard = item.cloneNode(true);
+    addonGeoClipboard.classList.remove('dg-active');
+  });
+  bar.appendChild(copyBtn);
+
+  const pasteBtn = document.createElement('button');
+  pasteBtn.type = 'button';
+  pasteBtn.className = 'addon-geo-paste-btn';
+  pasteBtn.title = 'دانانی وێنەی کۆپیکراو، پاشان ڕایکێشە بۆ هەر شوێنێک';
+  pasteBtn.textContent = '📥';
+  pasteBtn.addEventListener('click', e=>{
+    e.stopPropagation();
+    addonInsertClonedGeo(item);
+  });
+  bar.appendChild(pasteBtn);
+
+  item.appendChild(bar);
+}
+})();
+
+(function(){
+/* ============================================================
+   ADDITIVE FEATURE: a color picker on every "زیادکردنی تۆڕی سادە"
+   (simple grid) item, so its line color can be changed to any color,
+   not just the fixed teal it's created with. The toolbar button for
+   this tool is bound directly to dropMathGrid itself (not through a
+   lookup-by-name closure like the generic add-content buttons), so
+   instead of reassigning dropMathGrid this just listens for the same
+   click one tick later and decorates whichever grid item dropMathGrid
+   just built — dropMathGrid's own code is completely untouched.
+============================================================ */
+function addonAddGridColorPicker(item){
+  if(item.querySelector('.addon-grid-color-picker')) return;
+  const picker = document.createElement('input');
+  picker.type = 'color';
+  picker.value = '#0d6e6e';
+  picker.className = 'addon-grid-color-picker ui-only';
+  picker.title = 'گۆڕینی ڕەنگی هێڵەکانی تۆڕی سادە';
+  picker.addEventListener('pointerdown', e=> e.stopPropagation());
+  picker.addEventListener('input', e=>{
+    item.querySelectorAll('.math-grid-table td').forEach(td=> td.style.borderColor = e.target.value);
+  });
+  item.appendChild(picker);
+}
+document.querySelectorAll('[data-add="mathgrid"]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    setTimeout(()=>{
+      const items = document.querySelectorAll('#pagesContainer .draggable-item');
+      const item = items[items.length-1];
+      if(item && item.querySelector('.math-grid-table') && !item.querySelector('.addon-grid-color-picker')){
+        addonAddGridColorPicker(item);
+      }
+    }, 0);
+  });
+});
+})();
+
+(function(){
+/* ============================================================
+   ADDITIVE FEATURE: directional move-buttons for "هێڵکاری بۆ وانەی
+   بیرکاری" (math-geometry drawings) — besides the existing mouse
+   drag, each drawing now also gets a small ▲▼◀▶ button pad so it
+   can be nudged into place with a click. dropMathShape is wrapped
+   again using the same safe pattern already used in this file
+   (nothing it already does is touched — this just runs after it
+   and decorates the drawing it just built with the extra buttons).
+============================================================ */
+const addonPrevDropMathShape2 = dropMathShape;
+dropMathShape = function(svg){
+  addonPrevDropMathShape2(svg);
+  const items = document.querySelectorAll('#pagesContainer .draggable-item');
+  const item = items[items.length-1];
+  if(item) addonAddGeoMovePad(item);
+};
+
+function addonAddGeoMovePad(item){
+  if(item.querySelector('.addon-geo-move-pad')) return;
+  const STEP = 5;
+  const pad = document.createElement('div');
+  pad.className = 'addon-geo-move-pad ui-only';
+  pad.addEventListener('pointerdown', e=> e.stopPropagation());
+
+  function nudgeBtn(label, title, dx, dy){
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.title = title;
+    b.textContent = label;
+    b.addEventListener('click', e=>{
+      e.stopPropagation();
+      const left = parseFloat(item.style.left) || 0;
+      const top = parseFloat(item.style.top) || 0;
+      item.style.left = (left + dx) + 'px';
+      item.style.top = (top + dy) + 'px';
+    });
+    return b;
+  }
+
+  pad.appendChild(nudgeBtn('◀', 'گواستنەوە بۆ چەپ', -STEP, 0));
+  pad.appendChild(nudgeBtn('▲', 'گواستنەوە بۆ سەرەوە', 0, -STEP));
+  pad.appendChild(nudgeBtn('▼', 'گواستنەوە بۆ خوارەوە', 0, STEP));
+  pad.appendChild(nudgeBtn('▶', 'گواستنەوە بۆ ڕاست', STEP, 0));
+
+  item.appendChild(pad);
+}
+})();
+
+(function(){
+/* ============================================================
+   ADDITIVE FEATURE: directional move-buttons for content-question
+   blocks (بەشی پێرسیارەکانی ناوەڕۆک) — multiple choice, fill-in,
+   math question, free section, bullet list, etc. Same idea as the
+   ◀▲▼▶ nudge pad added to math-geometry drawings above. addBlock is
+   wrapped again using the same safe pattern already used throughout
+   this file: everything addBlock already does runs first, unchanged;
+   this only adds the extra buttons onto the block it just created.
+   A block only has left/top positioning once it has been dragged by
+   its existing ⠿ handle (it becomes "free-positioned" then); so the
+   first click of a nudge button on a block that hasn't been dragged
+   yet freezes it in its current on-page spot first (the exact same
+   snap-to-absolute step the ⠿ handle already does on drop), and every
+   click after that just nudges it a few pixels further.
+============================================================ */
+const addonPrevAddBlockMove = addBlock;
+addBlock = function(type){
+  addonPrevAddBlockMove(type);
+  const holders = document.querySelectorAll('#pagesContainer .block-removable');
+  const holder = holders[holders.length-1];
+  if(holder) addonAddBlockMovePad(holder);
+};
+
+function addonFreezeBlockPosition(holder){
+  const canvas = holder.closest('.page-body') || (typeof lastPageCanvas === 'function' ? lastPageCanvas() : null);
+  if(!canvas) return;
+  const holderRect = holder.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  canvas.style.position = 'relative';
+  canvas.appendChild(holder);
+  holder.classList.add('free-positioned');
+  holder.style.width = holderRect.width + 'px';
+  holder.style.position = 'absolute';
+  holder.style.left = Math.max(0, holderRect.left - canvasRect.left) + 'px';
+  holder.style.top = Math.max(0, holderRect.top - canvasRect.top) + 'px';
+  holder.style.zIndex = '';
+}
+
+function addonAddBlockMovePad(holder){
+  if(holder.querySelector('.addon-block-move-pad')) return;
+  const STEP = 5;
+  const pad = document.createElement('div');
+  pad.className = 'addon-block-move-pad ui-only';
+  pad.addEventListener('pointerdown', e=> e.stopPropagation());
+
+  function nudgeBtn(label, title, dx, dy){
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.title = title;
+    b.textContent = label;
+    b.addEventListener('click', e=>{
+      e.stopPropagation();
+      if(!holder.classList.contains('free-positioned')) addonFreezeBlockPosition(holder);
+      const left = parseFloat(holder.style.left) || 0;
+      const top = parseFloat(holder.style.top) || 0;
+      holder.style.left = (left + dx) + 'px';
+      holder.style.top = (top + dy) + 'px';
+      if(typeof renumberQuestions === 'function') renumberQuestions();
+      if(typeof schedulePaginate === 'function') schedulePaginate(0);
+    });
+    return b;
+  }
+
+  pad.appendChild(nudgeBtn('◀', 'گواستنەوە بۆ چەپ', -STEP, 0));
+  pad.appendChild(nudgeBtn('▲', 'گواستنەوە بۆ سەرەوە', 0, -STEP));
+  pad.appendChild(nudgeBtn('▼', 'گواستنەوە بۆ خوارەوە', 0, STEP));
+  pad.appendChild(nudgeBtn('▶', 'گواستنەوە بۆ ڕاست', STEP, 0));
+
+  holder.appendChild(pad);
 }
 })();
 </script>
